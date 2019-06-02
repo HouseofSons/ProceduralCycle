@@ -4,12 +4,22 @@ using UnityEngine;
 
 public class ProceduralMapController : MonoBehaviour
 {
-    public int roomCount;
+    public int numberOfRooms;
+    private static int roomCount;
 
     // Start is called before the first frame update
     void Start()
     {
-        roomCount = 10;
+        roomCount = numberOfRooms;
+        SpawnRoomNodes();
     }
 
+    private void SpawnRoomNodes()
+    {
+        for(int i = 0;i<roomCount;i++)
+        {
+            GameObject go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            go.transform.position = new Vector3Int(i, 0, 0);
+        }
+    }
 }
