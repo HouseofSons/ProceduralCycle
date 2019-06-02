@@ -49,7 +49,7 @@ public class ProceduralMapController : MonoBehaviour
             if (rn.Order > 0 && rn.Order != roomCountPerCycle - 1)
             {
                 //Randomly determine if room will cycle back
-                if(Seed.Random() <= chanceRoomCycles)
+                if (Seed.Random() <= chanceRoomCycles)
                 {
                     //Randomly determines which room to cycle back to
                     int prevRoomNum = Seed.Random(0, rn.Order - 1);
@@ -58,7 +58,13 @@ public class ProceduralMapController : MonoBehaviour
                     //Randomly determines which room to cycle foward from
                     int proceedFromRoomNum = Seed.Random(0, rn.Order);
                     //Assigns Vertex between a Room (proceedFromRoomNum) and this next room (rn.Order+1)
-                    Door forwardDoor = new Door(Room.Rooms[proceedFromRoomNum], Room.Rooms[rn.Order+1]);
+                    Door forwardDoor = new Door(Room.Rooms[proceedFromRoomNum], Room.Rooms[rn.Order + 1]);
+                }
+            } else //BUGGGGG
+            {
+                if (rn.Order > 0)
+                {
+                    Door forwardDoor = new Door(Room.Rooms[rn.Order - 1], rn);
                 }
             }
         }
