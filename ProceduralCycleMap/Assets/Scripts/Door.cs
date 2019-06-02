@@ -3,18 +3,18 @@ using System.Collections.Generic;
 
 public class Door
 {
-    private Room roomOne;
-    private Room roomTwo;
+    public static List<Door> Doors { get; } = new List<Door>();
+
+    public Room RoomOne { get; }
+    public Room RoomTwo { get; }
 
     public Door (Room one, Room two)
     {
         Doors.Add(this);
 
-        roomOne = one;
-        roomTwo = two;
-        roomOne.AddDoor(this);
-        roomTwo.AddDoor(this);
+        RoomOne = one;
+        RoomTwo = two;
+        RoomOne.AddDoor(this);
+        RoomTwo.AddDoor(this);
     }
-
-    public static List<Door> Doors { get; }
 }

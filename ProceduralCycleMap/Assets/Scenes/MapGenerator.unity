@@ -150,7 +150,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   numberOfRooms: 10
-  chanceRoomCyclesBack: 0.074
+  numberOfCycles: 1
+  chanceRoomCycles: 0.2
 --- !u!4 &1001995745
 Transform:
   m_ObjectHideFlags: 0

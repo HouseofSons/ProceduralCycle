@@ -6,45 +6,59 @@ public class ProceduralMapController : MonoBehaviour
 {
     [Range(2, 20)]
     public int numberOfRooms;
+    [Range(1, 20)]  
+    public int numberOfCycles;
     [Range(0.0f, 1.0f)]
-    public float chanceRoomCyclesBack;
+    public float chanceRoomCycles;
 
-    private static int roomCount;
+    private static int roomCountPerCycle;
+    private static int countOfCycles;
 
     // Start is called before the first frame update
     void Start()
     {
-        roomCount = numberOfRooms;
-        SpawnRoomNodes();
-        //PlanDoors(); <--- here is bug!!!
+        roomCountPerCycle = numberOfRooms;
+        countOfCycles = numberOfCycles;
+
+        for (int i = 0; i < numberOfCycles; i++)
+        {
+            SpawnRoomNodes(i);
+        }
+
+        for(int i=0;i< numberOfCycles;i++) {
+            SpawnDoorVertices(i);
+        }
     }
 
-    private void SpawnRoomNodes()
+    private void SpawnRoomNodes(int cycle)
     {
-        for(int i = 0;i<roomCount;i++)
+        for(int i = 0;i< roomCountPerCycle; i++)
         {
             GameObject go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             go.transform.position = new Vector3Int(i, 0, 0);
             go.AddComponent<Room>();
-            go.GetComponent<Room>().AddOrder(i);
+            go.GetComponent<Room>().InitializeRoom(i);
         }
     }
 
-    private void PlanDoors()
+    private void SpawnDoorVertices(int cycle)   
     {
-        foreach(Room r in Room.Rooms)
+        foreach (Room rn in Room.Rooms)
         {
-            if(r.Order() > 0)
+            //Initial rooms and final rooms shouldn't cycle
+            if (rn.Order > 0 && rn.Order != roomCountPerCycle - 1)
             {
-                if(Seed.Random() <= chanceRoomCyclesBack)
+                //Randomly determine if room will cycle back
+                if(Seed.Random() <= chanceRoomCycles)
                 {
-                    foreach(Room r0 in Room.Rooms)
-                    {
-                        if (r0.Order() == Seed.Random(0, r.Order()- 1)) {
-                            Door d = new Door(r, r0);
-                            break;
-                        }
-                    }
+                    //Randomly determines which room to cycle back to
+                    int prevRoomNum = Seed.Random(0, rn.Order - 1);
+                    //Assigns Vertex between a lower order room (roomNum) and this room (r)
+                    Door backDoor = new Door(rn, Room.Rooms[prevRoomNum]);
+                    //Randomly determines which room to cycle foward from
+                    int proceedFromRoomNum = Seed.Random(0, rn.Order);
+                    //Assigns Vertex between a Room (proceedFromRoomNum) and this next room (rn.Order+1)
+                    Door forwardDoor = new Door(Room.Rooms[proceedFromRoomNum], Room.Rooms[rn.Order+1]);
                 }
             }
         }

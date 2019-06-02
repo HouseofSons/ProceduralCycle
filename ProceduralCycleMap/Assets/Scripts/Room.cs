@@ -4,42 +4,18 @@ using UnityEngine;
 
 public class Room : MonoBehaviour
 {
-    private static List<Room> rooms = new List<Room>();
+    public static List<Room> Rooms { get; } = new List<Room>();
+    public List<Door> Doors { get; } = new List<Door>();
+    public int Order { get; private set; }
 
-    private List<Door> doors;
-    private GameObject roomNode;
-
-    private int order;
-
-    public Room ()
+    public void InitializeRoom(int i)
     {
-        rooms.Add(this);
-    }
-
-    public static List<Room> Rooms { get; }
-
-    public void AddOrder(int i)
-    {
-        order = i;
-    }
-
-    public int Order ()
-    {
-        return order;
+        Rooms.Add(this);
+        Order = i;
     }
 
     public void AddDoor(Door d)
     {
-        doors.Add(d);
-    }
-
-    public void AddRoomNode(GameObject go)
-    {
-        roomNode = go;
-    }
-
-    public GameObject RoomNode()
-    {
-        return roomNode;
+        Doors.Add(d);
     }
 }
