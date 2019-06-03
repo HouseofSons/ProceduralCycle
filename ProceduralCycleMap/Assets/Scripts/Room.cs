@@ -8,21 +8,13 @@ public class Room : MonoBehaviour
     public List<Door> Doors { get; } = new List<Door>();
     public List<Room> Neighbors { get; } = new List<Room>();
     public int Order { get; private set; }
-
-    private Coroutine roomIsMoving;
-
-    private void Update()
-    {
-        if (Neighbors.Count > 0)
-        {
-            roomIsMoving = StartCoroutine(MoveTowardNeighbors());
-        }
-    }
+    public bool HasCycle { get; set; }
 
     public void InitializeRoom(int i)
     {
         Rooms.Add(this);
         Order = i;
+        HasCycle = false;
     }
 
     public void AddDoor(Door d)
@@ -37,17 +29,8 @@ public class Room : MonoBehaviour
         }
     }
 
-    public IEnumerator MoveTowardNeighbors()
+    public static bool RoomsAreStable()
     {
-        Vector3 newPosition = Vector3.zero;
-
-        foreach(Room r in Neighbors)
-        {
-            newPosition += r.transform.position;
-        }
-        newPosition /= Neighbors.Count;
-
-        transform.position = Vector3.Lerp(transform.position, newPosition, 0.005f);
-        yield return null;
+        return false;
     }
 }
