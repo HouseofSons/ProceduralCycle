@@ -12,7 +12,7 @@ public class ProceduralMapController : MonoBehaviour
     private static int roomCount;
     private static int cycleCount;
 
-    public bool moveRoomNodes;
+    public static bool moveRoomNodes;
 
     public static List<Room> MoveableRooms { get; private set; } = new List<Room>();
     private static Coroutine roomsAreMoving;
@@ -30,6 +30,8 @@ public class ProceduralMapController : MonoBehaviour
         MoveableRooms = Room.Rooms;
 
         SpawnDoorVertices();
+
+        moveRoomNodes = true;
     }
 
     private void Update()
@@ -39,6 +41,11 @@ public class ProceduralMapController : MonoBehaviour
             if (MoveableRooms.Count > 0)
             {
                 roomsAreMoving = StartCoroutine(MoveRoomNodesTowardNeighbors());
+            }
+
+            if (roomToBuild == null && Room.RoomsAreStable())
+            {
+                StopAllCoroutines();
                 FindRoomToBuild();
             }
 
@@ -118,31 +125,28 @@ public class ProceduralMapController : MonoBehaviour
     private static void FindRoomToBuild()
     {
         //if rooms are stable and no room is being built then assign room to roomToBuild and remove room from MoveableRooms
-        if(Room.RoomsAreStable() && roomToBuild == null)
+        foreach(Room r in MoveableRooms)
         {
-            Room iteratedRoom = null;
-
-            foreach(Room r in MoveableRooms)
+            if(roomToBuild == null)
             {
-                if(iteratedRoom == null)
+                roomToBuild = r;
+            } else
+            {
+                if(r.Neighbors.Count > roomToBuild.Neighbors.Count)
                 {
-                    iteratedRoom = r;
-                } else
-                {
-                    if(r.Neighbors.Count > iteratedRoom.Neighbors.Count)
-                    {
-                        iteratedRoom = r;
-                    }
+                    roomToBuild = r;
                 }
             }
-            roomToBuild = iteratedRoom;
-            roomToBuild.GetComponent<Rigidbody>().isKinematic = true;
-            MoveableRooms.Remove(iteratedRoom);
         }
+        MoveableRooms.Remove(roomToBuild);
     }
 
     private static IEnumerator BuildRoom()
     {
+        if(!roomToBuild.transform.GetComponent<Rigidbody>().isKinematic)
+        {
+            roomToBuild.transform.GetComponent<Rigidbody>().isKinematic = true;
+        }
         //Build room
         //once built assign roomToBuild to null
         yield return null;
