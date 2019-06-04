@@ -9,10 +9,6 @@ public class Room : MonoBehaviour
     public List<Room> Neighbors { get; } = new List<Room>();
     public int Order { get; private set; }
     public bool HasCycle { get; set; }
-    public bool IsStable { get; set; }
-
-    private Vector3 prevPosition;
-    private float distanceMoved;
 
     public GameObject RoomGameObject { get; set; }
 
@@ -21,17 +17,11 @@ public class Room : MonoBehaviour
         Rooms.Add(this);
         Order = i;
         HasCycle = false;
-        prevPosition = Vector3.zero;
-        IsStable = false;
     }
 
-    public void Update()
+    public void OnCollisionEnter(Collision col)
     {
-        if (ProceduralMapController.moveRoomNodes)
-        {
-            distanceMoved = Mathf.Abs(Vector3.Distance(prevPosition, transform.position));
-            prevPosition = transform.position;
-        }
+        ProceduralMapController.G.AddEdge(this.Order,col.gameObject.GetComponent<Room>().Order);
     }
 
     public void AddDoor(Door d)
@@ -44,25 +34,5 @@ public class Room : MonoBehaviour
         {
             Neighbors.Add(d.RoomTwo);
         }
-    }
-
-    public static bool RoomsAreStable()
-    {
-        if (Time.frameCount > 100)
-        {
-            foreach (Room r in Rooms)
-            {
-                if (r.distanceMoved > 0.02f || r.GetComponent<Rigidbody>().)
-                {
-                    Debug.Log(r.distanceMoved);
-                    return false;
-                }
-                r.IsStable = true;
-                r.transform.position = new Vector3(Mathf.RoundToInt(r.transform.position.x), Mathf.RoundToInt(r.transform.position.y), Mathf.RoundToInt(r.transform.position.z));
-                r.GetComponent<Rigidbody>().isKinematic = true;
-            }
-            return true;
-        }
-        return false;
     }
 }

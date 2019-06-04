@@ -12,9 +12,11 @@ public class ProceduralMapController : MonoBehaviour
     private static int roomCount;
     private static int cycleCount;
 
-    public static bool moveRoomNodes;
+    public static Graph G { get; private set; }
 
-    private static Coroutine roomsAreMoving;
+    private Coroutine roomsAreMoving;
+
+    private static bool roomsShouldStop;
 
     // Start is called before the first frame update
     void Start()
@@ -22,24 +24,20 @@ public class ProceduralMapController : MonoBehaviour
         roomCount = numberOfRooms;
         cycleCount = numberOfCycles;
 
+        G = new Graph(roomCount);
+
         SpawnRoomNodes();
         SpawnDoorVertices();
-        AdjustRoomNodeScale();
 
-        moveRoomNodes = true;
+        roomsShouldStop = false;
     }
 
     private void Update()
     {
-        if (moveRoomNodes)
+        if (!roomsShouldStop)
         {
             roomsAreMoving = StartCoroutine(MoveRoomNodesTowardNeighbors());
-
-            if (Room.RoomsAreStable())
-            {
-                StopAllCoroutines();
-                moveRoomNodes = false;
-            }
+            roomsShouldStop = RoomsAreConnected();
         }
     }
 
@@ -47,11 +45,12 @@ public class ProceduralMapController : MonoBehaviour
     {
         for (int i = 0; i < roomCount; i++)
         {
-            GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            go.transform.position = new Vector3Int(Seed.Random(-roomCount * 5, roomCount * 5), Seed.Random(-roomCount * 5, roomCount * 5), Seed.Random(-roomCount * 5, roomCount * 5));
+            GameObject go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            go.transform.position = new Vector3Int(Seed.Random(-roomCount * 3, roomCount * 3), Seed.Random(-roomCount * 3, roomCount * 3), Seed.Random(-roomCount * 3, roomCount * 3));
             go.AddComponent<Room>();
             go.GetComponent<Room>().InitializeRoom(i);
-            go.AddComponent<BoxCollider>();
+            go.AddComponent<SphereCollider>();
+            go.GetComponent<SphereCollider>().isTrigger = true;
             go.AddComponent<Rigidbody>();
             go.GetComponent<Rigidbody>().useGravity = false;
             go.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotation;
@@ -92,39 +91,32 @@ public class ProceduralMapController : MonoBehaviour
         }
     }
 
-    private static void AdjustRoomNodeScale()
-    {
-        int roomWidth;
-        int roomLength;
-        int roomHeight;
-
-        foreach (Room r in Room.Rooms)
-        { 
-            roomWidth = Seed.Random(r.Neighbors.Count, r.Neighbors.Count * 3);
-            roomLength = Seed.Random(r.Neighbors.Count, r.Neighbors.Count * 3);
-            roomHeight = Seed.Random(r.Neighbors.Count, r.Neighbors.Count * 2);
-            r.transform.localScale = new Vector3Int(roomWidth, roomLength, roomHeight);
-        }
-    }
-
     private static IEnumerator MoveRoomNodesTowardNeighbors()
     {
         Vector3 newPosition = Vector3.zero;
 
         foreach (Room r in Room.Rooms)
         {
-            if (!r.IsStable)
+            foreach (Room n in r.Neighbors)
             {
-                foreach (Room n in r.Neighbors)
-                {
-                    newPosition += n.transform.position;
-                }
-                newPosition /= (r.Neighbors.Count + 1);
-                r.transform.position = Vector3.Lerp(r.transform.position, newPosition, Time.deltaTime);
-                r.transform.GetComponent<Rigidbody>().isKinematic = true;
-                yield return null;
-                r.transform.GetComponent<Rigidbody>().isKinematic = false;
+                newPosition += n.transform.position;
+            }
+            newPosition /= (r.Neighbors.Count + 1);
+            r.transform.position = Vector3.Lerp(r.transform.position, newPosition, Time.deltaTime * 3);
+            r.transform.GetComponent<Rigidbody>().isKinematic = true;
+            yield return null;
+            r.transform.GetComponent<Rigidbody>().isKinematic = false;
+        }
+    }
+
+    private static bool RoomsAreConnected()
+    {
+        if (Time.frameCount >= 300)
+        {
+            if (Time.frameCount % 20 == 0) {
+                return G.IsGraphConnected();
             }
         }
+        return false;
     }
 }
