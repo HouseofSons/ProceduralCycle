@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ProceduralMapController : MonoBehaviour
 {
-    [Range(2, 20)]
+    [Range(2, 60)]
     public int numberOfRooms;
     [Range(0, 20)]
     public int numberOfCycles;
@@ -101,6 +101,15 @@ public class ProceduralMapController : MonoBehaviour
             {
                 newPosition += n.transform.position;
             }
+            //For quick graph collapsing
+            if (r.Order == 0)
+            {
+                newPosition += Room.Rooms[roomCount-1].transform.position;
+            } else if (r.Order == roomCount)
+            {
+                newPosition += Room.Rooms[0].transform.position;
+            }
+
             newPosition /= (r.Neighbors.Count + 1);
             r.transform.position = Vector3.Lerp(r.transform.position, newPosition, Time.deltaTime * 3);
             r.transform.GetComponent<Rigidbody>().isKinematic = true;
