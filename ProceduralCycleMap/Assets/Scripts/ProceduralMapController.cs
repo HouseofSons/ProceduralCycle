@@ -14,10 +14,7 @@ public class ProceduralMapController : MonoBehaviour
 
     public static bool moveRoomNodes;
 
-    public static List<Room> MoveableRooms { get; private set; } = new List<Room>();
     private static Coroutine roomsAreMoving;
-    private static Room roomToBuild;
-    private static Coroutine roomBeingBuilt;
 
     // Start is called before the first frame update
     void Start()
@@ -26,10 +23,8 @@ public class ProceduralMapController : MonoBehaviour
         cycleCount = numberOfCycles;
 
         SpawnRoomNodes();
-
-        MoveableRooms = Room.Rooms;
-
         SpawnDoorVertices();
+        AdjustRoomNodeScale();
 
         moveRoomNodes = true;
     }
@@ -38,20 +33,12 @@ public class ProceduralMapController : MonoBehaviour
     {
         if (moveRoomNodes)
         {
-            if (MoveableRooms.Count > 0)
-            {
-                roomsAreMoving = StartCoroutine(MoveRoomNodesTowardNeighbors());
-            }
+            roomsAreMoving = StartCoroutine(MoveRoomNodesTowardNeighbors());
 
-            if (roomToBuild == null && Room.RoomsAreStable())
+            if (Room.RoomsAreStable())
             {
                 StopAllCoroutines();
-                FindRoomToBuild();
-            }
-
-            if (roomToBuild != null) 
-            {
-                roomBeingBuilt = StartCoroutine(BuildRoom());
+                moveRoomNodes = false;
             }
         }
     }
@@ -60,13 +47,14 @@ public class ProceduralMapController : MonoBehaviour
     {
         for (int i = 0; i < roomCount; i++)
         {
-            GameObject go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            go.transform.position = new Vector3Int(Seed.Random(-roomCount, roomCount), Seed.Random(-roomCount, roomCount), Seed.Random(-roomCount, roomCount));
+            GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            go.transform.position = new Vector3Int(Seed.Random(-roomCount * 5, roomCount * 5), Seed.Random(-roomCount * 5, roomCount * 5), Seed.Random(-roomCount * 5, roomCount * 5));
             go.AddComponent<Room>();
             go.GetComponent<Room>().InitializeRoom(i);
-            go.AddComponent<SphereCollider>();
+            go.AddComponent<BoxCollider>();
             go.AddComponent<Rigidbody>();
             go.GetComponent<Rigidbody>().useGravity = false;
+            go.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotation;
         }
     }
 
@@ -104,51 +92,39 @@ public class ProceduralMapController : MonoBehaviour
         }
     }
 
+    private static void AdjustRoomNodeScale()
+    {
+        int roomWidth;
+        int roomLength;
+        int roomHeight;
+
+        foreach (Room r in Room.Rooms)
+        { 
+            roomWidth = Seed.Random(r.Neighbors.Count, r.Neighbors.Count * 3);
+            roomLength = Seed.Random(r.Neighbors.Count, r.Neighbors.Count * 3);
+            roomHeight = Seed.Random(r.Neighbors.Count, r.Neighbors.Count * 2);
+            r.transform.localScale = new Vector3Int(roomWidth, roomLength, roomHeight);
+        }
+    }
+
     private static IEnumerator MoveRoomNodesTowardNeighbors()
     {
         Vector3 newPosition = Vector3.zero;
 
-        foreach (Room r in MoveableRooms)
+        foreach (Room r in Room.Rooms)
         {
-            foreach (Room n in r.Neighbors)
+            if (!r.IsStable)
             {
-                newPosition += n.transform.position;
-            }
-            newPosition /= (r.Neighbors.Count + 1);
-            r.transform.position = Vector3.Lerp(r.transform.position, newPosition, 0.05f);
-            r.transform.GetComponent<Rigidbody>().isKinematic = true;
-            yield return null;
-            r.transform.GetComponent<Rigidbody>().isKinematic = false;
-        }
-    }
-
-    private static void FindRoomToBuild()
-    {
-        //if rooms are stable and no room is being built then assign room to roomToBuild and remove room from MoveableRooms
-        foreach(Room r in MoveableRooms)
-        {
-            if(roomToBuild == null)
-            {
-                roomToBuild = r;
-            } else
-            {
-                if(r.Neighbors.Count > roomToBuild.Neighbors.Count)
+                foreach (Room n in r.Neighbors)
                 {
-                    roomToBuild = r;
+                    newPosition += n.transform.position;
                 }
+                newPosition /= (r.Neighbors.Count + 1);
+                r.transform.position = Vector3.Lerp(r.transform.position, newPosition, Time.deltaTime);
+                r.transform.GetComponent<Rigidbody>().isKinematic = true;
+                yield return null;
+                r.transform.GetComponent<Rigidbody>().isKinematic = false;
             }
         }
-        MoveableRooms.Remove(roomToBuild);
-    }
-
-    private static IEnumerator BuildRoom()
-    {
-        if(!roomToBuild.transform.GetComponent<Rigidbody>().isKinematic)
-        {
-            roomToBuild.transform.GetComponent<Rigidbody>().isKinematic = true;
-        }
-        //Build room
-        //once built assign roomToBuild to null
-        yield return null;
     }
 }
