@@ -44,7 +44,7 @@ public class Room : MonoBehaviour
 
         if (coord == 0)
         {
-            if (Mathf.RoundToInt(intialRoomSize.x + 1) <= Mathf.RoundToInt(Size.x) + 1)
+            if (Mathf.RoundToInt(intialRoomSize.x + 1) <= Mathf.RoundToInt(Size.x) + 2)
             {
                 this.transform.localScale = new Vector3Int(Mathf.RoundToInt(intialRoomSize.x + 1), Mathf.RoundToInt(intialRoomSize.y), Mathf.RoundToInt(intialRoomSize.z));
             } else
@@ -63,7 +63,7 @@ public class Room : MonoBehaviour
             }
         } else
         {
-            if (Mathf.RoundToInt(intialRoomSize.z + 1) <= Mathf.RoundToInt(Size.z) + 1)
+            if (Mathf.RoundToInt(intialRoomSize.z + 1) <= Mathf.RoundToInt(Size.z) + 2)
             {
                 this.transform.localScale = new Vector3Int(Mathf.RoundToInt(intialRoomSize.x), Mathf.RoundToInt(intialRoomSize.y), Mathf.RoundToInt(intialRoomSize.z + 1));
             }

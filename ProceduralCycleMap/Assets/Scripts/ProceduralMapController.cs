@@ -71,7 +71,7 @@ public class ProceduralMapController : MonoBehaviour
         for (int i = 0; i < roomCount; i++)
         {
             GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            go.transform.position = new Vector3Int(Seed.Random(-roomCount * 3, roomCount * 3), Seed.Random(-roomCount * 3, roomCount * 3), Seed.Random(-roomCount * 3, roomCount * 3));
+            go.transform.position = new Vector3Int(Seed.Random(-roomCount * 3, roomCount * 3), Seed.Random(-roomCount, roomCount), Seed.Random(-roomCount * 3, roomCount * 3));
             go.AddComponent<Room>();
             go.GetComponent<Room>().InitializeRoom(i);
             go.AddComponent<Rigidbody>();
@@ -122,9 +122,9 @@ public class ProceduralMapController : MonoBehaviour
 
         foreach (Room r in Room.Rooms)
         {
-            roomWidth = Mathf.Max(Seed.Random(Mathf.RoundToInt(Mathf.Log(r.Neighbors.Count)), Mathf.RoundToInt(Mathf.Log(r.Neighbors.Count) + 2)),2);
-            roomHeight = Mathf.Max(Mathf.RoundToInt(Mathf.Log(r.Neighbors.Count)),1);
-            roomLength = Mathf.Max(Seed.Random(Mathf.RoundToInt(Mathf.Log(r.Neighbors.Count)), Mathf.RoundToInt(Mathf.Log(r.Neighbors.Count) + 2)),2);
+            roomWidth = Mathf.Max(Seed.Random(Mathf.RoundToInt(r.Neighbors.Count), Mathf.RoundToInt(r.Neighbors.Count) + 2),2);
+            roomHeight = Seed.Random(1, Mathf.Max(Mathf.RoundToInt(r.Neighbors.Count/2),1));
+            roomLength = Mathf.Max(Seed.Random(Mathf.RoundToInt(r.Neighbors.Count), Mathf.RoundToInt(r.Neighbors.Count) + 2),2);
             r.Size = new Vector3Int(roomWidth, roomHeight, roomLength);
             r.transform.localScale = r.Size;
         }
@@ -157,7 +157,7 @@ public class ProceduralMapController : MonoBehaviour
             int y = Mathf.RoundToInt(r.transform.position.y * 2) / 2;
             int z = Mathf.RoundToInt(r.transform.position.z * 2) / 2;
 
-            r.transform.localScale = new Vector3(Mathf.Max(r.transform.localScale.x-1,1), Mathf.Max(r.transform.localScale.y - 1, 1), Mathf.Max(r.transform.localScale.z - 1,1));
+            r.transform.localScale = Vector3.one;
             r.transform.position = new Vector3(x, y, z);
         }
     }
@@ -194,7 +194,7 @@ public class ProceduralMapController : MonoBehaviour
             }
 
             newPosition /= (r.Neighbors.Count + 1);
-            r.transform.position = Vector3.Lerp(r.transform.position, newPosition, Time.deltaTime * 3);
+            r.transform.position = Vector3.Lerp(r.transform.position, newPosition, Time.deltaTime * 5);
             r.transform.GetComponent<Rigidbody>().isKinematic = true;
             yield return null;
             r.transform.GetComponent<Rigidbody>().isKinematic = false;
