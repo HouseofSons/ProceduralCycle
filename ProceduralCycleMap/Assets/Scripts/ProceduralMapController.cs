@@ -15,8 +15,10 @@ public class ProceduralMapController : MonoBehaviour
     public static Graph G { get; private set; }
 
     private Coroutine roomsAreMoving;
+    private Coroutine roomsAreGrowing;
 
     private static bool roomsShouldStop;
+    private static bool roomsDoneGrowing;
 
     // Start is called before the first frame update
     void Start()
@@ -28,8 +30,10 @@ public class ProceduralMapController : MonoBehaviour
 
         SpawnRoomNodes();
         SpawnDoorVertices();
+        AdjustRoomSizes();
 
         roomsShouldStop = false;
+        roomsDoneGrowing = false;
     }
 
     private void Update()
@@ -38,6 +42,27 @@ public class ProceduralMapController : MonoBehaviour
         {
             roomsAreMoving = StartCoroutine(MoveRoomNodesTowardNeighbors());
             roomsShouldStop = RoomsAreConnected();
+
+            if (roomsShouldStop)
+            {
+                StopAllCoroutines();
+                FreezeRoomPlan();
+                AlignRoomsToGrid();
+            }
+        }
+        else if (!roomsDoneGrowing)
+        {
+            roomsAreGrowing = StartCoroutine(GrowRoomNodesToFit());
+            roomsDoneGrowing = RoomsAreGrown();
+
+            if (roomsDoneGrowing)
+            {
+
+            }
+        } else
+        {
+
+
         }
     }
 
@@ -45,12 +70,10 @@ public class ProceduralMapController : MonoBehaviour
     {
         for (int i = 0; i < roomCount; i++)
         {
-            GameObject go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
             go.transform.position = new Vector3Int(Seed.Random(-roomCount * 3, roomCount * 3), Seed.Random(-roomCount * 3, roomCount * 3), Seed.Random(-roomCount * 3, roomCount * 3));
             go.AddComponent<Room>();
             go.GetComponent<Room>().InitializeRoom(i);
-            go.AddComponent<SphereCollider>();
-            go.GetComponent<SphereCollider>().isTrigger = true;
             go.AddComponent<Rigidbody>();
             go.GetComponent<Rigidbody>().useGravity = false;
             go.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotation;
@@ -91,6 +114,66 @@ public class ProceduralMapController : MonoBehaviour
         }
     }
 
+    private void AdjustRoomSizes()
+    {
+        int roomWidth;
+        int roomLength;
+        int roomHeight;
+
+        foreach (Room r in Room.Rooms)
+        {
+            roomWidth = Mathf.Max(Seed.Random(Mathf.RoundToInt(Mathf.Log(r.Neighbors.Count)), Mathf.RoundToInt(Mathf.Log(r.Neighbors.Count) + 2)),2);
+            roomHeight = Mathf.Max(Mathf.RoundToInt(Mathf.Log(r.Neighbors.Count)),1);
+            roomLength = Mathf.Max(Seed.Random(Mathf.RoundToInt(Mathf.Log(r.Neighbors.Count)), Mathf.RoundToInt(Mathf.Log(r.Neighbors.Count) + 2)),2);
+            r.Size = new Vector3Int(roomWidth, roomHeight, roomLength);
+            r.transform.localScale = r.Size;
+        }
+    }
+
+    private static bool RoomsAreConnected()
+    {
+        if (Time.frameCount >= 300)
+        {
+            if (Time.frameCount % 20 == 0)
+            {
+                return G.IsGraphConnected();
+            }
+        }
+        return false;
+    }
+
+    private static void FreezeRoomPlan()
+    {
+        foreach (Room r in Room.Rooms) {
+            r.GetComponent<Rigidbody>().isKinematic = true;
+        }
+    }
+
+    private static void AlignRoomsToGrid()
+    {
+        foreach(Room r in Room.Rooms)
+        {
+            int x = Mathf.RoundToInt(r.transform.position.x * 2) / 2;
+            int y = Mathf.RoundToInt(r.transform.position.y * 2) / 2;
+            int z = Mathf.RoundToInt(r.transform.position.z * 2) / 2;
+
+            r.transform.localScale = new Vector3(Mathf.Max(r.transform.localScale.x-1,1), Mathf.Max(r.transform.localScale.y - 1, 1), Mathf.Max(r.transform.localScale.z - 1,1));
+            r.transform.position = new Vector3(x, y, z);
+        }
+    }
+
+    private static bool RoomsAreGrown()
+    {
+        foreach(Room r in Room.Rooms)
+        {
+            if (!r.IsGrown[0] || !r.IsGrown[1] || !r.IsGrown[2])
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private static IEnumerator MoveRoomNodesTowardNeighbors()
     {
         Vector3 newPosition = Vector3.zero;
@@ -118,14 +201,15 @@ public class ProceduralMapController : MonoBehaviour
         }
     }
 
-    private static bool RoomsAreConnected()
+    private static IEnumerator GrowRoomNodesToFit()
     {
-        if (Time.frameCount >= 300)
+        foreach(Room r in Room.Rooms)
         {
-            if (Time.frameCount % 20 == 0) {
-                return G.IsGraphConnected();
+            for (int i=0;i<3;i++)
+            {
+                r.IsGrown[i] = r.AttemptEdgeGrowth(i);
+                yield return null;
             }
         }
-        return false;
     }
 }
