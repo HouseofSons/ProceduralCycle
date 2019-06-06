@@ -13,74 +13,52 @@ public class ProceduralMapController : MonoBehaviour
     private static int cycleCount;
 
     public static Graph G { get; private set; }
+    public static bool RoomsAreConnected { get; private set; }
+    public static bool RoomsAreBuilt { get; private set; }
 
-    private Coroutine roomsAreMoving;
-    private Coroutine roomsAreGrowing;
-
-    private static bool roomsShouldStop;
-    private static bool roomsDoneGrowing;
+    private bool disableRoomFitting;
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         roomCount = numberOfRooms;
         cycleCount = numberOfCycles;
 
         G = new Graph(roomCount);
+        RoomsAreConnected = false;
 
         SpawnRoomNodes();
         SpawnDoorVertices();
-        AdjustRoomSizes();
+        AdjustPlannedRoomProperties();
 
-        roomsShouldStop = false;
-        roomsDoneGrowing = false;
+        RoomsAreBuilt = false;
+        disableRoomFitting = false;
     }
 
-    private void Update()
+    void Start()
     {
-        if (!roomsShouldStop)
+        //Signals end of Room Movement
+        StartCoroutine(CheckIfRoomsAreConnected());
+    }
+
+    public void Update()
+    {
+        if (!disableRoomFitting && RoomsAreConnected)
         {
-            roomsAreMoving = StartCoroutine(MoveRoomNodesTowardNeighbors());
-            roomsShouldStop = RoomsAreConnected();
-
-            if (roomsShouldStop)
-            {
-                StopAllCoroutines();
-                FreezeRoomPlan();
-                AlignRoomsToGrid();
-            }
-        }
-        else if (!roomsDoneGrowing)
-        {
-            roomsAreGrowing = StartCoroutine(GrowRoomNodesToFit());
-            roomsDoneGrowing = RoomsAreGrown();
-
-            if (roomsDoneGrowing)
-            {
-
-            }
-        } else
-        {
-
-
+            StartCoroutine(FitRoom());
         }
     }
 
-    private void SpawnRoomNodes()
+    private static void SpawnRoomNodes()
     {
         for (int i = 0; i < roomCount; i++)
         {
-            GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            go.transform.position = new Vector3Int(Seed.Random(-roomCount * 3, roomCount * 3), Seed.Random(-roomCount, roomCount), Seed.Random(-roomCount * 3, roomCount * 3));
+            GameObject go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             go.AddComponent<Room>();
-            go.GetComponent<Room>().InitializeRoom(i);
-            go.AddComponent<Rigidbody>();
-            go.GetComponent<Rigidbody>().useGravity = false;
-            go.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotation;
         }
     }
 
-    private void SpawnDoorVertices()
+    private static void SpawnDoorVertices()
     {
         int counter = 0;
         int rand;
@@ -114,101 +92,99 @@ public class ProceduralMapController : MonoBehaviour
         }
     }
 
-    private void AdjustRoomSizes()
+    private static void AdjustPlannedRoomProperties()
     {
-        int roomWidth;
-        int roomLength;
-        int roomHeight;
+        float roomWidth;
+        float roomLength;
+        float roomHeight;
 
         foreach (Room r in Room.Rooms)
         {
-            roomWidth = Mathf.Max(Seed.Random(Mathf.RoundToInt(r.Neighbors.Count), Mathf.RoundToInt(r.Neighbors.Count) + 2),2);
-            roomHeight = Seed.Random(1, Mathf.Max(Mathf.RoundToInt(r.Neighbors.Count/2),1));
-            roomLength = Mathf.Max(Seed.Random(Mathf.RoundToInt(r.Neighbors.Count), Mathf.RoundToInt(r.Neighbors.Count) + 2),2);
-            r.Size = new Vector3Int(roomWidth, roomHeight, roomLength);
-            r.transform.localScale = r.Size;
+            r.gameObject.AddComponent<Rigidbody>();
+            r.GetComponent<Rigidbody>().useGravity = false;
+            r.GetComponent<Rigidbody>().mass = r.Neighbors.Count;
+            r.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotation;
+            roomWidth = Seed.Random(3f, r.Neighbors.Count + 4);
+            roomLength = Seed.Random(3f, r.Neighbors.Count + 4);
+            roomHeight = Seed.Random(2, 4);
+            r.transform.localScale = new Vector3(Mathf.Max(roomWidth,roomHeight,roomLength),
+                Mathf.Max(roomWidth, roomHeight, roomLength),
+                Mathf.Max(roomWidth, roomHeight, roomLength));
+            r.Size = r.transform.localScale;
+
+            r.transform.position = new Vector3Int(Seed.Random(-100, 100), Seed.Random(-100, 100), Seed.Random(-100, 100));
         }
     }
 
-    private static bool RoomsAreConnected()
+    private static void TurnRoomSpheresToCubes()
     {
-        if (Time.frameCount >= 300)
+        GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+
+        foreach (Room r in Room.Rooms)
         {
-            if (Time.frameCount % 20 == 0)
-            {
-                return G.IsGraphConnected();
-            }
-        }
-        return false;
-    }
-
-    private static void FreezeRoomPlan()
-    {
-        foreach (Room r in Room.Rooms) {
-            r.GetComponent<Rigidbody>().isKinematic = true;
-        }
-    }
-
-    private static void AlignRoomsToGrid()
-    {
-        foreach(Room r in Room.Rooms)
-        {
-            int x = Mathf.RoundToInt(r.transform.position.x * 2) / 2;
-            int y = Mathf.RoundToInt(r.transform.position.y * 2) / 2;
-            int z = Mathf.RoundToInt(r.transform.position.z * 2) / 2;
-
+            r.name = r.Order.ToString();
+            r.GetComponent<MeshFilter>().mesh = go.GetComponent<MeshFilter>().mesh;
+            Destroy(r.GetComponent<SphereCollider>());
+            r.gameObject.AddComponent<BoxCollider>();
+            r.transform.position = new Vector3(Mathf.RoundToInt(r.transform.position.x),
+                Mathf.RoundToInt(r.transform.position.y),
+                Mathf.RoundToInt(r.transform.position.z));
             r.transform.localScale = Vector3.one;
-            r.transform.position = new Vector3(x, y, z);
         }
+        Destroy(go);
     }
 
-    private static bool RoomsAreGrown()
+    private static IEnumerator CheckIfRoomsAreConnected()
     {
-        foreach(Room r in Room.Rooms)
+        while (!RoomsAreConnected)
         {
-            if (!r.IsGrown[0] || !r.IsGrown[1] || !r.IsGrown[2])
+            if (Time.frameCount >= 100)
             {
-                return false;
+                if (Time.frameCount % 20 == 0)
+                {
+                    RoomsAreConnected = G.IsGraphConnected();
+                }
             }
-        }
-        return true;
-    }
-
-    private static IEnumerator MoveRoomNodesTowardNeighbors()
-    {
-        Vector3 newPosition = Vector3.zero;
-
-        foreach (Room r in Room.Rooms)
-        {
-            foreach (Room n in r.Neighbors)
-            {
-                newPosition += n.transform.position;
-            }
-            //For quick graph collapsing
-            if (r.Order == 0)
-            {
-                newPosition += Room.Rooms[roomCount-1].transform.position;
-            } else if (r.Order == roomCount)
-            {
-                newPosition += Room.Rooms[0].transform.position;
-            }
-
-            newPosition /= (r.Neighbors.Count + 1);
-            r.transform.position = Vector3.Lerp(r.transform.position, newPosition, Time.deltaTime * 5);
-            r.transform.GetComponent<Rigidbody>().isKinematic = true;
             yield return null;
-            r.transform.GetComponent<Rigidbody>().isKinematic = false;
         }
+        TurnRoomSpheresToCubes();
     }
 
-    private static IEnumerator GrowRoomNodesToFit()
+    private IEnumerator FitRoom()
     {
-        foreach(Room r in Room.Rooms)
+        disableRoomFitting = true;
+
+        char[] CoordOrder = new char[3];
+
+        CoordOrder[0] = 'x';
+        CoordOrder[1] = 'y';
+        CoordOrder[2] = 'z';
+
+        int[] SignOrder = new int[2];
+
+        SignOrder[0] = -1;
+        SignOrder[1] = 1;
+
+        List<Room> roomsToBuild = Room.Rooms;
+
+        Seed.Shuffle(roomsToBuild);
+
+        while (!RoomsAreBuilt)
         {
-            for (int i=0;i<3;i++)
+            foreach(char c in CoordOrder)
             {
-                r.IsGrown[i] = r.AttemptEdgeGrowth(i);
-                yield return null;
+                foreach(int i in SignOrder)
+                {
+                    foreach (Room r in roomsToBuild)
+                    {
+                        if (!r.Built())
+                        {
+                            r.BuildOutRoomFrame(c, i);
+                            RoomsAreBuilt = Room.AreAllRoomsBuilt();
+                        }
+                    }
+                    yield return null;
+                }
             }
         }
     }
