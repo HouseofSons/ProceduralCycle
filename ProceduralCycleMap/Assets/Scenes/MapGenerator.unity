@@ -150,7 +150,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   numberOfRooms: 60
-  numberOfCycles: 12
+  numberOfCycles: 20
 --- !u!4 &1001995745
 Transform:
   m_ObjectHideFlags: 0

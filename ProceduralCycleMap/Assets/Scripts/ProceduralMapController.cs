@@ -13,10 +13,15 @@ public class ProceduralMapController : MonoBehaviour
     private static int cycleCount;
 
     public static Graph G { get; private set; }
-    public static bool RoomsAreConnected { get; private set; }
-    public static bool RoomsAreBuilt { get; private set; }
 
-    private bool disableRoomFitting;
+    public static bool CheckingIfRoomsConnect { get; private set; }
+    public static bool RoomNodesConnected { get; private set; }
+
+    public static bool CheckingIfRoomsAllFit { get; private set; }
+    public static bool RoomsAllFit { get; private set; }
+
+    public static bool CheckingIfRoomsAllSpread { get; private set; }
+    public static bool ReadyToSqueezeRooms { get; private set; }
 
     // Start is called before the first frame update
     void Awake()
@@ -25,27 +30,43 @@ public class ProceduralMapController : MonoBehaviour
         cycleCount = numberOfCycles;
 
         G = new Graph(roomCount);
-        RoomsAreConnected = false;
 
         SpawnRoomNodes();
         SpawnDoorVertices();
         AdjustPlannedRoomProperties();
 
-        RoomsAreBuilt = false;
-        disableRoomFitting = false;
+        CheckingIfRoomsConnect = false;
+        RoomNodesConnected = false;
+
+        CheckingIfRoomsAllFit = false;
+        RoomsAllFit = false;
+
+        CheckingIfRoomsAllSpread = false;
+        ReadyToSqueezeRooms = false;
     }
 
-    void Start()
+    private void Start()
     {
-        //Signals end of Room Movement
-        StartCoroutine(CheckIfRoomsAreConnected());
+        CheckingIfRoomsConnect = true;
     }
 
     public void Update()
     {
-        if (!disableRoomFitting && RoomsAreConnected)
+        if (CheckingIfRoomsConnect)
         {
-            StartCoroutine(FitRoom());
+            StartCoroutine(AreAllRoomsConnected());//called only once
+        }
+        if (CheckingIfRoomsAllFit)
+        {
+            StartCoroutine(AreAllRoomsFitting());//called only once
+        }
+        if (CheckingIfRoomsAllSpread)
+        {
+            StartCoroutine(AreAllRoomsSpread());//called only once
+        }
+        if (ReadyToSqueezeRooms)
+        {
+            StartCoroutine(SqueezeRooms());//called only once
         }
     }
 
@@ -106,7 +127,7 @@ public class ProceduralMapController : MonoBehaviour
             r.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotation;
             roomWidth = Seed.Random(3f, r.Neighbors.Count + 4);
             roomLength = Seed.Random(3f, r.Neighbors.Count + 4);
-            roomHeight = Seed.Random(2, 4);
+            roomHeight = 4;
             r.transform.localScale = new Vector3(Mathf.Max(roomWidth,roomHeight,roomLength),
                 Mathf.Max(roomWidth, roomHeight, roomLength),
                 Mathf.Max(roomWidth, roomHeight, roomLength));
@@ -116,76 +137,112 @@ public class ProceduralMapController : MonoBehaviour
         }
     }
 
-    private static void TurnRoomSpheresToCubes()
+    private static IEnumerator AreAllRoomsSpread()
     {
-        GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        CheckingIfRoomsAllSpread = false;
+        bool done = false;
 
-        foreach (Room r in Room.Rooms)
+        while (!done)
         {
-            r.name = r.Order.ToString();
-            r.GetComponent<MeshFilter>().mesh = go.GetComponent<MeshFilter>().mesh;
-            Destroy(r.GetComponent<SphereCollider>());
-            r.gameObject.AddComponent<BoxCollider>();
-            r.transform.position = new Vector3(Mathf.RoundToInt(r.transform.position.x),
-                Mathf.RoundToInt(r.transform.position.y),
-                Mathf.RoundToInt(r.transform.position.z));
-            r.transform.localScale = Vector3.one;
-        }
-        Destroy(go);
-    }
+            done = true;
 
-    private static IEnumerator CheckIfRoomsAreConnected()
-    {
-        while (!RoomsAreConnected)
-        {
-            if (Time.frameCount >= 100)
+            if (Time.frameCount % 20 == 0)
             {
-                if (Time.frameCount % 20 == 0)
+                foreach (Room r in Room.Rooms)
                 {
-                    RoomsAreConnected = G.IsGraphConnected();
+                    if (!r.RoomReadyToSqueeze)
+                    {
+                        done = false;
+                    }
                 }
             }
             yield return null;
         }
-        TurnRoomSpheresToCubes();
+        ReadyToSqueezeRooms = true;
     }
 
-    private IEnumerator FitRoom()
+    private static IEnumerator AreAllRoomsConnected()
     {
-        disableRoomFitting = true;
+        CheckingIfRoomsConnect = false; //limit coroutine to single call in Update()
+        bool done = false;
 
-        char[] CoordOrder = new char[3];
-
-        CoordOrder[0] = 'x';
-        CoordOrder[1] = 'y';
-        CoordOrder[2] = 'z';
-
-        int[] SignOrder = new int[2];
-
-        SignOrder[0] = -1;
-        SignOrder[1] = 1;
-
-        List<Room> roomsToBuild = Room.Rooms;
-
-        Seed.Shuffle(roomsToBuild);
-
-        while (!RoomsAreBuilt)
+        while (!done)
         {
-            foreach(char c in CoordOrder)
+            if (Time.frameCount % 20 == 0)
             {
-                foreach(int i in SignOrder)
+                done = G.IsGraphConnected();
+            }
+            yield return null;
+        }
+        RoomNodesConnected = true;
+        CheckingIfRoomsAllFit = true;
+    }
+
+    private static IEnumerator AreAllRoomsFitting()
+    {
+        CheckingIfRoomsAllFit = false; //limit coroutine to single call in Update()
+        bool done = false;
+
+        while (!done)
+        {
+            done = true;
+
+            if (Time.frameCount % 20 == 0)
+            {
+                foreach(Room r in Room.Rooms)
                 {
-                    foreach (Room r in roomsToBuild)
+                    done &= r.Fit();
+                }
+            }
+            yield return null;
+        }
+        RoomsAllFit = true;
+        CheckingIfRoomsAllSpread = true;
+    }
+
+    private static IEnumerator SqueezeRooms() //NEED TO FIX OR RETHINK!!!
+    {
+        ReadyToSqueezeRooms = false; //limit coroutine to single call in Update()
+        bool done = false;
+        bool noMoreRoom = false;
+
+        while (!noMoreRoom)
+        {
+            Debug.Log(0);
+            noMoreRoom = true;
+
+            foreach (Room r in Room.Rooms)
+            {
+                done = false;
+
+                while (!done)
+                {
+                    if (Mathf.RoundToInt(r.transform.position.y) != 0)
                     {
-                        if (!r.Built())
+                        Vector3 AttemptPos;
+
+                        if (r.transform.position.y > 0)
                         {
-                            r.BuildOutRoomFrame(c, i);
-                            RoomsAreBuilt = Room.AreAllRoomsBuilt();
+                            AttemptPos = new Vector3(r.transform.position.x, r.transform.position.y - 1, r.transform.position.z);
+                        }
+                        else
+                        {
+                            AttemptPos = new Vector3(r.transform.position.x, r.transform.position.y + 1, r.transform.position.z);
+                        }
+
+                        if (!(Physics.OverlapBox(AttemptPos, r.transform.localScale / 2.01f).Length > 1))
+                        {
+                            r.transform.position = AttemptPos;
+                            noMoreRoom = false;
+                            yield return null;
+                        } else
+                        {
+                            done = true;
                         }
                     }
-                    yield return null;
                 }
             }
         }
+        Debug.Log(1);
     }
 }
