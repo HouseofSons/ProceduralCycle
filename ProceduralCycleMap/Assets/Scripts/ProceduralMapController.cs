@@ -20,9 +20,6 @@ public class ProceduralMapController : MonoBehaviour
     public static bool CheckingIfRoomsAllFit { get; private set; }
     public static bool RoomsAllFit { get; private set; }
 
-    public static bool CheckingIfRoomsAllSpread { get; private set; }
-    public static bool ReadyToSqueezeRooms { get; private set; }
-
     // Start is called before the first frame update
     void Awake()
     {
@@ -40,9 +37,6 @@ public class ProceduralMapController : MonoBehaviour
 
         CheckingIfRoomsAllFit = false;
         RoomsAllFit = false;
-
-        CheckingIfRoomsAllSpread = false;
-        ReadyToSqueezeRooms = false;
     }
 
     private void Start()
@@ -55,18 +49,6 @@ public class ProceduralMapController : MonoBehaviour
         if (CheckingIfRoomsConnect)
         {
             StartCoroutine(AreAllRoomsConnected());//called only once
-        }
-        if (CheckingIfRoomsAllFit)
-        {
-            StartCoroutine(AreAllRoomsFitting());//called only once
-        }
-        if (CheckingIfRoomsAllSpread)
-        {
-            StartCoroutine(AreAllRoomsSpread());//called only once
-        }
-        if (ReadyToSqueezeRooms)
-        {
-            StartCoroutine(SqueezeRooms());//called only once
         }
     }
 
@@ -125,8 +107,8 @@ public class ProceduralMapController : MonoBehaviour
             r.GetComponent<Rigidbody>().useGravity = false;
             r.GetComponent<Rigidbody>().mass = r.Neighbors.Count;
             r.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotation;
-            roomWidth = Seed.Random(3f, r.Neighbors.Count + 4);
-            roomLength = Seed.Random(3f, r.Neighbors.Count + 4);
+            roomWidth = r.Neighbors.Count + 4;
+            roomLength = r.Neighbors.Count + 4;
             roomHeight = 4;
             r.transform.localScale = new Vector3(Mathf.Max(roomWidth,roomHeight,roomLength),
                 Mathf.Max(roomWidth, roomHeight, roomLength),
@@ -135,30 +117,6 @@ public class ProceduralMapController : MonoBehaviour
 
             r.transform.position = new Vector3Int(Seed.Random(-100, 100), Seed.Random(-100, 100), Seed.Random(-100, 100));
         }
-    }
-
-    private static IEnumerator AreAllRoomsSpread()
-    {
-        CheckingIfRoomsAllSpread = false;
-        bool done = false;
-
-        while (!done)
-        {
-            done = true;
-
-            if (Time.frameCount % 20 == 0)
-            {
-                foreach (Room r in Room.Rooms)
-                {
-                    if (!r.RoomReadyToSqueeze)
-                    {
-                        done = false;
-                    }
-                }
-            }
-            yield return null;
-        }
-        ReadyToSqueezeRooms = true;
     }
 
     private static IEnumerator AreAllRoomsConnected()
@@ -191,58 +149,23 @@ public class ProceduralMapController : MonoBehaviour
             {
                 foreach(Room r in Room.Rooms)
                 {
-                    done &= r.Fit();
+                    if(!r.XZFit())
+                    {
+                        done = false;
+                        break;
+                    }
+                }
+
+                if(done)
+                {
+                    if (!Room.YFit())
+                    {
+                        done = false;
+                    }
                 }
             }
             yield return null;
         }
         RoomsAllFit = true;
-        CheckingIfRoomsAllSpread = true;
-    }
-
-    private static IEnumerator SqueezeRooms() //NEED TO FIX OR RETHINK!!!
-    {
-        ReadyToSqueezeRooms = false; //limit coroutine to single call in Update()
-        bool done = false;
-        bool noMoreRoom = false;
-
-        while (!noMoreRoom)
-        {
-            Debug.Log(0);
-            noMoreRoom = true;
-
-            foreach (Room r in Room.Rooms)
-            {
-                done = false;
-
-                while (!done)
-                {
-                    if (Mathf.RoundToInt(r.transform.position.y) != 0)
-                    {
-                        Vector3 AttemptPos;
-
-                        if (r.transform.position.y > 0)
-                        {
-                            AttemptPos = new Vector3(r.transform.position.x, r.transform.position.y - 1, r.transform.position.z);
-                        }
-                        else
-                        {
-                            AttemptPos = new Vector3(r.transform.position.x, r.transform.position.y + 1, r.transform.position.z);
-                        }
-
-                        if (!(Physics.OverlapBox(AttemptPos, r.transform.localScale / 2.01f).Length > 1))
-                        {
-                            r.transform.position = AttemptPos;
-                            noMoreRoom = false;
-                            yield return null;
-                        } else
-                        {
-                            done = true;
-                        }
-                    }
-                }
-            }
-        }
-        Debug.Log(1);
     }
 }

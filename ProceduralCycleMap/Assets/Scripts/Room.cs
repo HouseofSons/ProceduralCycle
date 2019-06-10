@@ -11,12 +11,11 @@ public class Room : MonoBehaviour
     public int Order { get; private set; }
     public bool HasCycle { get; set; }
     public Vector3 Size { get; set; }
-    private bool[] FitCheck = new bool[4];
+    private bool[] XZFitCheck = new bool[4];
+    public bool YFitCheck { get; private set; }
 
     public bool MoveRoomNode { get; set; }
     public bool RoomReadyToFit { get; set; }
-    public bool RoomReadyToSpread { get; set; }
-    public bool RoomReadyToSqueeze { get; set; }
 
     public void Awake()
     {
@@ -26,8 +25,6 @@ public class Room : MonoBehaviour
 
         MoveRoomNode = false;
         RoomReadyToFit = false;
-        RoomReadyToSpread = false;
-        RoomReadyToSqueeze = false;
     }
 
     public void Start()
@@ -45,10 +42,6 @@ public class Room : MonoBehaviour
         {
             TurnRoomSpheresToCubes();//called only once
             StartCoroutine(FitRoom());//called only once
-        }
-        if (RoomReadyToSpread && ProceduralMapController.RoomsAllFit)
-        {
-            SpreadFitRoomsOut();//called only once
         }
     }
 
@@ -72,33 +65,40 @@ public class Room : MonoBehaviour
     private void TurnRoomSpheresToCubes()
     {
         GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        //InvertMesh.FlipNormals(go.GetComponent<MeshFilter>().mesh);
         this.name = this.Order.ToString();
         this.GetComponent<MeshFilter>().mesh = go.GetComponent<MeshFilter>().mesh;
         Destroy(this.GetComponent<SphereCollider>());
         this.gameObject.AddComponent<BoxCollider>();
         this.transform.position = new Vector3(Mathf.RoundToInt(this.transform.position.x),
-            Mathf.RoundToInt(this.transform.position.y),
+            Mathf.RoundToInt(Mathf.RoundToInt(this.transform.position.y / 2) * 2),
             Mathf.RoundToInt(this.transform.position.z));
         this.transform.localScale = new Vector3(1, 4, 1);
         Destroy(go);
     }
 
-    private void SpreadFitRoomsOut()
+    public bool XZFit()
     {
-        RoomReadyToSpread = false;
-
-        Vector3 rPos = this.transform.position;
-        this.transform.position = new Vector3(rPos.x, Mathf.RoundToInt(rPos.y * this.transform.localScale.y), rPos.z);
-
-        RoomReadyToSqueeze = true;
+        for(int i=0;i<4;i++)
+        {
+            if (!XZFitCheck[i])
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
-    public bool Fit()
+    public static bool YFit()
     {
-        foreach (bool f in FitCheck)
+        foreach(Room r in Rooms)
         {
-            if (!f)
+            if (!r.YFitCheck)
             {
+                foreach(Room r0 in Rooms)
+                {
+                    r0.YFitCheck = false;
+                }
                 return false;
             }
         }
@@ -115,31 +115,35 @@ public class Room : MonoBehaviour
         switch (coord)
         {
             case 'x':
-                if (curSize.x >= Size.x + 2f)
+                if (curSize.x >= Size.x + 4f)   
                 {
-                    FitCheck[0] = true;
-                    FitCheck[1] = true;
+                    XZFitCheck[0] = true;
+                    XZFitCheck[1] = true;
                     return;
                 }
-                testPos = new Vector3(curPos.x + 0.25f * sign, curPos.y, curPos.z);
-                testSize = new Vector3(curSize.x + 0.5f, curSize.y, curSize.z);
+                testPos = new Vector3(curPos.x + 1 * sign, curPos.y, curPos.z);
+                testSize = new Vector3(curSize.x + 2, curSize.y, curSize.z);
+                break;
+            case 'y':
+                testPos = new Vector3(curPos.x, curPos.y < 0 ? curPos.y + 2 : (curPos.y > 0 ? curPos.y - 2 : curPos.y), curPos.z);
+                testSize = new Vector3(curSize.x, curSize.y, curSize.z);
                 break;
             default:
-                if (curSize.z >= Size.z + 2f)
+                if (curSize.z >= Size.z + 4f)
                 {
-                    FitCheck[2] = true;
-                    FitCheck[3] = true;
+                    XZFitCheck[2] = true;
+                    XZFitCheck[3] = true;
                     return;
                 }
-                testPos = new Vector3(curPos.x, curPos.y, curPos.z + 0.25f * sign);
-                testSize = new Vector3(curSize.x, curSize.y, curSize.z + 0.5f);
+                testPos = new Vector3(curPos.x, curPos.y, curPos.z + 1 * sign);
+                testSize = new Vector3(curSize.x, curSize.y, curSize.z + 2);
                 break;
         }
 
         if (!(Physics.OverlapBox(testPos, testSize / 2.01f).Length > 1))
         {
             this.transform.position = testPos;
-            this.transform.localScale = testSize;   
+            this.transform.localScale = testSize;  
         } else
         {
             switch (coord)
@@ -147,26 +151,29 @@ public class Room : MonoBehaviour
                 case 'x':
                     if (sign < 0)
                     {
-                        FitCheck[0] = true;
+                        XZFitCheck[0] = true;
                     } else
                     {
-                        FitCheck[1] = true;
+                        XZFitCheck[1] = true;
                     }
+                    break;
+                case 'y':
+                    YFitCheck = true;
                     break;
                 default:
                     if (sign < 0)
                     {
-                        FitCheck[2] = true;
+                        XZFitCheck[2] = true;
                     } else
                     {
-                        FitCheck[3] = true;
+                        XZFitCheck[3] = true;
                     }
                     break;
             }
         }
     }
 
-    public void CollisionCheck()
+    public void CollisionCheck(string message)
     {
         Collider[] cols = Physics.OverlapBox(this.transform.position, this.transform.localScale / 2.01f);
 
@@ -177,7 +184,7 @@ public class Room : MonoBehaviour
             {
                 collidingRooms += " " + col.name;
             }
-            Debug.Log(collidingRooms);
+            Debug.Log(message + ": " + collidingRooms);
         }
     }
 
@@ -216,24 +223,35 @@ public class Room : MonoBehaviour
         SignOrder[0] = -1;
         SignOrder[1] = 1;
 
-        List<Room> roomsToBuild = Room.Rooms;
+        List<Room> roomsToBuild = Rooms;
 
         Seed.Shuffle(roomsToBuild);
 
-        while (!Fit())
+        while (!XZFit())
         {
             foreach (char c in CoordOrder)
             {
                 foreach (int i in SignOrder)
                 {
-                    if (!Fit())
+                    if (int.Parse(name) % 5 == Time.frameCount % 5)
                     {
-                        BuildOutRoomFrame(c, i);
-                        yield return null;
+                        if (!XZFit())
+                        {
+                            BuildOutRoomFrame(c, i);
+                        }
                     }
+                    yield return null;
                 }
             }
         }
-        RoomReadyToSpread = true;
+        while (!YFit())
+        {
+            if (int.Parse(name) % 5 == Time.frameCount % 5)
+            {
+                BuildOutRoomFrame('y', 0);
+            }
+            yield return null;
+        }
+        CollisionCheck("Room Fits");
     }
 }
