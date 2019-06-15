@@ -13,7 +13,5 @@ public class Door
 
         RoomOne = one;
         RoomTwo = two;
-        RoomOne.AddDoor(this);
-        RoomTwo.AddDoor(this);
     }
 }
