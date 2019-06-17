@@ -8,6 +8,7 @@ public class Room : MonoBehaviour
     public List<Door> Doors { get; private set; } = new List<Door>();
     public int Order { get; private set; }
     public bool HasCycle;
+    public Vector3Int GameGridPosition { get; set; }
 
     public void Awake()
     {
@@ -41,7 +42,7 @@ public class Room : MonoBehaviour
                 neighbors.Add(d.RoomTwo);
             } else
             {
-                neighbors.Add(d.RoomTwo);
+                neighbors.Add(d.RoomOne);
             }
         }
         return neighbors;

@@ -9,7 +9,7 @@ public class ProceduralMapController : MonoBehaviour
     [Range(0, 20)]
     public int numberOfCycles;
 
-    public static int ROOM_SCALE = 8;
+    public const int ROOM_SCALE = 8;
 
     private static int roomCount;
     private static int cycleCount;
@@ -23,17 +23,16 @@ public class ProceduralMapController : MonoBehaviour
 
         GenerateRoomGameObjects();
         GenerateRoomEdges();
-        PlaceRooms();
     }
 
     private void Start()
     {
-
+        StartCoroutine(PlaceRooms());
     }
 
     public void Update()
     {
-
+        
     }
 
     private static void GenerateRoomGameObjects()
@@ -49,6 +48,7 @@ public class ProceduralMapController : MonoBehaviour
 
     private void GenerateRoomEdges()
     {
+        //Need to Add Option for Multiple Characters to Map!!
         int counter = 0;
         int rand;
 
@@ -83,12 +83,22 @@ public class ProceduralMapController : MonoBehaviour
         }
     }
 
-    private static void PlaceRooms()
+    private static IEnumerator PlaceRooms()
     {
         foreach (Room r in Room.Rooms)
         {
             GameGrid.AddRoomNextToNeighbor(r);
+            r.transform.position =
+                new Vector3Int(r.GameGridPosition.x * ROOM_SCALE,
+                r.GameGridPosition.y * ROOM_SCALE,
+                r.GameGridPosition.z * ROOM_SCALE);
+            r.GetComponent<Renderer>().material.SetColor("_Color", Random.ColorHSV());
             GameGrid.ExtendRoomToNeighbors(r);
+
+            for(int i=0;i<5;i++)
+            {
+                yield return null;
+            }
         }
     }
 }
