@@ -10,7 +10,6 @@ public class Door
     public Door (Room one, Room two)
     {
         Doors.Add(this);
-
         RoomOne = one;
         RoomTwo = two;
     }
