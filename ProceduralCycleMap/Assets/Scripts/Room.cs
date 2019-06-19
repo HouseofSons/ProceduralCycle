@@ -8,7 +8,7 @@ public class Room : MonoBehaviour
     public List<Door> Doors { get; private set; } = new List<Door>();
     public int Order { get; private set; }
     public bool HasCycle;
-    public Vector3Int GameGridPosition { get; set; }
+    public List<Vector3Int> GameGridPosition { get; set; }
 
     public void Awake()
     {
@@ -46,5 +46,36 @@ public class Room : MonoBehaviour
             }
         }
         return neighbors;
+    }
+
+    public Vector2Int RoomSize()
+    {
+        int xMin = GameGridPosition[0].x;
+        int xMax = GameGridPosition[0].x;
+        int zMin = GameGridPosition[0].z;
+        int zMax = GameGridPosition[0].z;
+
+        foreach (Vector3Int v in GameGridPosition)
+        {
+            xMin = v.x < xMin ? v.x : xMin;
+            zMin = v.z < zMin ? v.z : zMin;
+            xMax = v.x > xMax ? v.x : xMax;
+            zMax = v.z > zMax ? v.z : zMax;
+        }
+        //Debug.Log(" MinX: " + xMin + " MaxX: " + xMax + " MinZ: " + zMin + " MaxZ: " + zMax);
+        return new Vector2Int(xMax - xMin + 1, zMax - zMin + 1);
+    }
+
+    public Vector3 RoomPosition()
+    {
+        Vector3 newPosition = Vector3.zero;
+
+        foreach (Vector3Int v in GameGridPosition)
+        {
+            newPosition += v;
+        }
+        newPosition /= GameGridPosition.Count;
+        newPosition *= ProceduralMapController.ROOM_SCALE;
+        return newPosition;
     }
 }

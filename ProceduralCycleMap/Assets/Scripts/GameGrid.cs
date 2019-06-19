@@ -22,10 +22,110 @@ public class GameGrid
     //Tries to Fit room on Grid
     public static bool BuildRoomOnGrid(Room r, Vector3Int v)
     {
-        gameGrid[v.x, v.y, v.z] = r;
-        roomsAddedToGrid.Add(r);
-        r.GameGridPosition = v;
-        return true; //return false
+        //Establish Size of Room based on Room Neighbors
+
+        //1-2   Neighbors = room size 1,2,4
+        //3-4   Neighbors = room size 4,6
+        //5-6   Neighbors = room hall size 1 x 4 to 6
+        //7-12  Neighbors = room size 9
+
+        int width;
+        int length;
+        
+        if(r.GetNeighbors().Count <= 2)
+        {
+            width = Seed.Random(1, 2);
+            length = Seed.Random(1, 2);
+        } else if(r.GetNeighbors().Count <= 4)
+        {
+            width = Seed.Random(2, 3);
+            if(width == 2)
+            {
+                length = Seed.Random(2, 3);
+            } else
+            {
+                length = 2;
+            }
+        } else if(r.GetNeighbors().Count <= 6)
+        {
+            width = Seed.Random(1, 6);
+            if (width <= 3)
+            {
+                width = 1;
+                length = Seed.Random(4, 6);
+            }
+            else
+            {
+                length = 1;
+            }
+        } else
+        {
+            width = 3;
+            length = 3;
+        }
+
+        //Look for available size on grid to fit room at location v
+        List<Vector3Int> roomPartitions;
+
+        for (int swap = 0; swap < 2; swap++)
+        {
+            roomPartitions = SpaceAvailableOnGrid(v, width, length);
+            //if space available on gamegrid set locations to r, add r to roomAddedToGrid List, v to r.GameGridPosition
+            if (roomPartitions.Count > 0)
+            {
+                foreach (Vector3Int rp in roomPartitions)
+                {
+                    gameGrid[rp.x, rp.y, rp.z] = r;
+                }
+                roomsAddedToGrid.Add(r);
+                r.GameGridPosition = roomPartitions;
+                return true;
+            }
+            int temp = width;
+            width = length;
+            length = temp;
+        }
+        return false;
+    }
+    //Checks if Space Available on Game Grid
+    public static List<Vector3Int> SpaceAvailableOnGrid(Vector3Int v,int width,int length)
+    {
+        Vector3Int origin;
+        List<Vector3Int> roomSiteCoords;
+        bool roomAvailable;
+
+        for (int x = 0; x > -width; x--)
+        {
+            for (int z = 0; z > -length; z--)
+            {
+                origin = new Vector3Int(v.x + x, v.y, v.z + z);
+                roomSiteCoords = new List<Vector3Int>();
+                roomAvailable = true;
+
+                for (int i = 0; i < width; i++)
+                {
+                    for (int j = 0; j < length; j++)
+                    {
+                        if (origin.x + i >= 0 && origin.x + i < GameGridScale &&
+                            origin.z + j >= 0 && origin.z + j < GameGridScale)
+                        {
+                            if (gameGrid[origin.x + i, origin.y, origin.z + j] == null)
+                            {
+                                roomSiteCoords.Add(new Vector3Int(origin.x + i, origin.y, origin.z + j));
+                            } else
+                            {
+                                roomAvailable = false;
+                            }
+                        }
+                    }
+                }
+                if(roomAvailable)
+                {
+                    return roomSiteCoords;
+                }
+            }
+        }
+        return null;
     }
     //Place Room as Close to Origin as Possible
     public static bool FitRoomToGrid(Room r)
@@ -133,10 +233,10 @@ public class GameGrid
             Vector3Int availableSpot = EmptyAdjacentNode(v);
             if (availableSpot != Vector3Int.zero)
             {
-                gameGrid[availableSpot.x,availableSpot.y,availableSpot.z] = r;
-                roomsAddedToGrid.Add(r);
-                r.GameGridPosition = new Vector3Int(availableSpot.x, availableSpot.y, availableSpot.z);
-                return true;
+                if (BuildRoomOnGrid(r, new Vector3Int(availableSpot.x, availableSpot.y, availableSpot.z)))
+                {
+                    return true;
+                }
             }
         }
         //If no Neighbor Nodes available try to add anywhere

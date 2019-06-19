@@ -6,10 +6,10 @@ public class ProceduralMapController : MonoBehaviour
 {
     [Range(2, 60)]
     public int numberOfRooms;
-    [Range(0, 20)]
+    [Range(0, 40)]
     public int numberOfCycles;
 
-    public const int ROOM_SCALE = 8;
+    public const int ROOM_SCALE = 16;
 
     private static int roomCount;
     private static int cycleCount;
@@ -54,7 +54,7 @@ public class ProceduralMapController : MonoBehaviour
 
         while (counter < cycleCount)
         {
-            rand = Seed.Random(1, roomCount - 1);
+            rand = Seed.Random(2, roomCount - 1);
             if (!Room.Rooms[rand].HasCycle)
             {
                 Room.Rooms[rand].HasCycle = true;
@@ -67,35 +67,40 @@ public class ProceduralMapController : MonoBehaviour
             if (r.HasCycle)
             {
                 //Randomly determines which room to cycle back to
-                int prevRoomNum = Seed.Random(0, r.Order - 1);
+                int prevRoomNum = Seed.Random(0, r.Order - 2);
                 //Assigns Edge between a lower order room (roomNum) and this room (r)
                 r.AddDoor(Room.Rooms[prevRoomNum]);
                 //Randomly determines which room to cycle foward from
-                int proceedFromRoomNum = Seed.Random(0, r.Order);
+                int proceedFromRoomNum = Seed.Random(0, r.Order - 1);
                 //Assigns Vertex between a Room (proceedFromRoomNum) and this next room (rn.Order+1)
-                Room.Rooms[r.Order + 1].AddDoor(Room.Rooms[proceedFromRoomNum]);
+                Room.Rooms[proceedFromRoomNum].AddDoor(Room.Rooms[r.Order + 1]);
             }
-            else if (r.Order > 0)
+            else if (r.Order < roomCount - 1)
             {
                 //if no cycle exists assign Edge to next room in Order
-                r.AddDoor(Room.Rooms[r.Order - 1]);
+                r.AddDoor(Room.Rooms[r.Order + 1]);
             }
         }
     }
 
     private static IEnumerator PlaceRooms()
     {
+        Color color;
+        Vector3Int size;
+        Vector2Int scalar;
+
         foreach (Room r in Room.Rooms)
         {
             GameGrid.AddRoomNextToNeighbor(r);
-            r.transform.position =
-                new Vector3Int(r.GameGridPosition.x * ROOM_SCALE,
-                r.GameGridPosition.y * ROOM_SCALE,
-                r.GameGridPosition.z * ROOM_SCALE);
-            r.GetComponent<Renderer>().material.SetColor("_Color", Random.ColorHSV());
-            GameGrid.ExtendRoomToNeighbors(r);
+            color = Random.ColorHSV();
+            size = new Vector3Int(Mathf.RoundToInt(r.transform.localScale.x), Mathf.RoundToInt(r.transform.localScale.y), Mathf.RoundToInt(r.transform.localScale.z));
+            scalar = r.RoomSize();
+            r.transform.localScale = new Vector3Int(size.x * scalar[0], size.y, size.z * scalar[1]);
+            r.transform.position = r.RoomPosition();
+            r.GetComponent<Renderer>().material.SetColor("_Color", color);
 
-            for(int i=0;i<5;i++)
+            GameGrid.ExtendRoomToNeighbors(r);
+            for (int i = 0; i < 5; i++)
             {
                 yield return null;
             }
