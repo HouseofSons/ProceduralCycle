@@ -31,7 +31,7 @@ public class GameGrid
 
         int width;
         int length;
-        
+
         if(r.GetNeighbors().Count <= 2)
         {
             width = Seed.Random(1, 2);
@@ -125,33 +125,44 @@ public class GameGrid
                 }
             }
         }
-        return null;
+        return new List<Vector3Int>();
     }
     //Place Room as Close to Origin as Possible
     public static bool FitRoomToGrid(Room r)
     {
-        int a,b,c;
+        List<Vector3Int> temp = new List<Vector3Int>();
+        List<Vector3Int> final = new List<Vector3Int>();
+        int centerOfGrid = Mathf.RoundToInt(GameGridScale / 2) - 1;
 
-        for (int i=0;i<gameGrid.GetLength(0);i++)
+        for (int layer = 0; layer <= centerOfGrid; layer++)
         {
-            for (int j=0;j<gameGrid.GetLength(1);j++)
-            {
-                for (int k=0;k<gameGrid.GetLength(2);k++)
-                {
-                    //Loops around center of grid to avoid index out of bounds of grid array
-                    a = (i % 2 == 0 ? GameGridScale / 2 - 1 - Mathf.FloorToInt(i / 2) : GameGridScale / 2 - 1 + Mathf.FloorToInt(i + 1 / 2));
-                    b = (j % 2 == 0 ? GameGridScale / 2 - 1 - Mathf.FloorToInt(j / 2) : GameGridScale / 2 - 1 + Mathf.FloorToInt(j + 1 / 2));
-                    c = (k % 2 == 0 ? GameGridScale / 2 - 1 - Mathf.FloorToInt(k / 2) : GameGridScale / 2 - 1 + Mathf.FloorToInt(k + 1 / 2));
+            int level = 0;
 
-                    if (gameGrid[a,b,c] == null)
+            while (Mathf.Abs(level) <= layer)
+            {
+                for (int i = -layer; i <= layer; i++)
+                {
+                    for (int j = -layer; j <= layer; j++)
                     {
-                        if(BuildRoomOnGrid(r,new Vector3Int(a,b,c)))
-                        {
-                            return true;
-                        }
+                        temp.Add(new Vector3Int(centerOfGrid + i, centerOfGrid + level, centerOfGrid + j));
+                    }
+                }
+                Seed.Shuffle(temp);
+                final.AddRange(temp);
+                temp = new List<Vector3Int>();
+                level = level > 0 ? level * -1 : level * -1 + 1;
+            }
+            foreach (Vector3Int v in final)
+            {
+                if (gameGrid[v.x,v.y,v.z] == null)
+                {
+                    if (BuildRoomOnGrid(r, v))
+                    {
+                        return true;
                     }
                 }
             }
+            final = new List<Vector3Int>();
         }
         Debug.Log("Couldn't place Room: " + r.Order + ". No More Room in Grid");
         return false;
@@ -225,6 +236,7 @@ public class GameGrid
         {
             neighborNodes.AddRange(OccupingNodes(r0));
         }
+        //Debug.Log("RoomNum: " + r.Order + " NeighborRoom Count: " + placedNeighbors.Count<Room>() + " AvailableNodes: " + neighborNodes.Count);
         //Randomizing Neighbors Nodes for more variation
         Seed.Shuffle(neighborNodes);
         //Try all Adjacent Nodes to Neighbor Nodes

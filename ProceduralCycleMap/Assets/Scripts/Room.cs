@@ -35,12 +35,13 @@ public class Room : MonoBehaviour
     {
         List<Room> neighbors = new List<Room>();
 
-        foreach(Door d in Doors)
+        foreach(Door d in Door.Doors)
         {
             if(d.RoomOne == this)
             {
                 neighbors.Add(d.RoomTwo);
-            } else
+            }
+            if (d.RoomTwo == this)
             {
                 neighbors.Add(d.RoomOne);
             }

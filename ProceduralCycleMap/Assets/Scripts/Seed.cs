@@ -19,7 +19,7 @@ public class Seed
 
     public static int Random(int x, int y)
     {
-        return Mathf.RoundToInt(UnityEngine.Random.Range(x, y));
+        return Mathf.RoundToInt(UnityEngine.Random.Range(x, y + 1));
     }
 
     public static float Random(float x, float y)

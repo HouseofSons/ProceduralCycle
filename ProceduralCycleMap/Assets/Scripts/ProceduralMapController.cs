@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ProceduralMapController : MonoBehaviour
 {
-    [Range(2, 60)]
+    [Range(2, 2000)]
     public int numberOfRooms;
     [Range(0, 40)]
     public int numberOfCycles;
@@ -19,7 +19,7 @@ public class ProceduralMapController : MonoBehaviour
         roomCount = numberOfRooms;
         cycleCount = numberOfCycles;
 
-        GameGrid gameGrid = new GameGrid();
+        _ = new GameGrid();
 
         GenerateRoomGameObjects();
         GenerateRoomEdges();
@@ -42,6 +42,7 @@ public class ProceduralMapController : MonoBehaviour
             GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
             go.AddComponent<Room>();
             go.transform.localScale = new Vector3(ROOM_SCALE, ROOM_SCALE, ROOM_SCALE);
+            go.transform.name = "Room: " + go.GetComponent<Room>().Order;
             Room.Rooms.Add(go.GetComponent<Room>());
         }
     }
@@ -54,14 +55,14 @@ public class ProceduralMapController : MonoBehaviour
 
         while (counter < cycleCount)
         {
-            rand = Seed.Random(2, roomCount - 1);
+            rand = Seed.Random(2, roomCount - 2);
             if (!Room.Rooms[rand].HasCycle)
             {
                 Room.Rooms[rand].HasCycle = true;
                 counter++;
             }
         }
-
+        Debug.Log(0);
         foreach (Room r in Room.Rooms)
         {
             if (r.HasCycle)
