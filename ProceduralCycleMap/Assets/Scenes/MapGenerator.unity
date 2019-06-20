@@ -149,8 +149,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b97d580650a314acb8af0bc42cd26fd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numberOfRooms: 60
-  numberOfCycles: 20
+  numberOfRooms: 400
+  numberOfCycles: 40
 --- !u!4 &1001995745
 Transform:
   m_ObjectHideFlags: 0

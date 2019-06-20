@@ -62,7 +62,7 @@ public class ProceduralMapController : MonoBehaviour
                 counter++;
             }
         }
-        Debug.Log(0);
+        
         foreach (Room r in Room.Rooms)
         {
             if (r.HasCycle)

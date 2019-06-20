@@ -127,14 +127,17 @@ public class GameGrid
         }
         return new List<Vector3Int>();
     }
-    //Place Room as Close to Origin as Possible
-    public static bool FitRoomToGrid(Room r)
+    //Place Room as Close to Target as Possible
+    public static bool FitRoomToGrid(Room r, Vector3Int t)
     {
         List<Vector3Int> temp = new List<Vector3Int>();
         List<Vector3Int> final = new List<Vector3Int>();
-        int centerOfGrid = Mathf.RoundToInt(GameGridScale / 2) - 1;
+        Vector3Int target = t == Vector3Int.zero ? new Vector3Int(GameGridScale / 2 - 1, GameGridScale / 2 - 1, GameGridScale / 2 - 1) : t;
 
-        for (int layer = 0; layer <= centerOfGrid; layer++)
+        int targetBound = Mathf.Min(GameGridScale - 1 - Mathf.Max(target.x, target.y, target.z),
+            Mathf.Min(target.x, target.y, target.z) - 0);
+
+        for (int layer = 0; layer <= targetBound; layer++)
         {
             int level = 0;
 
@@ -144,7 +147,7 @@ public class GameGrid
                 {
                     for (int j = -layer; j <= layer; j++)
                     {
-                        temp.Add(new Vector3Int(centerOfGrid + i, centerOfGrid + level, centerOfGrid + j));
+                        temp.Add(new Vector3Int(target.x + i, target.y + level, target.z + j));
                     }
                 }
                 Seed.Shuffle(temp);
@@ -164,7 +167,7 @@ public class GameGrid
             }
             final = new List<Vector3Int>();
         }
-        Debug.Log("Couldn't place Room: " + r.Order + ". No More Room in Grid");
+        Debug.Log("Couldn't place Room: " + r.Order + ". No More Room on Grid");
         return false;
     }
     //Find all Locations on Grid of Room
@@ -211,7 +214,8 @@ public class GameGrid
 
             if (coords.x < gameGrid.GetLength(0) &&
                 coords.y < gameGrid.GetLength(1) &&
-                coords.z < gameGrid.GetLength(2))
+                coords.z < gameGrid.GetLength(2) &&
+                coords.x >= 0 && coords.y >= 0 && coords.z >= 0)
             {
                 if(gameGrid[coords.x, coords.y, coords.z] == null)
                 {
@@ -238,7 +242,7 @@ public class GameGrid
         }
         //Debug.Log("RoomNum: " + r.Order + " NeighborRoom Count: " + placedNeighbors.Count<Room>() + " AvailableNodes: " + neighborNodes.Count);
         //Randomizing Neighbors Nodes for more variation
-        Seed.Shuffle(neighborNodes);
+        Seed.Shuffle(neighborNodes); // <-- builds map less spreadout... interesting
         //Try all Adjacent Nodes to Neighbor Nodes
         foreach (Vector3Int v in neighborNodes)
         {
@@ -253,7 +257,7 @@ public class GameGrid
         }
         //If no Neighbor Nodes available try to add anywhere
         Debug.Log("Couldn't find Neighbor Adjacent Node for Room: " + r.Order);
-        return FitRoomToGrid(r);
+        return FitRoomToGrid(r, neighborNodes.Count == 0 ? Vector3Int.zero : neighborNodes[0]);
     }
     //Extend Room to be adjacent to Neighbors
     public static bool ExtendRoomToNeighbors(Room r)
