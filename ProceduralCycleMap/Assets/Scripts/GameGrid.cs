@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class GameGrid
 {
-    private static Room[,,] gameGrid;
+    public static Room[,,] gameGrid;
     private static List<Room> roomsAddedToGrid;
     public const int GameGridScale = 64;
 
@@ -260,8 +260,130 @@ public class GameGrid
         return FitRoomToGrid(r, neighborNodes.Count == 0 ? Vector3Int.zero : neighborNodes[0]);
     }
     //Extend Room to be adjacent to Neighbors
-    public static bool ExtendRoomToNeighbors(Room r)
+    public static void ExtendRoomToNeighbors(Room r)
     {
+        //find all neighbors not touching r
+        List<Room> remoteNeighbors = r.GetNeighbors();
+        Room temp;
+
+        foreach (Vector3Int v in r.GameGridPosition)
+        {
+            for (int i = -1; i <= 1; i++)
+            {
+                for (int j = -1; j <= 1; j++)
+                {
+                    for (int k = -1; k <= 1; k++)
+                    {
+                        temp = gameGrid[v.x + i, v.y + j, v.z + k];
+
+                        if (temp != null)
+                        {
+                            if (remoteNeighbors.Contains(temp))
+                            {
+                                remoteNeighbors.Remove(temp);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        foreach(Room r0 in remoteNeighbors)
+        {
+            if(!BuildPath(r,FindPath(r,r0)))
+            {
+                Debug.Log("Couldn't Build Brige between Room: " + r.Order + " and Room: " + r.Order);
+            }
+        }
+    }
+
+    public static bool BuildPath(Room r,List<Vector3Int> path)
+    {
+        if(path == null)
+        {
+            return false;
+        }
+        foreach (Vector3Int p in path)
+        {
+            GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            go.transform.localScale =
+                new Vector3(ProceduralMapController.ROOM_SCALE,
+                ProceduralMapController.ROOM_SCALE,
+                ProceduralMapController.ROOM_SCALE);
+            go.transform.name = "RoomPath: " + r.Order;
+            go.transform.parent = r.transform;
+            go.transform.GetComponent<Renderer>().material.color = r.transform.GetComponent<Renderer>().material.color;
+
+            gameGrid[p.x, p.y, p.z] = r;
+        }
+        r.GameGridPosition.AddRange(path);
         return true;
+    }
+
+    public static List<Vector3Int> FindPath(Room r, Room r0)
+    {
+        List<Vector3Int> PathStarts = new List<Vector3Int>();
+
+        foreach (Vector3Int v in r.GameGridPosition)
+        {
+            for (int i = -1; i <= 1; i++)
+            {
+                for (int j = -1; j <= 1; j++)
+                {
+                    for (int k = -1; k <= 1; k++)
+                    {
+                        if(gameGrid[v.x + i, v.y + j, v.z + k] == null)
+                        {
+                            PathStarts.Add(new Vector3Int(v.x + i, v.y + j, v.z + k));
+                        }
+                    }
+                }
+            }
+        }
+
+        if(PathStarts.Count == 0)
+        {
+            return new List<Vector3Int>();
+        }
+
+        List<Vector3Int> PathEnds = new List<Vector3Int>();
+
+        foreach (Vector3Int v in r0.GameGridPosition)
+        {
+            for (int i = -1; i <= 1; i++)
+            {
+                for (int j = -1; j <= 1; j++)
+                {
+                    for (int k = -1; k <= 1; k++)
+                    {
+                        if (gameGrid[v.x + i, v.y + j, v.z + k] == null)
+                        {
+                            PathEnds.Add(new Vector3Int(v.x + i, v.y + j, v.z + k));
+                        }
+                    }
+                }
+            }
+        }
+
+        if (PathEnds.Count == 0)
+        {
+            return new List<Vector3Int>();
+        }
+
+        Seed.Shuffle(PathStarts);
+        Seed.Shuffle(PathEnds);
+
+        foreach(Vector3Int start in PathStarts)
+        {
+            foreach (Vector3Int end in PathEnds)
+            {
+                List<Vector3Int> path = ProceduralMapController.pathing.AstarPath(start,end);
+                if (path.Count > 0)
+                {
+                    return path;
+                }
+            }
+        }
+        return new List<Vector3Int>();
     }
 }

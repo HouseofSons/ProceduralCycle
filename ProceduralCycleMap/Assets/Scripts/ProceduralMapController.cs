@@ -14,12 +14,17 @@ public class ProceduralMapController : MonoBehaviour
     private static int roomCount;
     private static int cycleCount;
 
+    public static Pathing pathing;
+    private static bool extendRooms;
+
     void Awake()
     {
         roomCount = numberOfRooms;
         cycleCount = numberOfCycles;
 
         _ = new GameGrid();
+
+        pathing = new Pathing();
 
         GenerateRoomGameObjects();
         GenerateRoomEdges();
@@ -32,7 +37,9 @@ public class ProceduralMapController : MonoBehaviour
 
     public void Update()
     {
-        
+        if (extendRooms) {
+            StartCoroutine(ExtendRooms());
+        }
     }
 
     private static void GenerateRoomGameObjects()
@@ -99,12 +106,23 @@ public class ProceduralMapController : MonoBehaviour
             r.transform.localScale = new Vector3Int(size.x * scalar[0], size.y, size.z * scalar[1]);
             r.transform.position = r.RoomPosition();
             r.GetComponent<Renderer>().material.SetColor("_Color", color);
-
-            GameGrid.ExtendRoomToNeighbors(r);
             for (int i = 0; i < 5; i++)
             {
                 yield return null;
             }
         }
+        extendRooms = true;
+    }
+
+    private static IEnumerator ExtendRooms()
+    {
+        extendRooms = false;
+
+        foreach (Room r in Room.Rooms)
+        {
+            pathing.InitializeNodes(GameGrid.gameGrid);
+            GameGrid.ExtendRoomToNeighbors(r);
+        }
+        yield return null;
     }
 }
