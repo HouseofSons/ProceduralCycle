@@ -63,7 +63,6 @@ public class Room : MonoBehaviour
             xMax = v.x > xMax ? v.x : xMax;
             zMax = v.z > zMax ? v.z : zMax;
         }
-        //Debug.Log(" MinX: " + xMin + " MaxX: " + xMax + " MinZ: " + zMin + " MaxZ: " + zMax);
         return new Vector2Int(xMax - xMin + 1, zMax - zMin + 1);
     }
 

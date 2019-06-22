@@ -19,27 +19,54 @@ public class PathNode
 
 public class Pathing
 {
-    private PathNode[,,] nodes = new PathNode[GameGrid.GameGridScale, GameGrid.GameGridScale, GameGrid.GameGridScale];
+    private static PathNode[,,] nodes = new PathNode[GameGrid.GameGridScale, GameGrid.GameGridScale, GameGrid.GameGridScale];
 
-    public void InitializeNodes(Room[,,] roomNodes)
+    public static int xMin { get; private set; }
+    public static int yMin { get; private set; }
+    public static int zMin { get; private set; }
+
+    public static int xMax { get; private set; }
+    public static int yMax { get; private set; }
+    public static int zMax { get; private set; }
+
+    public static void InitializeNodes(Vector3Int start,Vector3Int end, Room[,,] roomNodes)
     {
-        for (int i = 0; i < roomNodes.GetLength(0); i++)
+        //Clean old nodes
+        nodes = new PathNode[GameGrid.GameGridScale, GameGrid.GameGridScale, GameGrid.GameGridScale];
+
+        xMin = Mathf.Max(Mathf.Min(start.x, end.x) - 3,0);
+        yMin = Mathf.Max(Mathf.Min(start.y, end.y) - 3,0);
+        zMin = Mathf.Max(Mathf.Min(start.z, end.z) - 3,0);
+
+        xMax = Mathf.Min(Mathf.Max(start.x, end.x) + 3, GameGrid.GameGridScale);
+        yMax = Mathf.Min(Mathf.Max(start.y, end.y) + 3, GameGrid.GameGridScale);
+        zMax = Mathf.Min(Mathf.Max(start.z, end.z) + 3, GameGrid.GameGridScale);
+
+        for (int i = xMin; i < xMax; i++)
         {
-            for (int j = 0; j < roomNodes.GetLength(1); j++)
+            for (int j = yMin; j < yMax; j++)
             {
-                for (int k = 0; k < roomNodes.GetLength(2); k++)
+                for (int k = zMin; k < zMax; k++)
                 {
                     if (roomNodes[i, j, k] == null)
                     {
                         nodes[i, j, k] = new PathNode(new Vector3Int(i,j,k));
+                        //calculate h_value for each node to destination
+                        nodes[i, j, k].h_value =
+                            Mathf.Abs(end.x - nodes[i, j, k].location.x) +
+                            Mathf.Abs(end.y - nodes[i, j, k].location.y) +
+                            Mathf.Abs(end.z - nodes[i, j, k].location.z);
                     }
                 }
             }
         }
     }
 
-    public List<Vector3Int> AstarPath(Vector3Int start, Vector3Int end)
+    public static List<Vector3Int> AstarPath(Vector3Int start, Vector3Int end, Room[,,] roomNodes)
     {
+        //Initialize Nodes!!!
+        InitializeNodes(start, end, roomNodes);
+
         //for all nodes adjacent to current_node not on closed_list
         //    if node not in open_list
         //        set node.parent to current_node
@@ -54,31 +81,23 @@ public class Pathing
         //set current_node = node with lowest f_value in open_list
         //add current_node to closed_list
         //remove current_node from open_list
+        if (start == end)
+        {
+            return new List<Vector3Int> { start };
+        }
 
         PathNode startNode = nodes[start.x, start.y, start.z];
         PathNode endNode = nodes[end.x, end.y, end.z];
-
-        //calculate h_value for each node to destination
-        foreach (PathNode p in nodes)
-        {
-            p.h_value =
-                Mathf.Abs(endNode.location.x - p.location.x) +
-                Mathf.Abs(endNode.location.y - p.location.y) +
-                Mathf.Abs(endNode.location.z - p.location.z);
-        }
         //Initialize Open and Closed Lists
         List<PathNode> openList = new List<PathNode>();
         List<PathNode> closedList = new List<PathNode>();
-
         PathNode currentNode;
 
         startNode.m_value = 0;
         startNode.g_value = 0;
         startNode.parent = startNode;
         closedList.Add(startNode);
-
         currentNode = startNode;
-
         //Finds neighbors of currentNode
         int a;
         int b;
@@ -113,6 +132,7 @@ public class Pathing
                                     path.Add(iterate.location);
                                     iterate = iterate.parent;
                                 } while (iterate.parent != iterate);
+                                path.Add(iterate.location);
                                 return path;
                             }
                             neighbor.m_value = 1;
@@ -127,21 +147,20 @@ public class Pathing
                                 neighbor.parent = currentNode;
                             }
                         }
-
-                        currentNode = null;
-
-                        foreach (PathNode p in openList)
-                        {
-                            if (currentNode == null || currentNode.f_value > p.f_value)
-                            {
-                                currentNode = p;
-                            }
-                        }
-                        closedList.Add(currentNode);
-                        openList.Remove(currentNode);
                     }
                 }
             }
+            currentNode = null;
+
+            foreach (PathNode p in openList)
+            {
+                if (currentNode == null || currentNode.f_value > p.f_value)
+                {
+                    currentNode = p;
+                }
+            }
+            closedList.Add(currentNode);
+            openList.Remove(currentNode);
         } while (openList.Count > 0);
         return null;
     }

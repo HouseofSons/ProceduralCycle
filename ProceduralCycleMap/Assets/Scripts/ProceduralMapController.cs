@@ -8,13 +8,14 @@ public class ProceduralMapController : MonoBehaviour
     public int numberOfRooms;
     [Range(0, 40)]
     public int numberOfCycles;
+    [Range(0, 10)]
+    public int pathRoomDistance;
 
     public const int ROOM_SCALE = 16;
 
     private static int roomCount;
     private static int cycleCount;
 
-    public static Pathing pathing;
     private static bool extendRooms;
 
     void Awake()
@@ -23,8 +24,6 @@ public class ProceduralMapController : MonoBehaviour
         cycleCount = numberOfCycles;
 
         _ = new GameGrid();
-
-        pathing = new Pathing();
 
         GenerateRoomGameObjects();
         GenerateRoomEdges();
@@ -75,11 +74,11 @@ public class ProceduralMapController : MonoBehaviour
             if (r.HasCycle)
             {
                 //Randomly determines which room to cycle back to
-                int prevRoomNum = Seed.Random(0, r.Order - 2);
+                int prevRoomNum = Seed.Random(Mathf.Max(0, r.Order - 2 - pathRoomDistance), r.Order - 2);
                 //Assigns Edge between a lower order room (roomNum) and this room (r)
                 r.AddDoor(Room.Rooms[prevRoomNum]);
                 //Randomly determines which room to cycle foward from
-                int proceedFromRoomNum = Seed.Random(0, r.Order - 1);
+                int proceedFromRoomNum = Seed.Random(Mathf.Max(0, prevRoomNum - 2), r.Order - 1);
                 //Assigns Vertex between a Room (proceedFromRoomNum) and this next room (rn.Order+1)
                 Room.Rooms[proceedFromRoomNum].AddDoor(Room.Rooms[r.Order + 1]);
             }
@@ -120,9 +119,11 @@ public class ProceduralMapController : MonoBehaviour
 
         foreach (Room r in Room.Rooms)
         {
-            pathing.InitializeNodes(GameGrid.gameGrid);
             GameGrid.ExtendRoomToNeighbors(r);
+            for (int i = 0; i < 5; i++)
+            {
+                yield return null;
+            }
         }
-        yield return null;
     }
 }

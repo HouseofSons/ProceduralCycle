@@ -265,78 +265,79 @@ public class GameGrid
         //find all neighbors not touching r
         List<Room> remoteNeighbors = r.GetNeighbors();
         Room temp;
+        int a, b, c;
 
         foreach (Vector3Int v in r.GameGridPosition)
         {
-            for (int i = -1; i <= 1; i++)
+            for (int i = 0; i < 6; i++)
             {
-                for (int j = -1; j <= 1; j++)
-                {
-                    for (int k = -1; k <= 1; k++)
-                    {
-                        temp = gameGrid[v.x + i, v.y + j, v.z + k];
+                a = (i == 0 ? -1 : (i == 1 ? 1 : 0));
+                b = (i == 2 ? -1 : (i == 3 ? 1 : 0));
+                c = (i == 4 ? -1 : (i == 5 ? 1 : 0));
 
-                        if (temp != null)
-                        {
-                            if (remoteNeighbors.Contains(temp))
-                            {
-                                remoteNeighbors.Remove(temp);
-                            }
-                        }
+                temp = gameGrid[v.x + a, v.y + b, v.z + c];
+
+                if (temp != null)
+                {
+                    if (remoteNeighbors.Contains(temp))
+                    {
+                        remoteNeighbors.Remove(temp);
                     }
                 }
             }
         }
-
+        
         foreach(Room r0 in remoteNeighbors)
         {
-            if(!BuildPath(r,FindPath(r,r0)))
+            if (!BuildPath(r,r0,FindPath(r,r0)))
             {
-                Debug.Log("Couldn't Build Brige between Room: " + r.Order + " and Room: " + r.Order);
+                Debug.Log("Couldn't Build Brige between Room: " + r.Order + " and Room: " + r0.Order);
             }
         }
     }
 
-    public static bool BuildPath(Room r,List<Vector3Int> path)
+    public static bool BuildPath(Room start,Room end,List<Vector3Int> path)
     {
-        if(path == null)
+        if(path.Count == 0)
         {
             return false;
         }
         foreach (Vector3Int p in path)
         {
             GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            go.transform.localScale =
-                new Vector3(ProceduralMapController.ROOM_SCALE,
+            go.transform.localScale = new Vector3(
+                ProceduralMapController.ROOM_SCALE,
                 ProceduralMapController.ROOM_SCALE,
                 ProceduralMapController.ROOM_SCALE);
-            go.transform.name = "RoomPath: " + r.Order;
-            go.transform.parent = r.transform;
-            go.transform.GetComponent<Renderer>().material.color = r.transform.GetComponent<Renderer>().material.color;
-
-            gameGrid[p.x, p.y, p.z] = r;
+            go.transform.position = new Vector3Int(
+                p.x * ProceduralMapController.ROOM_SCALE,
+                p.y * ProceduralMapController.ROOM_SCALE,
+                p.z * ProceduralMapController.ROOM_SCALE);
+            go.transform.name = "Room Path to: " + end.Order;
+            go.transform.parent = start.transform;
+            go.transform.GetComponent<Renderer>().material.color = start.transform.GetComponent<Renderer>().material.color;
+            gameGrid[p.x, p.y, p.z] = start;
         }
-        r.GameGridPosition.AddRange(path);
+        start.GameGridPosition.AddRange(path);
         return true;
     }
 
     public static List<Vector3Int> FindPath(Room r, Room r0)
     {
         List<Vector3Int> PathStarts = new List<Vector3Int>();
+        int a, b, c;
 
         foreach (Vector3Int v in r.GameGridPosition)
         {
-            for (int i = -1; i <= 1; i++)
+            for (int i = 0; i < 6; i++)
             {
-                for (int j = -1; j <= 1; j++)
+                a = (i == 0 ? -1 : (i == 1 ? 1 : 0));
+                b = (i == 2 ? -1 : (i == 3 ? 1 : 0));
+                c = (i == 4 ? -1 : (i == 5 ? 1 : 0));
+
+                if (gameGrid[v.x + a, v.y + b, v.z + c] == null)
                 {
-                    for (int k = -1; k <= 1; k++)
-                    {
-                        if(gameGrid[v.x + i, v.y + j, v.z + k] == null)
-                        {
-                            PathStarts.Add(new Vector3Int(v.x + i, v.y + j, v.z + k));
-                        }
-                    }
+                    PathStarts.Add(new Vector3Int(v.x + a, v.y + b, v.z + c));
                 }
             }
         }
@@ -350,17 +351,15 @@ public class GameGrid
 
         foreach (Vector3Int v in r0.GameGridPosition)
         {
-            for (int i = -1; i <= 1; i++)
+            for (int i = 0; i < 6; i++)
             {
-                for (int j = -1; j <= 1; j++)
+                a = (i == 0 ? -1 : (i == 1 ? 1 : 0));
+                b = (i == 2 ? -1 : (i == 3 ? 1 : 0));
+                c = (i == 4 ? -1 : (i == 5 ? 1 : 0));
+
+                if (gameGrid[v.x + a, v.y + b, v.z + c] == null)
                 {
-                    for (int k = -1; k <= 1; k++)
-                    {
-                        if (gameGrid[v.x + i, v.y + j, v.z + k] == null)
-                        {
-                            PathEnds.Add(new Vector3Int(v.x + i, v.y + j, v.z + k));
-                        }
-                    }
+                    PathEnds.Add(new Vector3Int(v.x + a, v.y + b, v.z + c));
                 }
             }
         }
@@ -377,7 +376,7 @@ public class GameGrid
         {
             foreach (Vector3Int end in PathEnds)
             {
-                List<Vector3Int> path = ProceduralMapController.pathing.AstarPath(start,end);
+                List<Vector3Int> path = Pathing.AstarPath(start,end, gameGrid);
                 if (path.Count > 0)
                 {
                     return path;
