@@ -135,7 +135,7 @@ public class GameGrid
         Vector3Int target = t == Vector3Int.zero ? new Vector3Int(GameGridScale / 2 - 1, GameGridScale / 2 - 1, GameGridScale / 2 - 1) : t;
 
         int targetBound = Mathf.Min(GameGridScale - 1 - Mathf.Max(target.x, target.y, target.z),
-            Mathf.Min(target.x, target.y, target.z) - 0);
+            Mathf.Min(target.x, target.y, target.z));
 
         for (int layer = 0; layer <= targetBound; layer++)
         {
@@ -266,7 +266,6 @@ public class GameGrid
         List<Room> remoteNeighbors = r.GetNeighbors();
         Room temp;
         int a, b, c;
-
         foreach (Vector3Int v in r.GameGridPosition)
         {
             for (int i = 0; i < 6; i++)
@@ -275,19 +274,24 @@ public class GameGrid
                 b = (i == 2 ? -1 : (i == 3 ? 1 : 0));
                 c = (i == 4 ? -1 : (i == 5 ? 1 : 0));
 
-                temp = gameGrid[v.x + a, v.y + b, v.z + c];
-
-                if (temp != null)
+                if (v.x + a >= 0 && v.x + a < GameGridScale &&
+                    v.y + b >= 0 && v.y + b < GameGridScale &&
+                    v.z + c >= 0 && v.z + c < GameGridScale)
                 {
-                    if (remoteNeighbors.Contains(temp))
+
+                    temp = gameGrid[v.x + a, v.y + b, v.z + c];
+
+                    if (temp != null)
                     {
-                        remoteNeighbors.Remove(temp);
+                        if (remoteNeighbors.Contains(temp))
+                        {
+                            remoteNeighbors.Remove(temp);
+                        }
                     }
                 }
             }
         }
-        
-        foreach(Room r0 in remoteNeighbors)
+        foreach (Room r0 in remoteNeighbors)
         {
             if (!BuildPath(r,r0,FindPath(r,r0)))
             {
@@ -335,9 +339,14 @@ public class GameGrid
                 b = (i == 2 ? -1 : (i == 3 ? 1 : 0));
                 c = (i == 4 ? -1 : (i == 5 ? 1 : 0));
 
-                if (gameGrid[v.x + a, v.y + b, v.z + c] == null)
+                if (v.x + a >= 0 && v.x + a < GameGridScale &&
+                    v.y + b >= 0 && v.y + b < GameGridScale &&
+                    v.z + c >= 0 && v.z + c < GameGridScale)
                 {
-                    PathStarts.Add(new Vector3Int(v.x + a, v.y + b, v.z + c));
+                    if (gameGrid[v.x + a, v.y + b, v.z + c] == null)
+                    {
+                        PathStarts.Add(new Vector3Int(v.x + a, v.y + b, v.z + c));
+                    }
                 }
             }
         }
@@ -357,9 +366,14 @@ public class GameGrid
                 b = (i == 2 ? -1 : (i == 3 ? 1 : 0));
                 c = (i == 4 ? -1 : (i == 5 ? 1 : 0));
 
-                if (gameGrid[v.x + a, v.y + b, v.z + c] == null)
+                if (v.x + a >= 0 && v.x + a < GameGridScale &&
+                    v.y + b >= 0 && v.y + b < GameGridScale &&
+                    v.z + c >= 0 && v.z + c < GameGridScale)
                 {
-                    PathEnds.Add(new Vector3Int(v.x + a, v.y + b, v.z + c));
+                    if (gameGrid[v.x + a, v.y + b, v.z + c] == null)
+                    {
+                        PathEnds.Add(new Vector3Int(v.x + a, v.y + b, v.z + c));
+                    }
                 }
             }
         }

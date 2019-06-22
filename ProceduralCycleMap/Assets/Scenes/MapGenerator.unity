@@ -151,7 +151,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   numberOfRooms: 200
   numberOfCycles: 40
-  pathRoomDistance: 10
+  pathRoomDistance: 5
 --- !u!4 &1001995745
 Transform:
   m_ObjectHideFlags: 0

@@ -104,7 +104,7 @@ public class Pathing
         int c;
 
         PathNode neighbor;
-
+        
         do
         {
             for (int i = 0; i < 6; i++)
@@ -113,45 +113,48 @@ public class Pathing
                 b = (i == 2 ? -1 : (i == 3 ? 1 : 0));
                 c = (i == 4 ? -1 : (i == 5 ? 1 : 0));
 
-                neighbor = nodes[currentNode.location.x + a, currentNode.location.y + b, currentNode.location.z + c];
-
-                if (neighbor != null) //avoids non-empty nodes
+                if (currentNode.location.x + a >= 0 && currentNode.location.x + a < roomNodes.GetLength(0) &&
+                    currentNode.location.y + b >= 0 && currentNode.location.y + b < roomNodes.GetLength(1) &&
+                    currentNode.location.z + c >= 0 && currentNode.location.z + c < roomNodes.GetLength(2))
                 {
-                    if (!closedList.Contains(neighbor))
+                    neighbor = nodes[currentNode.location.x + a, currentNode.location.y + b, currentNode.location.z + c];
+                    if (neighbor != null) //avoids non-empty nodes
                     {
-                        if (!openList.Contains(neighbor))
+                        if (!closedList.Contains(neighbor))
                         {
-                            neighbor.parent = currentNode;
-                            if (neighbor == endNode)
-                            {
-                                List<Vector3Int> path = new List<Vector3Int>();
-                                PathNode iterate = endNode;
-
-                                do
-                                {
-                                    path.Add(iterate.location);
-                                    iterate = iterate.parent;
-                                } while (iterate.parent != iterate);
-                                path.Add(iterate.location);
-                                return path;
-                            }
-                            neighbor.m_value = 1;
-                            neighbor.g_value = neighbor.m_value + currentNode.g_value;
-                            neighbor.f_value = neighbor.g_value + neighbor.h_value;
-                            openList.Add(neighbor);
-                        }
-                        else
-                        {
-                            if (currentNode.g_value + neighbor.m_value < neighbor.g_value)
+                            if (!openList.Contains(neighbor))
                             {
                                 neighbor.parent = currentNode;
+                                if (neighbor == endNode)
+                                {
+                                    List<Vector3Int> path = new List<Vector3Int>();
+                                    PathNode iterate = endNode;
+                                    do
+                                    {
+                                        path.Add(iterate.location);
+                                        iterate = iterate.parent;
+                                    } while (iterate.parent != iterate);
+                                    path.Add(iterate.location);
+                                    return path;
+                                }
+                                neighbor.m_value = 1;
+                                neighbor.g_value = neighbor.m_value + currentNode.g_value;
+                                neighbor.f_value = neighbor.g_value + neighbor.h_value;
+                                openList.Add(neighbor);
+                            }
+                            else
+                            {
+                                if (currentNode.g_value + neighbor.m_value < neighbor.g_value)
+                                {
+                                    neighbor.parent = currentNode;
+                                }
                             }
                         }
                     }
                 }
             }
             currentNode = null;
-
+            
             foreach (PathNode p in openList)
             {
                 if (currentNode == null || currentNode.f_value > p.f_value)
@@ -159,10 +162,13 @@ public class Pathing
                     currentNode = p;
                 }
             }
+            
             closedList.Add(currentNode);
             openList.Remove(currentNode);
+            
         } while (openList.Count > 0);
-        return null;
+        
+        return new List<Vector3Int>();
     }
 }
 
