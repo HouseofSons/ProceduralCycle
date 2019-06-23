@@ -37,13 +37,13 @@ public class Room : MonoBehaviour
 
         foreach(Door d in Door.Doors)
         {
-            if(d.RoomOne == this)
+            if(d.RoomFirst == this)
             {
-                neighbors.Add(d.RoomTwo);
+                neighbors.Add(d.RoomSecond);
             }
-            if (d.RoomTwo == this)
+            if (d.RoomSecond == this)
             {
-                neighbors.Add(d.RoomOne);
+                neighbors.Add(d.RoomFirst);
             }
         }
         return neighbors;

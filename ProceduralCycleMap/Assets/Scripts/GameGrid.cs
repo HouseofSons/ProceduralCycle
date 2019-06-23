@@ -167,7 +167,7 @@ public class GameGrid
             }
             final = new List<Vector3Int>();
         }
-        Debug.Log("Couldn't place Room: " + r.Order + ". No More Room on Grid");
+        Debug.Log("ERROR!!!! Couldn't place Room: " + r.Order + ". No More Room on Grid");
         return false;
     }
     //Find all Locations on Grid of Room
@@ -228,6 +228,23 @@ public class GameGrid
         }
         return Vector3Int.zero;
     }
+    //Add Door Locations to Doors
+    public static void AddDoorLocations(Room r, Vector3Int rDoorLocation, Room r0, Vector3Int r0DoorLocation)
+    {
+        foreach(Door d in r.Doors)  
+        {
+            if(d.RoomFirst == r && d.RoomSecond == r0)
+            {
+                d.RoomFirstLocation = rDoorLocation;
+                d.RoomSecondLocation = r0DoorLocation;
+            }
+            if (d.RoomSecond == r && d.RoomFirst == r0)
+            {
+                d.RoomSecondLocation = rDoorLocation;
+                d.RoomFirstLocation = r0DoorLocation;
+            }
+        }
+    }
     //Place Room close to Neighbor
     public static bool AddRoomNextToNeighbor(Room r)
     {
@@ -238,20 +255,17 @@ public class GameGrid
         //Identify all Neighbor Nodes
         foreach (Room r0 in placedNeighbors)
         {
-            neighborNodes.AddRange(OccupingNodes(r0));
-        }
-        //Debug.Log("RoomNum: " + r.Order + " NeighborRoom Count: " + placedNeighbors.Count<Room>() + " AvailableNodes: " + neighborNodes.Count);
-        //Randomizing Neighbors Nodes for more variation
-        Seed.Shuffle(neighborNodes); // <-- builds map less spreadout... interesting
-        //Try all Adjacent Nodes to Neighbor Nodes
-        foreach (Vector3Int v in neighborNodes)
-        {
-            Vector3Int availableSpot = EmptyAdjacentNode(v);
-            if (availableSpot != Vector3Int.zero)
+            neighborNodes = OccupingNodes(r0);
+            foreach (Vector3Int v in neighborNodes)
             {
-                if (BuildRoomOnGrid(r, new Vector3Int(availableSpot.x, availableSpot.y, availableSpot.z)))
+                Vector3Int availableSpot = EmptyAdjacentNode(v);
+                if (availableSpot != Vector3Int.zero)
                 {
-                    return true;
+                    if (BuildRoomOnGrid(r, availableSpot))
+                    {
+                        AddDoorLocations(r, availableSpot, r0, v);
+                        return true;
+                    }
                 }
             }
         }
@@ -281,7 +295,7 @@ public class GameGrid
 
                     temp = gameGrid[v.x + a, v.y + b, v.z + c];
 
-                    if (temp != null)
+                    if (temp != null && temp != r)
                     {
                         if (remoteNeighbors.Contains(temp))
                         {

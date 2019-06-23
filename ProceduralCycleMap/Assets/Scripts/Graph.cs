@@ -34,13 +34,13 @@ public class Pathing
         //Clean old nodes
         nodes = new PathNode[GameGrid.GameGridScale, GameGrid.GameGridScale, GameGrid.GameGridScale];
 
-        xMin = Mathf.Max(Mathf.Min(start.x, end.x) - 3,0);
-        yMin = Mathf.Max(Mathf.Min(start.y, end.y) - 3,0);
-        zMin = Mathf.Max(Mathf.Min(start.z, end.z) - 3,0);
+        xMin = Mathf.Max(Mathf.Min(start.x, end.x) - 6,0);
+        yMin = Mathf.Max(Mathf.Min(start.y, end.y) - 6,0);
+        zMin = Mathf.Max(Mathf.Min(start.z, end.z) - 6,0);
 
-        xMax = Mathf.Min(Mathf.Max(start.x, end.x) + 3, GameGrid.GameGridScale);
-        yMax = Mathf.Min(Mathf.Max(start.y, end.y) + 3, GameGrid.GameGridScale);
-        zMax = Mathf.Min(Mathf.Max(start.z, end.z) + 3, GameGrid.GameGridScale);
+        xMax = Mathf.Min(Mathf.Max(start.x, end.x) + 6, GameGrid.GameGridScale);
+        yMax = Mathf.Min(Mathf.Max(start.y, end.y) + 6, GameGrid.GameGridScale);
+        zMax = Mathf.Min(Mathf.Max(start.z, end.z) + 6, GameGrid.GameGridScale);
 
         for (int i = xMin; i < xMax; i++)
         {

@@ -149,8 +149,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b97d580650a314acb8af0bc42cd26fd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numberOfRooms: 200
-  numberOfCycles: 40
+  numberOfRooms: 20
+  numberOfCycles: 5
   pathRoomDistance: 5
 --- !u!4 &1001995745
 Transform:
