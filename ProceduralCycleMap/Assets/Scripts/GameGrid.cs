@@ -307,33 +307,73 @@ public class GameGrid
         }
         foreach (Room r0 in remoteNeighbors)
         {
-            if (!BuildPath(r,r0,FindPath(r,r0)))
+            List<Vector3Int> path = FindPath(r, r0);
+
+            if (!BuildPath(r, r0, path))
             {
                 Debug.Log("Couldn't Build Brige between Room: " + r.Order + " and Room: " + r0.Order);
+            } else
+            {
+                Vector3Int pathStart = path[path.Count - 1];
+                Vector3Int pathEnd = path[0];
+                Vector3Int rDoorLocation;
+                Vector3Int r0DoorLocation;
+                bool startFound = false;
+
+                for (int i = 0; i < 6; i++)
+                {
+                    a = (i == 0 ? -1 : (i == 1 ? 1 : 0));
+                    b = (i == 2 ? -1 : (i == 3 ? 1 : 0));
+                    c = (i == 4 ? -1 : (i == 5 ? 1 : 0));
+
+                    if (pathStart.x + a >= 0 && pathStart.x + a < GameGridScale &&
+                        pathStart.y + b >= 0 && pathStart.y + b < GameGridScale &&
+                        pathStart.z + c >= 0 && pathStart.z + c < GameGridScale && !startFound)
+                    {
+                        if (gameGrid[pathStart.x + a, pathStart.y + b, pathStart.z + c] == r)
+                        {
+                            rDoorLocation = new Vector3Int(pathStart.x + a, pathStart.y + b, pathStart.z + c);
+                            AddDoorLocations(r, rDoorLocation, r, pathStart);//might not be needed
+                            startFound = true;
+                        }
+                    }
+
+                    if (pathEnd.x + a >= 0 && pathEnd.x + a < GameGridScale &&
+                        pathEnd.y + b >= 0 && pathEnd.y + b < GameGridScale &&
+                        pathEnd.z + c >= 0 && pathEnd.z + c < GameGridScale)
+                    {
+                        if (gameGrid[pathEnd.x + a, pathEnd.y + b, pathEnd.z + c] == r0)
+                        {
+                            r0DoorLocation = new Vector3Int(pathEnd.x + a, pathEnd.y + b, pathEnd.z + c);
+                            AddDoorLocations(r0, r0DoorLocation, r, pathEnd);
+                            return;
+                        }
+                    }
+                }
             }
         }
     }
 
     public static bool BuildPath(Room start,Room end,List<Vector3Int> path)
     {
-        if(path.Count == 0)
+        if (path.Count == 0)
         {
             return false;
         }
         foreach (Vector3Int p in path)
         {
-            GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            go.transform.localScale = new Vector3(
+            GameObject pathStep = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            pathStep.transform.localScale = new Vector3(
                 ProceduralMapController.ROOM_SCALE,
                 ProceduralMapController.ROOM_SCALE,
                 ProceduralMapController.ROOM_SCALE);
-            go.transform.position = new Vector3Int(
+            pathStep.transform.position = new Vector3Int(
                 p.x * ProceduralMapController.ROOM_SCALE,
                 p.y * ProceduralMapController.ROOM_SCALE,
                 p.z * ProceduralMapController.ROOM_SCALE);
-            go.transform.name = "Room Path to: " + end.Order;
-            go.transform.parent = start.transform;
-            go.transform.GetComponent<Renderer>().material.color = start.transform.GetComponent<Renderer>().material.color;
+            pathStep.transform.GetComponent<Renderer>().material.color = start.GetComponent<Renderer>().material.color;
+            pathStep.transform.name = "Path: " + start.Order + " to " + end.Order;
+            pathStep.transform.parent = start.transform;
             gameGrid[p.x, p.y, p.z] = start;
         }
         start.GameGridPosition.AddRange(path);

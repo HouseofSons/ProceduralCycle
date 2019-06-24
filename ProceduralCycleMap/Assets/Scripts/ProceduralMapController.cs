@@ -125,7 +125,7 @@ public class ProceduralMapController : MonoBehaviour
                 yield return null;
             }
         }
-        foreach(Room r in Room.Rooms)
+        foreach (Room r in Room.Rooms)
         {
             foreach (Door d in r.Doors)
             {
