@@ -137,35 +137,39 @@ public class GameGrid
         int targetBound = Mathf.Min(GameGridScale - 1 - Mathf.Max(target.x, target.y, target.z),
             Mathf.Min(target.x, target.y, target.z));
 
-        for (int layer = 0; layer <= targetBound; layer++)
+        for (int k = 0; k < 2; k++)
         {
-            int level = 0;
+            for (int layer = 0; layer <= targetBound; layer++)
+            {
+                int level = 0;
 
-            while (Mathf.Abs(level) <= layer)
-            {
-                for (int i = -layer; i <= layer; i++)
+                while (Mathf.Abs(level) <= layer)
                 {
-                    for (int j = -layer; j <= layer; j++)
+                    for (int i = -layer; i <= layer; i++)
                     {
-                        temp.Add(new Vector3Int(target.x + i, target.y + level, target.z + j));
+                        for (int j = -layer; j <= layer; j++)
+                        {
+                            temp.Add(new Vector3Int(target.x + i, target.y + level, target.z + j));
+                        }
+                    }
+                    Seed.Shuffle(temp);
+                    final.AddRange(temp);
+                    temp = new List<Vector3Int>();
+                    level = level > 0 ? level * -1 : level * -1 + 1;
+                }
+                foreach (Vector3Int v in final)
+                {
+                    if (gameGrid[v.x, v.y, v.z] == null)
+                    {
+                        if (BuildRoomOnGrid(r, v))
+                        {
+                            return true;
+                        }
                     }
                 }
-                Seed.Shuffle(temp);
-                final.AddRange(temp);
-                temp = new List<Vector3Int>();
-                level = level > 0 ? level * -1 : level * -1 + 1;
+                final = new List<Vector3Int>();
             }
-            foreach (Vector3Int v in final)
-            {
-                if (gameGrid[v.x,v.y,v.z] == null)
-                {
-                    if (BuildRoomOnGrid(r, v))
-                    {
-                        return true;
-                    }
-                }
-            }
-            final = new List<Vector3Int>();
+            targetBound = GameGridScale / 2 - 1;
         }
         Debug.Log("ERROR!!!! Couldn't place Room: " + r.Order + ". No More Room on Grid");
         return false;
@@ -188,6 +192,7 @@ public class GameGrid
                 }
             }
         }
+        Seed.Shuffle(occupiedNodes);
         return occupiedNodes;
     }
     //Returns an empty Node next to Node v in the GameGrid
