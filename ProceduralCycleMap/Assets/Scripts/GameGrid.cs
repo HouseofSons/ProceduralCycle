@@ -316,6 +316,14 @@ public class GameGrid
 
             if (!BuildPath(r, r0, path))
             {
+                foreach (Door d in Door.Doors)
+                {
+                    if ((d.RoomFirst == r && d.RoomSecond == r0) ||(d.RoomFirst == r0 && d.RoomSecond == r))
+                    {
+                        //assign door to be remote since no path can be built
+                        d.remote = true;
+                    }
+                }
                 Debug.Log("Couldn't Build Brige between Room: " + r.Order + " and Room: " + r0.Order);
             } else
             {

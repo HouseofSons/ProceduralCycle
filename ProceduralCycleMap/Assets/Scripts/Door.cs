@@ -11,10 +11,13 @@ public class Door
     public Vector3Int RoomFirstLocation { get; set; }
     public Vector3Int RoomSecondLocation { get; set; }
 
+    public bool remote { get; set; }
+
     public Door (Room one, Room two)
     {
         Doors.Add(this);
         RoomFirst = one;
         RoomSecond = two;
+        remote = false;
     }
 }

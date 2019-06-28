@@ -115,7 +115,7 @@ public class ProceduralMapController : MonoBehaviour
 
     private static IEnumerator ExtendRooms()
     {
-        extendRooms = false;
+        extendRooms = false;    
 
         foreach (Room r in Room.Rooms)
         {
