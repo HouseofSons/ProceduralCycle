@@ -12,6 +12,7 @@ public class ProceduralMapController : MonoBehaviour
     public int pathRoomDistance;
 
     public const int ROOM_SCALE = 16;
+    public const int GAME_GRID_SCALE = 64;
 
     private static int roomCount;
     private static int cycleCount;

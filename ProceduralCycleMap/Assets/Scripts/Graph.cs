@@ -19,7 +19,8 @@ public class PathNode
 
 public class Pathing
 {
-    private static PathNode[,,] nodes = new PathNode[GameGrid.GameGridScale, GameGrid.GameGridScale, GameGrid.GameGridScale];
+    private static int GameGridScale = ProceduralMapController.GAME_GRID_SCALE;
+    private static PathNode[,,] nodes = new PathNode[GameGridScale, GameGridScale, GameGridScale];
 
     public static int xMin { get; private set; }
     public static int yMin { get; private set; }
@@ -32,15 +33,15 @@ public class Pathing
     public static void InitializeNodes(Vector3Int start,Vector3Int end, Room[,,] roomNodes)
     {
         //Clean old nodes
-        nodes = new PathNode[GameGrid.GameGridScale, GameGrid.GameGridScale, GameGrid.GameGridScale];
+        nodes = new PathNode[GameGridScale, GameGridScale, GameGridScale];
 
         xMin = Mathf.Max(Mathf.Min(start.x, end.x) - 6,0);
         yMin = Mathf.Max(Mathf.Min(start.y, end.y) - 6,0);
         zMin = Mathf.Max(Mathf.Min(start.z, end.z) - 6,0);
 
-        xMax = Mathf.Min(Mathf.Max(start.x, end.x) + 6, GameGrid.GameGridScale);
-        yMax = Mathf.Min(Mathf.Max(start.y, end.y) + 6, GameGrid.GameGridScale);
-        zMax = Mathf.Min(Mathf.Max(start.z, end.z) + 6, GameGrid.GameGridScale);
+        xMax = Mathf.Min(Mathf.Max(start.x, end.x) + 6, GameGridScale);
+        yMax = Mathf.Min(Mathf.Max(start.y, end.y) + 6, GameGridScale);
+        zMax = Mathf.Min(Mathf.Max(start.z, end.z) + 6, GameGridScale);
 
         for (int i = xMin; i < xMax; i++)
         {

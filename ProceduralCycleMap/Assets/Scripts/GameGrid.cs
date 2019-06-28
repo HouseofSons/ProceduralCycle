@@ -7,10 +7,11 @@ public class GameGrid
 {
     public static Room[,,] gameGrid;
     private static List<Room> roomsAddedToGrid;
-    public const int GameGridScale = 64;
+    private static int GameGridScale;
 
     public GameGrid()
     {
+        GameGridScale = ProceduralMapController.GAME_GRID_SCALE;
         gameGrid = new Room[GameGridScale,GameGridScale,GameGridScale];
         roomsAddedToGrid = new List<Room>();
     }
