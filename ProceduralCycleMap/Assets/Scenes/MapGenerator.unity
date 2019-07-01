@@ -150,7 +150,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   numberOfRooms: 60
-  numberOfCycles: 15
+  numberOfCycles: 20
   pathRoomDistance: 5
 --- !u!4 &1001995745
 Transform:

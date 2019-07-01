@@ -196,8 +196,8 @@ public class GameGrid
         Seed.Shuffle(occupiedNodes);
         return occupiedNodes;
     }
-    //Returns an empty Node next to Node v in the GameGrid
-    public static Vector3Int EmptyAdjacentNode(Vector3Int v)
+    //Returns all empty Nodes next to Node v in the GameGrid
+    public static List<Vector3Int> EmptyAdjacentNode(Vector3Int v)
     {
         int a,b,c;
         List<int> random = new List<int> { 0, 1, 2, 3 };
@@ -210,7 +210,9 @@ public class GameGrid
 
         Vector3Int coords;
 
-        foreach(int i in random)
+        List<Vector3Int> availableNodes = new List<Vector3Int>();
+
+        foreach (int i in random)
         {
             a = (i == 0 ? -1 : (i == 1 ? 1 : 0));
             b = (i == 4 ? -1 : (i == 5 ? 1 : 0));
@@ -225,14 +227,14 @@ public class GameGrid
             {
                 if(gameGrid[coords.x, coords.y, coords.z] == null)
                 {
-                    return new Vector3Int(coords.x, coords.y, coords.z);
+                    availableNodes.Add(new Vector3Int(coords.x, coords.y, coords.z));
                 }
             } else
             {
                 Debug.Log("Warning, Room at Grid Edge location:" + new Vector3Int(coords.x, coords.y, coords.z));
             }
         }
-        return Vector3Int.zero;
+        return availableNodes;
     }
     //Add Door Locations to Doors
     public static void AddDoorLocations(Room r, Vector3Int rDoorLocation, Room r0, Vector3Int r0DoorLocation)
@@ -264,12 +266,11 @@ public class GameGrid
             neighborNodes = OccupingNodes(r0);
             foreach (Vector3Int v in neighborNodes)
             {
-                Vector3Int availableSpot = EmptyAdjacentNode(v);
-                if (availableSpot != Vector3Int.zero)
+                foreach(Vector3Int n in EmptyAdjacentNode(v))
                 {
-                    if (BuildRoomOnGrid(r, availableSpot))
+                    if (BuildRoomOnGrid(r, n))
                     {
-                        AddDoorLocations(r, availableSpot, r0, v);
+                        AddDoorLocations(r, n, r0, v);
                         return true;
                     }
                 }
