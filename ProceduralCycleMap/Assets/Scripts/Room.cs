@@ -9,21 +9,14 @@ public class Room : MonoBehaviour
     public int Order { get; private set; }
     public bool HasCycle;
     public List<Vector3Int> GameGridPosition { get; set; }
+    public List<FloorTile> Floor { get; set; }
 
     public void Awake()
     {
         HasCycle = false;
         Order = Rooms.Count;
-    }
-
-    public void Start()
-    {
-
-    }
-
-    public void Update()
-    {
-
+        GameGridPosition = new List<Vector3Int>();
+        Floor = new List<FloorTile>();
     }
 
     public void AddDoor(Room neighbor)
@@ -77,5 +70,13 @@ public class Room : MonoBehaviour
         newPosition /= GameGridPosition.Count;
         newPosition *= ProceduralMapController.ROOM_SCALE;
         return newPosition;
+    }
+
+    public void InitializeFloorTiles()
+    {
+        foreach (Vector3Int v in GameGridPosition)
+        {
+            Floor.Add(new FloorTile(v));
+        }
     }
 }

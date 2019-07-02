@@ -79,7 +79,7 @@ public class GameGrid
                     gameGrid[rp.x, rp.y, rp.z] = r;
                 }
                 roomsAddedToGrid.Add(r);
-                r.GameGridPosition = roomPartitions;
+                r.GameGridPosition.AddRange(roomPartitions);
                 return true;
             }
             int temp = width;

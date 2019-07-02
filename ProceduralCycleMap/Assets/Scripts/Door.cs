@@ -12,6 +12,7 @@ public class Door
     public Vector3Int RoomSecondLocation { get; set; }
 
     public bool remote { get; set; }
+    public bool built { get; set; }
 
     public Door (Room one, Room two)
     {
@@ -19,5 +20,6 @@ public class Door
         RoomFirst = one;
         RoomSecond = two;
         remote = false;
+        built = false;
     }
 }

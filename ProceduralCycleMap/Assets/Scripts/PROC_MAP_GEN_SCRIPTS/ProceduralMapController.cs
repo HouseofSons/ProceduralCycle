@@ -18,6 +18,7 @@ public class ProceduralMapController : MonoBehaviour
     private static int cycleCount;
 
     private static bool extendRooms;
+    private static bool designRooms;
 
     void Awake()
     {
@@ -39,6 +40,10 @@ public class ProceduralMapController : MonoBehaviour
     {
         if (extendRooms) {
             StartCoroutine(ExtendRooms());
+        }
+        if (designRooms)
+        {
+            StartCoroutine(DesignRooms());
         }
     }
 
@@ -133,5 +138,18 @@ public class ProceduralMapController : MonoBehaviour
                 Debug.Log("Room: " + r.Order + " to Door: " + d.RoomSecond.Order);
             }
         }
+        designRooms = true;
+    }
+
+    private static IEnumerator DesignRooms()
+    {
+        designRooms = false;
+
+        foreach(Room r in Room.Rooms)
+        {
+            r.InitializeFloorTiles();
+        }
+
+        yield return null;
     }
 }
