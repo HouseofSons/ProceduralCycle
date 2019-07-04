@@ -57,8 +57,8 @@ public class RoomDesigner : MonoBehaviour
                                     secondFloorTile.AllocateFloorSpace(9, 14, 1, 1, 1, 3);
                                     firstFloorTile.AllocateFloorSpace(1, 11, 1, 16, 1, 3);
                                     firstFloorTile.AllocateFloorSpace(1, 3, 1, 8, 1, 11);
-                                    //place stairs on first floor tile
-                                    //create floor opening on second floor tile
+
+                                    //create floor opening on second floor tile!!!!!!!
 
                                     position = d.RoomFirstLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x - 1, position.y - 4, position.z - 6.5f);
@@ -86,8 +86,23 @@ public class RoomDesigner : MonoBehaviour
                                     secondFloorTile.AllocateFloorSpace(3, 8, 1, 1, 1, 3);
                                     firstFloorTile.AllocateFloorSpace(5, 16, 1, 16, 1, 3);
                                     firstFloorTile.AllocateFloorSpace(14, 16, 1, 8, 1, 11);
-                                    //place stairs on first floor tile
-                                    //create floor opening on second floor tile
+
+                                    //create floor opening on second floor tile!!!!!!!
+
+                                    position = d.RoomFirstLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x + 1, position.y - 4, position.z - 6.5f);
+                                    GameObject stairsOne = Instantiate(Stairs, position, Quaternion.identity);
+                                    stairsOne.transform.Rotate(0, 180, 0, Space.Self);
+
+                                    position = d.RoomFirstLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x + 6.5f, position.y - 0.5f, position.z - 6.5f);
+                                    GameObject platformOne = Instantiate(Platform, position, Quaternion.identity);
+                                    platformOne.transform.Rotate(0, 0, 0, Space.Self);
+
+                                    position = d.RoomFirstLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x + 6.5f, position.y + 4, position.z - 1);
+                                    GameObject stairsTwo = Instantiate(Stairs, position, Quaternion.identity);
+                                    stairsTwo.transform.Rotate(0, 90, 0, Space.Self);
                                 }
 
                                 break;
@@ -100,8 +115,23 @@ public class RoomDesigner : MonoBehaviour
                                     secondFloorTile.AllocateFloorSpace(9, 14, 1, 1, 14, 16);
                                     firstFloorTile.AllocateFloorSpace(1, 11, 1, 16, 14, 16);
                                     firstFloorTile.AllocateFloorSpace(1, 3, 1, 8, 6, 16);
-                                    //place stairs on first floor tile
-                                    //create floor opening on second floor tile
+
+                                    //create floor opening on second floor tile!!!!!!!
+
+                                    position = d.RoomFirstLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x - 1, position.y - 4, position.z + 6.5f);
+                                    GameObject stairsOne = Instantiate(Stairs, position, Quaternion.identity);
+                                    stairsOne.transform.Rotate(0, 0, 0, Space.Self);
+
+                                    position = d.RoomFirstLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x - 6.5f, position.y - 0.5f, position.z + 6.5f);
+                                    GameObject platformOne = Instantiate(Platform, position, Quaternion.identity);
+                                    platformOne.transform.Rotate(0, 0, 0, Space.Self);
+
+                                    position = d.RoomFirstLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x - 6.5f, position.y + 4, position.z + 1);
+                                    GameObject stairsTwo = Instantiate(Stairs, position, Quaternion.identity);
+                                    stairsTwo.transform.Rotate(0, 270, 0, Space.Self);
                                 }
 
                                 break;
@@ -114,8 +144,23 @@ public class RoomDesigner : MonoBehaviour
                                     secondFloorTile.AllocateFloorSpace(3, 8, 1, 1, 14, 16);
                                     firstFloorTile.AllocateFloorSpace(5, 16, 1, 16, 14, 16);
                                     firstFloorTile.AllocateFloorSpace(14, 16, 1, 8, 6, 16);
-                                    //place stairs on first floor tile
-                                    //create floor opening on second floor tile
+
+                                    //create floor opening on second floor tile!!!!!!!
+
+                                    position = d.RoomFirstLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x + 1, position.y - 4, position.z + 6.5f);
+                                    GameObject stairsOne = Instantiate(Stairs, position, Quaternion.identity);
+                                    stairsOne.transform.Rotate(0, 0, 0, Space.Self);
+
+                                    position = d.RoomFirstLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x + 6.5f, position.y - 0.5f, position.z + 6.5f);
+                                    GameObject platformOne = Instantiate(Platform, position, Quaternion.identity);
+                                    platformOne.transform.Rotate(0, 0, 0, Space.Self);
+
+                                    position = d.RoomFirstLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x + 6.5f, position.y + 4, position.z + 1);
+                                    GameObject stairsTwo = Instantiate(Stairs, position, Quaternion.identity);
+                                    stairsTwo.transform.Rotate(0, 270, 0, Space.Self);
                                 }
 
                                 break;
@@ -128,8 +173,23 @@ public class RoomDesigner : MonoBehaviour
                                     secondFloorTile.AllocateFloorSpace(1, 3, 1, 1, 9, 14);
                                     firstFloorTile.AllocateFloorSpace(1, 3, 1, 16, 1, 11);
                                     firstFloorTile.AllocateFloorSpace(1, 11, 1, 8, 1, 3);
-                                    //place stairs on first floor tile
-                                    //create floor opening on second floor tile
+
+                                    //create floor opening on second floor tile!!!!!!!
+
+                                    position = d.RoomFirstLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x - 6.5f, position.y - 4, position.z - 1);
+                                    GameObject stairsOne = Instantiate(Stairs, position, Quaternion.identity);
+                                    stairsOne.transform.Rotate(0, 270, 0, Space.Self);
+
+                                    position = d.RoomFirstLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x - 6.5f, position.y - 0.5f, position.z - 6.5f);
+                                    GameObject platformOne = Instantiate(Platform, position, Quaternion.identity);
+                                    platformOne.transform.Rotate(0, 0, 0, Space.Self);
+
+                                    position = d.RoomFirstLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x - 1, position.y + 4, position.z - 6.5f);
+                                    GameObject stairsTwo = Instantiate(Stairs, position, Quaternion.identity);
+                                    stairsTwo.transform.Rotate(0, 180, 0, Space.Self);
                                 }
 
                                 break;
@@ -142,8 +202,23 @@ public class RoomDesigner : MonoBehaviour
                                     secondFloorTile.AllocateFloorSpace(1, 3, 1, 1, 3, 8);
                                     firstFloorTile.AllocateFloorSpace(1, 3, 1, 16, 5, 16);
                                     firstFloorTile.AllocateFloorSpace(1, 11, 1, 8, 14, 16);
-                                    //place stairs on first floor tile
-                                    //create floor opening on second floor tile
+
+                                    //create floor opening on second floor tile!!!!!!!
+
+                                    position = d.RoomFirstLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x - 6.5f, position.y - 4, position.z + 1);
+                                    GameObject stairsOne = Instantiate(Stairs, position, Quaternion.identity);
+                                    stairsOne.transform.Rotate(0, 90, 0, Space.Self);
+
+                                    position = d.RoomFirstLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x - 6.5f, position.y - 0.5f, position.z + 6.5f);
+                                    GameObject platformOne = Instantiate(Platform, position, Quaternion.identity);
+                                    platformOne.transform.Rotate(0, 0, 0, Space.Self);
+
+                                    position = d.RoomFirstLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x - 1, position.y + 4, position.z + 6.5f);
+                                    GameObject stairsTwo = Instantiate(Stairs, position, Quaternion.identity);
+                                    stairsTwo.transform.Rotate(0, 180, 0, Space.Self);
                                 }
 
                                 break;
@@ -156,8 +231,23 @@ public class RoomDesigner : MonoBehaviour
                                     secondFloorTile.AllocateFloorSpace(14, 16, 1, 1, 9, 14);
                                     firstFloorTile.AllocateFloorSpace(14, 16, 1, 16, 1, 11);
                                     firstFloorTile.AllocateFloorSpace(6, 16, 1, 8, 1, 3);
-                                    //place stairs on first floor tile
-                                    //create floor opening on second floor tile
+
+                                    //create floor opening on second floor tile!!!!!!!
+
+                                    position = d.RoomFirstLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x + 6.5f, position.y - 4, position.z - 1);
+                                    GameObject stairsOne = Instantiate(Stairs, position, Quaternion.identity);
+                                    stairsOne.transform.Rotate(0, 270, 0, Space.Self);
+
+                                    position = d.RoomFirstLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x + 6.5f, position.y - 0.5f, position.z - 6.5f);
+                                    GameObject platformOne = Instantiate(Platform, position, Quaternion.identity);
+                                    platformOne.transform.Rotate(0, 0, 0, Space.Self);
+
+                                    position = d.RoomFirstLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x + 1, position.y + 4, position.z - 6.5f);
+                                    GameObject stairsTwo = Instantiate(Stairs, position, Quaternion.identity);
+                                    stairsTwo.transform.Rotate(0, 0, 0, Space.Self);
                                 }
 
                                 break;
@@ -170,8 +260,23 @@ public class RoomDesigner : MonoBehaviour
                                     secondFloorTile.AllocateFloorSpace(14, 16, 1, 1, 3, 8);
                                     firstFloorTile.AllocateFloorSpace(14, 16, 1, 16, 5, 16);
                                     firstFloorTile.AllocateFloorSpace(6, 16, 1, 8, 14, 16);
-                                    //place stairs on first floor tile
-                                    //create floor opening on second floor tile
+
+                                    //create floor opening on second floor tile!!!!!!!
+
+                                    position = d.RoomFirstLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x + 6.5f, position.y - 4, position.z + 1);
+                                    GameObject stairsOne = Instantiate(Stairs, position, Quaternion.identity);
+                                    stairsOne.transform.Rotate(0, 90, 0, Space.Self);
+
+                                    position = d.RoomFirstLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x + 6.5f, position.y - 0.5f, position.z + 6.5f);
+                                    GameObject platformOne = Instantiate(Platform, position, Quaternion.identity);
+                                    platformOne.transform.Rotate(0, 0, 0, Space.Self);
+
+                                    position = d.RoomFirstLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x + 1, position.y + 4, position.z + 6.5f);
+                                    GameObject stairsTwo = Instantiate(Stairs, position, Quaternion.identity);
+                                    stairsTwo.transform.Rotate(0, 0, 0, Space.Self);
                                 }
 
                                 break;
