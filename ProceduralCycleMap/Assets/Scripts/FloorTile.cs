@@ -18,11 +18,11 @@ public class FloorTile
 
     public bool FloorSpace(int xMin, int xMax, int yMin, int yMax, int zMin, int zMax)
 	{
-		for (int i = xMin; i < xMax; i++)
+        for (int i = xMin - 1; i < xMax; i++)
 		{
-			for (int j = yMin; j < yMax; j++)
+			for (int j = yMin - 1; j < yMax; j++)
 			{
-                for (int k = zMin; k < zMax; k++)
+                for (int k = zMin - 1; k < zMax; k++)
                 {
                     if (FloorGrid[i, j, k])
                     {
@@ -36,11 +36,11 @@ public class FloorTile
 
     public void AllocateFloorSpace(int xMin, int xMax, int yMin, int yMax, int zMin, int zMax)
     {
-        for (int i = xMin; i < xMax; i++)
+        for (int i = xMin - 1; i < xMax; i++)
         {
-            for (int j = yMin; j < yMax; j++)
+            for (int j = yMin - 1; j < yMax; j++)
             {
-                for (int k = zMin; k < zMax; k++)
+                for (int k = zMin - 1; k < zMax; k++)
                 {
                     FloorGrid[i, j, k] = true;
                 }

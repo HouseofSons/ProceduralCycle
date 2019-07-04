@@ -5,13 +5,11 @@ using UnityEngine;
 public class RoomDesigner : MonoBehaviour
 {
     public static RoomDesigner instance;
-
     public GameObject stairs;
+    public GameObject platform;
 
-    public static GameObject Stairs
-    {
-        get { return instance.stairs; }
-    }
+    public static GameObject Stairs { get { return instance.stairs; } }
+    public static GameObject Platform { get { return instance.platform; } }
 
     private void Awake()
     {
@@ -38,7 +36,7 @@ public class RoomDesigner : MonoBehaviour
             positionFound = false;
 
             //identify above neighbor
-            if (d.RoomFirstLocation.y < d.RoomSecondLocation.y)
+            if (d.RoomSecondLocation.y - d.RoomFirstLocation.y == 1)
             {
                 firstFloorTile = r.GetFloorTile(d.RoomFirstLocation);
                 secondFloorTile = d.RoomSecond.GetFloorTile(d.RoomSecondLocation);
@@ -63,9 +61,19 @@ public class RoomDesigner : MonoBehaviour
                                     //create floor opening on second floor tile
 
                                     position = d.RoomFirstLocation * ProceduralMapController.ROOM_SCALE;
-                                    position = new Vector3(position.x + (11 / 2f) - 8, position.y + (8 / 2f) - 8, position.z + (3 / 2f) - 8);
-                                    GameObject go = Instantiate(Stairs, position, Quaternion.identity);
-                                    go.transform.Rotate(0, 0, 0, Space.Self);
+                                    position = new Vector3(position.x - 1, position.y - 4, position.z - 6.5f);
+                                    GameObject stairsOne = Instantiate(Stairs, position, Quaternion.identity);
+                                    stairsOne.transform.Rotate(0, 0, 0, Space.Self);
+
+                                    position = d.RoomFirstLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x - 6.5f, position.y - 0.5f, position.z - 6.5f);
+                                    GameObject platformOne = Instantiate(Platform, position, Quaternion.identity);
+                                    platformOne.transform.Rotate(0, 0, 0, Space.Self);
+
+                                    position = d.RoomFirstLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x - 6.5f, position.y + 4, position.z - 1);
+                                    GameObject stairsTwo = Instantiate(Stairs, position, Quaternion.identity);
+                                    stairsTwo.transform.Rotate(0, 90, 0, Space.Self);
                                 }
 
                                 break;
