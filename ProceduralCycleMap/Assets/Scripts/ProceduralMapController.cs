@@ -150,6 +150,10 @@ public class ProceduralMapController : MonoBehaviour
             r.InitializeFloorTiles();
         }
 
-        yield return null;
+        foreach (Room r in Room.Rooms)
+        {
+            RoomDesigner.DesignRoom(r);
+            yield return null;
+        }
     }
 }

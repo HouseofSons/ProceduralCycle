@@ -130,6 +130,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1001995745}
   - component: {fileID: 1001995744}
+  - component: {fileID: 1001995746}
   m_Layer: 0
   m_Name: ProceduralMapController
   m_TagString: Untagged
@@ -166,6 +167,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1001995746
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1001995743}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9dce1c3c001f44cbb9117aed7ae354b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stairs: {fileID: 2981454966036749571, guid: fbb6819bdc3a04022a10242695771a1f, type: 3}
 --- !u!1 &1266712919
 GameObject:
   m_ObjectHideFlags: 0

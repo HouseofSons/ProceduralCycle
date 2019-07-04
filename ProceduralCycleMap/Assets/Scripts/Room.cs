@@ -28,9 +28,9 @@ public class Room : MonoBehaviour
     {
         List<Room> neighbors = new List<Room>();
 
-        foreach(Door d in Door.Doors)
+        foreach (Door d in Door.Doors)
         {
-            if(d.RoomFirst == this)
+            if (d.RoomFirst == this)
             {
                 neighbors.Add(d.RoomSecond);
             }
@@ -78,5 +78,17 @@ public class Room : MonoBehaviour
         {
             Floor.Add(new FloorTile(v));
         }
+    }
+
+    public FloorTile GetFloorTile(Vector3Int v)
+    {
+        foreach (FloorTile ft in Floor)
+        {
+            if (v == ft.GameGridLocation)
+            {
+                return ft;
+            }
+        }
+        return null;
     }
 }
