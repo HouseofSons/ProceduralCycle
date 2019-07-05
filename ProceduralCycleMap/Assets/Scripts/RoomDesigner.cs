@@ -150,7 +150,7 @@ public class RoomDesigner : MonoBehaviour
                                     position = d.RoomFirstLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x + 1, position.y - 4, position.z + 6.5f);
                                     GameObject stairsOne = Instantiate(Stairs, position, Quaternion.identity);
-                                    stairsOne.transform.Rotate(0, 0, 0, Space.Self);
+                                    stairsOne.transform.Rotate(0, 180, 0, Space.Self);
 
                                     position = d.RoomFirstLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x + 6.5f, position.y - 0.5f, position.z + 6.5f);
@@ -237,7 +237,7 @@ public class RoomDesigner : MonoBehaviour
                                     position = d.RoomFirstLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x + 6.5f, position.y - 4, position.z - 1);
                                     GameObject stairsOne = Instantiate(Stairs, position, Quaternion.identity);
-                                    stairsOne.transform.Rotate(0, 90, 0, Space.Self);
+                                    stairsOne.transform.Rotate(0, 270, 0, Space.Self);
 
                                     position = d.RoomFirstLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x + 6.5f, position.y - 0.5f, position.z - 6.5f);
