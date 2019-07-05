@@ -348,7 +348,7 @@ public class GameGrid
                         if (gameGrid[pathStart.x + a, pathStart.y + b, pathStart.z + c] == r)
                         {
                             rDoorLocation = new Vector3Int(pathStart.x + a, pathStart.y + b, pathStart.z + c);
-                            AddDoorLocations(r, rDoorLocation, r, pathStart);//might not be needed
+                            AddDoorLocations(r, rDoorLocation, r, pathStart);
                             startFound = true;
                         }
                     }

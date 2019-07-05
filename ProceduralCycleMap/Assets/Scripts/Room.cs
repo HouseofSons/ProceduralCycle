@@ -21,7 +21,9 @@ public class Room : MonoBehaviour
 
     public void AddDoor(Room neighbor)
     {
-        Doors.Add(new Door(this, neighbor));
+        Door d = new Door(this, neighbor);
+        Doors.Add(d);
+        neighbor.Doors.Add(d);
     }
 
     public List<Room> GetNeighbors()
