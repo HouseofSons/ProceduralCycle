@@ -180,6 +180,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   stairs: {fileID: 2981454966036749571, guid: fbb6819bdc3a04022a10242695771a1f, type: 3}
+  spiralStairs: {fileID: 8437510730137138359, guid: cdb8ddcff55ee41ebb108f0b8e8360e0,
+    type: 3}
   platform: {fileID: 6631785337619450035, guid: 17a0198643ddd4e9a840baf2bd0bc9ae,
     type: 3}
 --- !u!1 &1266712919

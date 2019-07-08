@@ -6,9 +6,11 @@ public class RoomDesigner : MonoBehaviour
 {
     public static RoomDesigner instance;
     public GameObject stairs;
+    public GameObject spiralStairs;
     public GameObject platform;
 
     public static GameObject Stairs { get { return instance.stairs; } }
+    public static GameObject SpiralStairs { get { return instance.spiralStairs; } }
     public static GameObject Platform { get { return instance.platform; } }
 
     private void Awake()
@@ -18,7 +20,7 @@ public class RoomDesigner : MonoBehaviour
 
     public static void PlaceStairs(Room r)
     {
-        List<int> positions = new List<int> { 0, 1, 2, 3, 4, 5, 6, 7 };
+        List<int> positions = new List<int> { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
         Seed.Shuffle(positions);
         FloorTile firstFloorTile;
         FloorTile secondFloorTile;
@@ -46,7 +48,7 @@ public class RoomDesigner : MonoBehaviour
                     {
                         switch (i)
                         {
-                            case 0:
+                            case 0: //Corner Stairs
                                 if (secondFloorTile.FloorSpace(1, 3, 1, 1, 9, 14) &&
                                     firstFloorTile.FloorSpace(1, 11, 1, 8, 1, 3) &&
                                     firstFloorTile.FloorSpace(1, 3, 9, 16, 1, 11))
@@ -77,7 +79,7 @@ public class RoomDesigner : MonoBehaviour
                                 }
 
                                 break;
-                            case 1:
+                            case 1: //Corner Stairs
                                 if (secondFloorTile.FloorSpace(14, 16, 1, 1, 9, 14) &&
                                     firstFloorTile.FloorSpace(5, 16, 1, 8, 1, 3) &&
                                     firstFloorTile.FloorSpace(14, 16, 9, 16, 1, 11))
@@ -112,7 +114,7 @@ public class RoomDesigner : MonoBehaviour
                                 }
 
                                 break;
-                            case 2:
+                            case 2: //Corner Stairs
                                 if (secondFloorTile.FloorSpace(1, 3, 1, 1, 3, 8) &&
                                     firstFloorTile.FloorSpace(1, 11, 1, 8, 14, 16) &&
                                     firstFloorTile.FloorSpace(1, 3, 9, 16, 6, 16))
@@ -147,7 +149,7 @@ public class RoomDesigner : MonoBehaviour
                                 }
 
                                 break;
-                            case 3:
+                            case 3: //Corner Stairs
                                 if (secondFloorTile.FloorSpace(14, 16, 1, 1, 3, 8) &&
                                     firstFloorTile.FloorSpace(5, 16, 1, 8, 14, 16) &&
                                     firstFloorTile.FloorSpace(14, 16, 9, 16, 6, 16))
@@ -182,7 +184,7 @@ public class RoomDesigner : MonoBehaviour
                                 }
 
                                 break;
-                            case 4:
+                            case 4: //Corner Stairs
                                 if (secondFloorTile.FloorSpace(9, 14, 1, 1, 1, 3) &&
                                     firstFloorTile.FloorSpace(1, 3, 1, 8, 1, 11) &&
                                     firstFloorTile.FloorSpace(1, 11, 9, 16, 1, 3))
@@ -217,7 +219,7 @@ public class RoomDesigner : MonoBehaviour
                                 }
 
                                 break;
-                            case 5:
+                            case 5: //Corner Stairs
                                 if (secondFloorTile.FloorSpace(9, 14, 1, 1, 14, 16) &&
                                     firstFloorTile.FloorSpace(1, 3, 1, 8, 5, 16) &&
                                     firstFloorTile.FloorSpace(1, 11, 9, 16, 14, 16))
@@ -252,7 +254,7 @@ public class RoomDesigner : MonoBehaviour
                                 }
 
                                 break;
-                            case 6:
+                            case 6: //Corner Stairs
                                 if (secondFloorTile.FloorSpace(3, 8, 1, 1, 1, 3) &&
                                     firstFloorTile.FloorSpace(14, 16, 1, 8, 1, 11) &&
                                     firstFloorTile.FloorSpace(6, 16, 9, 16, 1, 3))
@@ -287,7 +289,7 @@ public class RoomDesigner : MonoBehaviour
                                 }
 
                                 break;
-                            default:
+                            case 7: //Corner Stairs
                                 if (secondFloorTile.FloorSpace(3, 8, 1, 1, 14, 16) &&
                                     firstFloorTile.FloorSpace(14, 16, 1, 8, 5, 16) &&
                                     firstFloorTile.FloorSpace(6, 16, 9, 16, 14, 16))
@@ -319,6 +321,233 @@ public class RoomDesigner : MonoBehaviour
                                     stairsOne.name = "StairsOne";
                                     platformOne.name = "PlatformOne";
                                     stairsTwo.name = "StairsTwo";
+                                }
+
+                                break;
+                            case 8: //Spiral Stairs
+                                if (secondFloorTile.FloorSpace(8, 13, 1, 1, 4, 6) &&
+                                    firstFloorTile.FloorSpace(11, 13, 1, 8, 4, 9) &&
+                                    firstFloorTile.FloorSpace(8, 10, 9, 16, 4, 9))
+                                {
+                                    positionFound = true;
+                                    secondFloorTile.AllocateFloorSpace(8, 13, 1, 1, 4, 6);
+                                    firstFloorTile.AllocateFloorSpace(11, 13, 1, 8, 4, 9);
+                                    firstFloorTile.AllocateFloorSpace(8, 10, 9, 16, 4, 9);
+
+                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x + 1.5f, position.y - 4, position.z - 1.5f);
+                                    GameObject stairsOne = Instantiate(SpiralStairs, position, Quaternion.identity);
+                                    stairsOne.transform.Rotate(0, 0, 0, Space.Self);
+
+                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x + 1.5f, position.y + 4, position.z - 1.5f);
+                                    GameObject stairsTwo = Instantiate(SpiralStairs, position, Quaternion.identity);
+                                    stairsTwo.transform.Rotate(0, 180, 0, Space.Self);
+
+                                    stairsOne.transform.parent = r.transform;
+                                    stairsTwo.transform.parent = r.transform;
+
+                                    stairsOne.name = "SpiralStairsOne";
+                                    stairsTwo.name = "SpiralStairsTwo";
+                                }
+
+                                break;
+                            case 9: //Spiral Stairs
+                                if (secondFloorTile.FloorSpace(8, 13, 1, 1, 7, 9) &&
+                                    firstFloorTile.FloorSpace(8, 10, 9, 16, 4, 9) &&
+                                    firstFloorTile.FloorSpace(11, 13, 1, 8, 4, 9))
+                                {
+                                    positionFound = true;
+                                    secondFloorTile.AllocateFloorSpace(8, 13, 1, 1, 7, 9);
+                                    firstFloorTile.AllocateFloorSpace(8, 10, 9, 16, 4, 9);
+                                    firstFloorTile.AllocateFloorSpace(11, 13, 1, 8, 4, 9);
+
+                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x + 1.5f, position.y - 4, position.z - 1.5f);
+                                    GameObject stairsOne = Instantiate(SpiralStairs, position, Quaternion.identity);
+                                    stairsOne.transform.Rotate(0, 180, 0, Space.Self);
+
+                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x + 1.5f, position.y + 4, position.z - 1.5f);
+                                    GameObject stairsTwo = Instantiate(SpiralStairs, position, Quaternion.identity);
+                                    stairsTwo.transform.Rotate(0, 0, 0, Space.Self);
+
+                                    stairsOne.transform.parent = r.transform;
+                                    stairsTwo.transform.parent = r.transform;
+
+                                    stairsOne.name = "SpiralStairsOne";
+                                    stairsTwo.name = "SpiralStairsTwo";
+                                }
+
+                                break;
+
+                            case 10: //Spiral Stairs
+                                if (secondFloorTile.FloorSpace(4, 9, 1, 1, 4, 6) &&
+                                    firstFloorTile.FloorSpace(7, 9, 1, 8, 4, 9) &&
+                                    firstFloorTile.FloorSpace(4, 6, 9, 16, 4, 9))
+                                {
+                                    positionFound = true;
+                                    secondFloorTile.AllocateFloorSpace(4, 9, 1, 1, 4, 6);
+                                    firstFloorTile.AllocateFloorSpace(7, 9, 1, 8, 4, 9);
+                                    firstFloorTile.AllocateFloorSpace(4, 6, 9, 16, 4, 9);
+
+                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x - 1.5f, position.y - 4, position.z - 1.5f);
+                                    GameObject stairsOne = Instantiate(SpiralStairs, position, Quaternion.identity);
+                                    stairsOne.transform.Rotate(0, 0, 0, Space.Self);
+
+                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x - 1.5f, position.y + 4, position.z - 1.5f);
+                                    GameObject stairsTwo = Instantiate(SpiralStairs, position, Quaternion.identity);
+                                    stairsTwo.transform.Rotate(0, 180, 0, Space.Self);
+
+                                    stairsOne.transform.parent = r.transform;
+                                    stairsTwo.transform.parent = r.transform;
+
+                                    stairsOne.name = "SpiralStairsOne";
+                                    stairsTwo.name = "SpiralStairsTwo";
+                                }
+
+                                break;
+                            case 11: //Spiral Stairs
+                                if (secondFloorTile.FloorSpace(4, 9, 1, 1, 7, 9) &&
+                                    firstFloorTile.FloorSpace(4, 6, 1, 8, 4, 9) &&
+                                    firstFloorTile.FloorSpace(7, 9, 9, 16, 4, 9))
+                                {
+                                    positionFound = true;
+                                    secondFloorTile.AllocateFloorSpace(4, 9, 1, 1, 7, 9);
+                                    firstFloorTile.AllocateFloorSpace(4, 6, 1, 8, 4, 9);
+                                    firstFloorTile.AllocateFloorSpace(7, 9, 9, 16, 4, 9);
+
+                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x - 1.5f, position.y - 4, position.z - 1.5f);
+                                    GameObject stairsOne = Instantiate(SpiralStairs, position, Quaternion.identity);
+                                    stairsOne.transform.Rotate(0, 180, 0, Space.Self);
+
+                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x - 1.5f, position.y + 4, position.z - 1.5f);
+                                    GameObject stairsTwo = Instantiate(SpiralStairs, position, Quaternion.identity);
+                                    stairsTwo.transform.Rotate(0, 0, 0, Space.Self);
+
+                                    stairsOne.transform.parent = r.transform;
+                                    stairsTwo.transform.parent = r.transform;
+
+                                    stairsOne.name = "SpiralStairsOne";
+                                    stairsTwo.name = "SpiralStairsTwo";
+                                }
+
+                                break;
+
+                            case 12: //Spiral Stairs
+                                if (secondFloorTile.FloorSpace(4, 9, 1, 1, 8, 10) &&
+                                    firstFloorTile.FloorSpace(7, 9, 1, 8, 8, 13) &&
+                                    firstFloorTile.FloorSpace(4, 6, 9, 16, 8, 13))
+                                {
+                                    positionFound = true;
+                                    secondFloorTile.AllocateFloorSpace(4, 9, 1, 1, 8, 10);
+                                    firstFloorTile.AllocateFloorSpace(7, 9, 1, 8, 8, 13);
+                                    firstFloorTile.AllocateFloorSpace(4, 6, 9, 16, 8, 13);
+
+                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x - 1.5f, position.y - 4, position.z + 1.5f);
+                                    GameObject stairsOne = Instantiate(SpiralStairs, position, Quaternion.identity);
+                                    stairsOne.transform.Rotate(0, 0, 0, Space.Self);
+
+                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x - 1.5f, position.y + 4, position.z + 1.5f);
+                                    GameObject stairsTwo = Instantiate(SpiralStairs, position, Quaternion.identity);
+                                    stairsTwo.transform.Rotate(0, 180, 0, Space.Self);
+
+                                    stairsOne.transform.parent = r.transform;
+                                    stairsTwo.transform.parent = r.transform;
+
+                                    stairsOne.name = "SpiralStairsOne";
+                                    stairsTwo.name = "SpiralStairsTwo";
+                                }
+
+                                break;
+                            case 13: //Spiral Stairs
+                                if (secondFloorTile.FloorSpace(4, 9, 1, 1, 11, 13) &&
+                                    firstFloorTile.FloorSpace(4, 6, 1, 8, 8, 13) &&
+                                    firstFloorTile.FloorSpace(7, 9, 9, 16, 8, 13))
+                                {
+                                    positionFound = true;
+                                    secondFloorTile.AllocateFloorSpace(4, 9, 1, 1, 11, 13);
+                                    firstFloorTile.AllocateFloorSpace(4, 6, 1, 8, 8, 13);
+                                    firstFloorTile.AllocateFloorSpace(7, 9, 9, 16, 8, 13);
+
+                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x - 1.5f, position.y - 4, position.z + 1.5f);
+                                    GameObject stairsOne = Instantiate(SpiralStairs, position, Quaternion.identity);
+                                    stairsOne.transform.Rotate(0, 180, 0, Space.Self);
+
+                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x - 1.5f, position.y + 4, position.z + 1.5f);
+                                    GameObject stairsTwo = Instantiate(SpiralStairs, position, Quaternion.identity);
+                                    stairsTwo.transform.Rotate(0, 0, 0, Space.Self);
+
+                                    stairsOne.transform.parent = r.transform;
+                                    stairsTwo.transform.parent = r.transform;
+
+                                    stairsOne.name = "SpiralStairsOne";
+                                    stairsTwo.name = "SpiralStairsTwo";
+                                }
+
+                                break;
+
+                            case 14: //Spiral Stairs
+                                if (secondFloorTile.FloorSpace(8, 13, 1, 1, 8, 10) &&
+                                    firstFloorTile.FloorSpace(11, 13, 1, 8, 8, 13) &&
+                                    firstFloorTile.FloorSpace(8, 10, 9, 16, 8, 13))
+                                {
+                                    positionFound = true;
+                                    secondFloorTile.AllocateFloorSpace(8, 13, 1, 1, 8, 10);
+                                    firstFloorTile.AllocateFloorSpace(11, 13, 1, 8, 8, 13);
+                                    firstFloorTile.AllocateFloorSpace(8, 10, 9, 16, 8, 13);
+
+                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x + 1.5f, position.y - 4, position.z + 1.5f);
+                                    GameObject stairsOne = Instantiate(SpiralStairs, position, Quaternion.identity);
+                                    stairsOne.transform.Rotate(0, 0, 0, Space.Self);
+
+                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x + 1.5f, position.y + 4, position.z + 1.5f);
+                                    GameObject stairsTwo = Instantiate(SpiralStairs, position, Quaternion.identity);
+                                    stairsTwo.transform.Rotate(0, 180, 0, Space.Self);
+
+                                    stairsOne.transform.parent = r.transform;
+                                    stairsTwo.transform.parent = r.transform;
+
+                                    stairsOne.name = "SpiralStairsOne";
+                                    stairsTwo.name = "SpiralStairsTwo";
+                                }
+
+                                break;
+                            default: //Spiral Stairs
+                                if (secondFloorTile.FloorSpace(8, 13, 1, 1, 11, 13) &&
+                                    firstFloorTile.FloorSpace(8, 10, 1, 8, 8, 13) &&
+                                    firstFloorTile.FloorSpace(11, 13, 9, 16, 8, 13))
+                                {
+                                    positionFound = true;
+                                    secondFloorTile.AllocateFloorSpace(8, 13, 1, 1, 11, 13);
+                                    firstFloorTile.AllocateFloorSpace(8, 10, 1, 8, 8, 13);
+                                    firstFloorTile.AllocateFloorSpace(11, 13, 9, 16, 8, 13);
+
+                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x + 1.5f, position.y - 4, position.z + 1.5f);
+                                    GameObject stairsOne = Instantiate(SpiralStairs, position, Quaternion.identity);
+                                    stairsOne.transform.Rotate(0, 180, 0, Space.Self);
+
+                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = new Vector3(position.x + 1.5f, position.y + 4, position.z + 1.5f);
+                                    GameObject stairsTwo = Instantiate(SpiralStairs, position, Quaternion.identity);
+                                    stairsTwo.transform.Rotate(0, 0, 0, Space.Self);
+
+                                    stairsOne.transform.parent = r.transform;
+                                    stairsTwo.transform.parent = r.transform;
+
+                                    stairsOne.name = "SpiralStairsOne";
+                                    stairsTwo.name = "SpiralStairsTwo";
                                 }
 
                                 break;
