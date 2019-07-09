@@ -20,7 +20,7 @@ public class RoomDesigner : MonoBehaviour
 
     public static void PlaceStairs(Room r)
     {
-        List<int> positions = new List<int> { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
+        List<int> positions = new List<int> { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
         Seed.Shuffle(positions);
         FloorTile firstFloorTile;
         FloorTile secondFloorTile;
@@ -32,15 +32,24 @@ public class RoomDesigner : MonoBehaviour
             //Debug.Log("Room: " + r.Order + " Door1: " + d.RoomFirst.Order + " @ " + d.RoomFirstLocation + " Door2: " + d.RoomSecond.Order + " @ " + d.RoomSecondLocation);
             positionFound = false;
 
-            Vector3Int StairsLocation;
+            Vector3Int stairsLocation;
 
             //identify above neighbor
             if ((d.RoomSecondLocation.y - d.RoomFirstLocation.y == 1 && d.RoomFirst == r) ||
                 (d.RoomFirstLocation.y - d.RoomSecondLocation.y == 1 && d.RoomSecond == r))
             {
-                firstFloorTile = d.RoomFirst == r ? r.GetFloorTile(d.RoomFirstLocation) : r.GetFloorTile(d.RoomSecondLocation);
-                secondFloorTile = d.RoomFirst == r ? d.RoomSecond.GetFloorTile(d.RoomSecondLocation) : d.RoomFirst.GetFloorTile(d.RoomFirstLocation);
-                StairsLocation = d.RoomFirst == r ? d.RoomFirstLocation : d.RoomSecondLocation;
+                if (d.RoomFirst != d.RoomSecond)
+                {
+                    firstFloorTile = d.RoomFirst == r ? r.GetFloorTile(d.RoomFirstLocation) : r.GetFloorTile(d.RoomSecondLocation);
+                    secondFloorTile = d.RoomFirst == r ? d.RoomSecond.GetFloorTile(d.RoomSecondLocation) : d.RoomFirst.GetFloorTile(d.RoomFirstLocation);
+                    stairsLocation = d.RoomFirst == r ? d.RoomFirstLocation : d.RoomSecondLocation;
+                }
+                else
+                {
+                    firstFloorTile = d.RoomSecondLocation.y > d.RoomFirstLocation.y ? r.GetFloorTile(d.RoomFirstLocation) : r.GetFloorTile(d.RoomSecondLocation);
+                    secondFloorTile = d.RoomSecondLocation.y > d.RoomFirstLocation.y ? d.RoomSecond.GetFloorTile(d.RoomSecondLocation) : d.RoomFirst.GetFloorTile(d.RoomFirstLocation);
+                    stairsLocation = d.RoomSecondLocation.y > d.RoomFirstLocation.y ? d.RoomFirstLocation : d.RoomSecondLocation;
+                }
                 //try each position to check for fit
                 foreach (int i in positions)
                 {
@@ -58,17 +67,17 @@ public class RoomDesigner : MonoBehaviour
                                     firstFloorTile.AllocateFloorSpace(1, 11, 1, 8, 1, 3);
                                     firstFloorTile.AllocateFloorSpace(1, 3, 9, 16, 1, 11);
                                     
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x - 1, position.y - 4, position.z - 6.5f);
                                     GameObject stairsOne = Instantiate(Stairs, position, Quaternion.identity);
                                     stairsOne.transform.Rotate(0, 0, 0, Space.Self);
 
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x - 6.5f, position.y - 0.5f, position.z - 6.5f);
                                     GameObject platformOne = Instantiate(Platform, position, Quaternion.identity);
                                     platformOne.transform.Rotate(0, 0, 0, Space.Self);
 
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x - 6.5f, position.y + 4, position.z - 1);
                                     GameObject stairsTwo = Instantiate(Stairs, position, Quaternion.identity);
                                     stairsTwo.transform.Rotate(0, 90, 0, Space.Self);
@@ -89,17 +98,17 @@ public class RoomDesigner : MonoBehaviour
                                     firstFloorTile.AllocateFloorSpace(5, 16, 1, 8, 1, 3);
                                     firstFloorTile.AllocateFloorSpace(14, 16, 9, 16, 1, 11);
                                     
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x + 1, position.y - 4, position.z - 6.5f);
                                     GameObject stairsOne = Instantiate(Stairs, position, Quaternion.identity);
                                     stairsOne.transform.Rotate(0, 180, 0, Space.Self);
 
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x + 6.5f, position.y - 0.5f, position.z - 6.5f);
                                     GameObject platformOne = Instantiate(Platform, position, Quaternion.identity);
                                     platformOne.transform.Rotate(0, 0, 0, Space.Self);
 
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x + 6.5f, position.y + 4, position.z - 1);
                                     GameObject stairsTwo = Instantiate(Stairs, position, Quaternion.identity);
                                     stairsTwo.transform.Rotate(0, 90, 0, Space.Self);
@@ -124,17 +133,17 @@ public class RoomDesigner : MonoBehaviour
                                     firstFloorTile.AllocateFloorSpace(1, 11, 1, 8, 14, 16);
                                     firstFloorTile.AllocateFloorSpace(1, 3, 9, 16, 6, 16);
                                     
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x - 1, position.y - 4, position.z + 6.5f);
                                     GameObject stairsOne = Instantiate(Stairs, position, Quaternion.identity);
                                     stairsOne.transform.Rotate(0, 0, 0, Space.Self);
 
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x - 6.5f, position.y - 0.5f, position.z + 6.5f);
                                     GameObject platformOne = Instantiate(Platform, position, Quaternion.identity);
                                     platformOne.transform.Rotate(0, 0, 0, Space.Self);
 
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x - 6.5f, position.y + 4, position.z + 1);
                                     GameObject stairsTwo = Instantiate(Stairs, position, Quaternion.identity);
                                     stairsTwo.transform.Rotate(0, 270, 0, Space.Self);
@@ -159,17 +168,17 @@ public class RoomDesigner : MonoBehaviour
                                     firstFloorTile.AllocateFloorSpace(5, 16, 1, 8, 14, 16);
                                     firstFloorTile.AllocateFloorSpace(14, 16, 9, 16, 6, 16);
                                     
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x + 1, position.y - 4, position.z + 6.5f);
                                     GameObject stairsOne = Instantiate(Stairs, position, Quaternion.identity);
                                     stairsOne.transform.Rotate(0, 180, 0, Space.Self);
 
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x + 6.5f, position.y - 0.5f, position.z + 6.5f);
                                     GameObject platformOne = Instantiate(Platform, position, Quaternion.identity);
                                     platformOne.transform.Rotate(0, 0, 0, Space.Self);
 
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x + 6.5f, position.y + 4, position.z + 1);
                                     GameObject stairsTwo = Instantiate(Stairs, position, Quaternion.identity);
                                     stairsTwo.transform.Rotate(0, 270, 0, Space.Self);
@@ -194,17 +203,17 @@ public class RoomDesigner : MonoBehaviour
                                     firstFloorTile.AllocateFloorSpace(1, 3, 1, 8, 1, 11);
                                     firstFloorTile.AllocateFloorSpace(1, 11, 9, 16, 1, 3);
                                     
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x - 6.5f, position.y - 4, position.z - 1);
                                     GameObject stairsOne = Instantiate(Stairs, position, Quaternion.identity);
                                     stairsOne.transform.Rotate(0, 270, 0, Space.Self);
 
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x - 6.5f, position.y - 0.5f, position.z - 6.5f);
                                     GameObject platformOne = Instantiate(Platform, position, Quaternion.identity);
                                     platformOne.transform.Rotate(0, 0, 0, Space.Self);
 
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x - 1, position.y + 4, position.z - 6.5f);
                                     GameObject stairsTwo = Instantiate(Stairs, position, Quaternion.identity);
                                     stairsTwo.transform.Rotate(0, 180, 0, Space.Self);
@@ -229,17 +238,17 @@ public class RoomDesigner : MonoBehaviour
                                     firstFloorTile.AllocateFloorSpace(1, 3, 1, 8, 5, 16);
                                     firstFloorTile.AllocateFloorSpace(1, 11, 9, 16, 14, 16);
                                     
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x - 6.5f, position.y - 4, position.z + 1);
                                     GameObject stairsOne = Instantiate(Stairs, position, Quaternion.identity);
                                     stairsOne.transform.Rotate(0, 90, 0, Space.Self);
 
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x - 6.5f, position.y - 0.5f, position.z + 6.5f);
                                     GameObject platformOne = Instantiate(Platform, position, Quaternion.identity);
                                     platformOne.transform.Rotate(0, 0, 0, Space.Self);
 
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x - 1, position.y + 4, position.z + 6.5f);
                                     GameObject stairsTwo = Instantiate(Stairs, position, Quaternion.identity);
                                     stairsTwo.transform.Rotate(0, 180, 0, Space.Self);
@@ -264,17 +273,17 @@ public class RoomDesigner : MonoBehaviour
                                     firstFloorTile.AllocateFloorSpace(14, 16, 1, 8, 1, 11);
                                     firstFloorTile.AllocateFloorSpace(6, 16, 9, 16, 1, 3);
                                     
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x + 6.5f, position.y - 4, position.z - 1);
                                     GameObject stairsOne = Instantiate(Stairs, position, Quaternion.identity);
                                     stairsOne.transform.Rotate(0, 270, 0, Space.Self);
 
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x + 6.5f, position.y - 0.5f, position.z - 6.5f);
                                     GameObject platformOne = Instantiate(Platform, position, Quaternion.identity);
                                     platformOne.transform.Rotate(0, 0, 0, Space.Self);
 
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x + 1, position.y + 4, position.z - 6.5f);
                                     GameObject stairsTwo = Instantiate(Stairs, position, Quaternion.identity);
                                     stairsTwo.transform.Rotate(0, 0, 0, Space.Self);
@@ -299,17 +308,17 @@ public class RoomDesigner : MonoBehaviour
                                     firstFloorTile.AllocateFloorSpace(14, 16, 1, 8, 5, 16);
                                     firstFloorTile.AllocateFloorSpace(6, 16, 9, 16, 14, 16);
                                     
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x + 6.5f, position.y - 4, position.z + 1);
                                     GameObject stairsOne = Instantiate(Stairs, position, Quaternion.identity);
                                     stairsOne.transform.Rotate(0, 90, 0, Space.Self);
 
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x + 6.5f, position.y - 0.5f, position.z + 6.5f);
                                     GameObject platformOne = Instantiate(Platform, position, Quaternion.identity);
                                     platformOne.transform.Rotate(0, 0, 0, Space.Self);
 
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x + 1, position.y + 4, position.z + 6.5f);
                                     GameObject stairsTwo = Instantiate(Stairs, position, Quaternion.identity);
                                     stairsTwo.transform.Rotate(0, 0, 0, Space.Self);
@@ -334,12 +343,12 @@ public class RoomDesigner : MonoBehaviour
                                     firstFloorTile.AllocateFloorSpace(11, 13, 1, 8, 4, 9);
                                     firstFloorTile.AllocateFloorSpace(8, 10, 9, 16, 4, 9);
 
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x + 1.5f, position.y - 4, position.z - 1.5f);
                                     GameObject stairsOne = Instantiate(SpiralStairs, position, Quaternion.identity);
                                     stairsOne.transform.Rotate(0, 0, 0, Space.Self);
 
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x + 1.5f, position.y + 4, position.z - 1.5f);
                                     GameObject stairsTwo = Instantiate(SpiralStairs, position, Quaternion.identity);
                                     stairsTwo.transform.Rotate(0, 180, 0, Space.Self);
@@ -362,12 +371,12 @@ public class RoomDesigner : MonoBehaviour
                                     firstFloorTile.AllocateFloorSpace(8, 10, 9, 16, 4, 9);
                                     firstFloorTile.AllocateFloorSpace(11, 13, 1, 8, 4, 9);
 
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x + 1.5f, position.y - 4, position.z - 1.5f);
                                     GameObject stairsOne = Instantiate(SpiralStairs, position, Quaternion.identity);
                                     stairsOne.transform.Rotate(0, 180, 0, Space.Self);
 
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x + 1.5f, position.y + 4, position.z - 1.5f);
                                     GameObject stairsTwo = Instantiate(SpiralStairs, position, Quaternion.identity);
                                     stairsTwo.transform.Rotate(0, 0, 0, Space.Self);
@@ -391,12 +400,12 @@ public class RoomDesigner : MonoBehaviour
                                     firstFloorTile.AllocateFloorSpace(7, 9, 1, 8, 4, 9);
                                     firstFloorTile.AllocateFloorSpace(4, 6, 9, 16, 4, 9);
 
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x - 1.5f, position.y - 4, position.z - 1.5f);
                                     GameObject stairsOne = Instantiate(SpiralStairs, position, Quaternion.identity);
                                     stairsOne.transform.Rotate(0, 0, 0, Space.Self);
 
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x - 1.5f, position.y + 4, position.z - 1.5f);
                                     GameObject stairsTwo = Instantiate(SpiralStairs, position, Quaternion.identity);
                                     stairsTwo.transform.Rotate(0, 180, 0, Space.Self);
@@ -419,12 +428,12 @@ public class RoomDesigner : MonoBehaviour
                                     firstFloorTile.AllocateFloorSpace(4, 6, 1, 8, 4, 9);
                                     firstFloorTile.AllocateFloorSpace(7, 9, 9, 16, 4, 9);
 
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x - 1.5f, position.y - 4, position.z - 1.5f);
                                     GameObject stairsOne = Instantiate(SpiralStairs, position, Quaternion.identity);
                                     stairsOne.transform.Rotate(0, 180, 0, Space.Self);
 
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x - 1.5f, position.y + 4, position.z - 1.5f);
                                     GameObject stairsTwo = Instantiate(SpiralStairs, position, Quaternion.identity);
                                     stairsTwo.transform.Rotate(0, 0, 0, Space.Self);
@@ -448,12 +457,12 @@ public class RoomDesigner : MonoBehaviour
                                     firstFloorTile.AllocateFloorSpace(7, 9, 1, 8, 8, 13);
                                     firstFloorTile.AllocateFloorSpace(4, 6, 9, 16, 8, 13);
 
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x - 1.5f, position.y - 4, position.z + 1.5f);
                                     GameObject stairsOne = Instantiate(SpiralStairs, position, Quaternion.identity);
                                     stairsOne.transform.Rotate(0, 0, 0, Space.Self);
 
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x - 1.5f, position.y + 4, position.z + 1.5f);
                                     GameObject stairsTwo = Instantiate(SpiralStairs, position, Quaternion.identity);
                                     stairsTwo.transform.Rotate(0, 180, 0, Space.Self);
@@ -476,12 +485,12 @@ public class RoomDesigner : MonoBehaviour
                                     firstFloorTile.AllocateFloorSpace(4, 6, 1, 8, 8, 13);
                                     firstFloorTile.AllocateFloorSpace(7, 9, 9, 16, 8, 13);
 
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x - 1.5f, position.y - 4, position.z + 1.5f);
                                     GameObject stairsOne = Instantiate(SpiralStairs, position, Quaternion.identity);
                                     stairsOne.transform.Rotate(0, 180, 0, Space.Self);
 
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x - 1.5f, position.y + 4, position.z + 1.5f);
                                     GameObject stairsTwo = Instantiate(SpiralStairs, position, Quaternion.identity);
                                     stairsTwo.transform.Rotate(0, 0, 0, Space.Self);
@@ -505,12 +514,12 @@ public class RoomDesigner : MonoBehaviour
                                     firstFloorTile.AllocateFloorSpace(11, 13, 1, 8, 8, 13);
                                     firstFloorTile.AllocateFloorSpace(8, 10, 9, 16, 8, 13);
 
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x + 1.5f, position.y - 4, position.z + 1.5f);
                                     GameObject stairsOne = Instantiate(SpiralStairs, position, Quaternion.identity);
                                     stairsOne.transform.Rotate(0, 0, 0, Space.Self);
 
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x + 1.5f, position.y + 4, position.z + 1.5f);
                                     GameObject stairsTwo = Instantiate(SpiralStairs, position, Quaternion.identity);
                                     stairsTwo.transform.Rotate(0, 180, 0, Space.Self);
@@ -533,12 +542,12 @@ public class RoomDesigner : MonoBehaviour
                                     firstFloorTile.AllocateFloorSpace(8, 10, 1, 8, 8, 13);
                                     firstFloorTile.AllocateFloorSpace(11, 13, 9, 16, 8, 13);
 
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x + 1.5f, position.y - 4, position.z + 1.5f);
                                     GameObject stairsOne = Instantiate(SpiralStairs, position, Quaternion.identity);
                                     stairsOne.transform.Rotate(0, 180, 0, Space.Self);
 
-                                    position = StairsLocation * ProceduralMapController.ROOM_SCALE;
+                                    position = stairsLocation * ProceduralMapController.ROOM_SCALE;
                                     position = new Vector3(position.x + 1.5f, position.y + 4, position.z + 1.5f);
                                     GameObject stairsTwo = Instantiate(SpiralStairs, position, Quaternion.identity);
                                     stairsTwo.transform.Rotate(0, 0, 0, Space.Self);

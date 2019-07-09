@@ -237,11 +237,15 @@ public class GameGrid
         return availableNodes;
     }
     //Add Door Locations to Doors
-    public static void AddDoorLocations(Room r, Vector3Int rDoorLocation, Room r0, Vector3Int r0DoorLocation)
+    public static void AddDoorLocations(Room r, Vector3Int rDoorLocation, Room r0, Vector3Int r0DoorLocation, bool newDoor)
     {
-        foreach(Door d in r.Doors)  
+        if (newDoor)
         {
-            if(d.RoomFirst == r && d.RoomSecond == r0)
+            r.AddDoor(r0);
+        }
+        foreach (Door d in r.Doors)
+        {
+            if (d.RoomFirst == r && d.RoomSecond == r0)
             {
                 d.RoomFirstLocation = rDoorLocation;
                 d.RoomSecondLocation = r0DoorLocation;
@@ -270,7 +274,7 @@ public class GameGrid
                 {
                     if (BuildRoomOnGrid(r, n))
                     {
-                        AddDoorLocations(r, n, r0, v);
+                        AddDoorLocations(r, n, r0, v, false);
                         return true;
                     }
                 }
@@ -345,22 +349,31 @@ public class GameGrid
                         pathStart.y + b >= 0 && pathStart.y + b < GameGridScale &&
                         pathStart.z + c >= 0 && pathStart.z + c < GameGridScale && !startFound)
                     {
-                        if (gameGrid[pathStart.x + a, pathStart.y + b, pathStart.z + c] == r)
+                        if (gameGrid[pathStart.x + a, pathStart.y + b, pathStart.z + c] == r &&
+                            !path.Contains(new Vector3Int(pathStart.x + a, pathStart.y + b, pathStart.z + c)))
                         {
                             rDoorLocation = new Vector3Int(pathStart.x + a, pathStart.y + b, pathStart.z + c);
-                            AddDoorLocations(r, rDoorLocation, r, pathStart);
+                            AddDoorLocations(r, rDoorLocation, r, pathStart, true);
                             startFound = true;
                         }
                     }
+                }
+
+                for (int i = 0; i < 6; i++)
+                {
+                    a = (i == 0 ? -1 : (i == 1 ? 1 : 0));
+                    b = (i == 2 ? -1 : (i == 3 ? 1 : 0));
+                    c = (i == 4 ? -1 : (i == 5 ? 1 : 0));
 
                     if (pathEnd.x + a >= 0 && pathEnd.x + a < GameGridScale &&
-                        pathEnd.y + b >= 0 && pathEnd.y + b < GameGridScale &&
-                        pathEnd.z + c >= 0 && pathEnd.z + c < GameGridScale)
+                    pathEnd.y + b >= 0 && pathEnd.y + b < GameGridScale &&
+                    pathEnd.z + c >= 0 && pathEnd.z + c < GameGridScale)
                     {
-                        if (gameGrid[pathEnd.x + a, pathEnd.y + b, pathEnd.z + c] == r0)
+                        if (gameGrid[pathEnd.x + a, pathEnd.y + b, pathEnd.z + c] == r0 &&
+                            !path.Contains(new Vector3Int(pathEnd.x + a, pathEnd.y + b, pathEnd.z + c)))
                         {
                             r0DoorLocation = new Vector3Int(pathEnd.x + a, pathEnd.y + b, pathEnd.z + c);
-                            AddDoorLocations(r0, r0DoorLocation, r, pathEnd);
+                            AddDoorLocations(r0, r0DoorLocation, r, pathEnd, false);
                             return;
                         }
                     }

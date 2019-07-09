@@ -21,9 +21,31 @@ public class Room : MonoBehaviour
 
     public void AddDoor(Room neighbor)
     {
-        Door d = new Door(this, neighbor);
-        Doors.Add(d);
-        neighbor.Doors.Add(d);
+        if (NoDoorExists(neighbor))
+        {
+            Door d = new Door(this, neighbor);
+            Doors.Add(d);
+            if (this != neighbor)
+            {
+                neighbor.Doors.Add(d);
+            }
+        }
+    }
+
+    public bool NoDoorExists(Room neighbor)
+    {
+        if(neighbor == this)
+        {
+            return true;
+        }
+        foreach(Door d in Doors)
+        {
+            if(d.RoomFirst == neighbor || d.RoomSecond == neighbor)
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     public List<Room> GetNeighbors()

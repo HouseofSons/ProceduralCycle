@@ -131,13 +131,13 @@ public class ProceduralMapController : MonoBehaviour
                 yield return null;
             }
         }
-        //foreach (Room r in Room.Rooms)
-        //{
-        //    foreach (Door d in r.Doors)
-        //    {
-        //        Debug.Log("Room: " + r.Order + " to Door: " + d.RoomSecond.Order);
-        //    }
-        //}
+        foreach (Room r in Room.Rooms)
+        {
+            foreach (Door d in r.Doors)
+            {
+                Debug.Log("Room: " + r.Order + " to Door: " + d.RoomSecond.Order);
+            }
+        }
         designRooms = true;
     }
 
