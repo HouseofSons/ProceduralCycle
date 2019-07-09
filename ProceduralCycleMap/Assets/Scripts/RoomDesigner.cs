@@ -8,10 +8,18 @@ public class RoomDesigner : MonoBehaviour
     public GameObject stairs;
     public GameObject spiralStairs;
     public GameObject platform;
+    public GameObject floor;
+    public GameObject floorStairs;
+    public GameObject floorSpiralStairs0;
+    public GameObject floorSpiralStairs1;
 
     public static GameObject Stairs { get { return instance.stairs; } }
     public static GameObject SpiralStairs { get { return instance.spiralStairs; } }
     public static GameObject Platform { get { return instance.platform; } }
+    public static GameObject Floor { get { return instance.floor; } }
+    public static GameObject FloorStairs { get { return instance.floorStairs; } }
+    public static GameObject FloorSpiralStairs0 { get { return instance.floorSpiralStairs0; } }
+    public static GameObject FloorSpiralStairs1 { get { return instance.floorSpiralStairs1; } }
 
     private void Awake()
     {
@@ -75,7 +83,212 @@ public class RoomDesigner : MonoBehaviour
 
     public static void PlaceFloors(Room r)
     {
+        int minX = 16;
+        int maxX = -1;
+        int minZ = 16;
+        int maxZ = -1;
 
+        Vector3 position;
+
+        foreach (FloorTile tile in r.Floor)
+        {
+            for (int i = 0; i < tile.FloorGrid.GetLength(0); i++)
+            {
+                for (int k = 0; k < tile.FloorGrid.GetLength(2); k++)
+                {
+                    if (tile.FloorGrid[i, 0, k] == 1)
+                    {
+                        if (i < minX) { minX = i; }
+                        if (k < minZ) { minZ = k; }
+                        if (i > maxX) { maxX = i; }
+                        if (k > maxZ) { maxZ = k; }
+                    }
+                }
+            }
+
+            if (minZ == 0)
+            {
+                if (minX == 5)
+                {
+                    //floorstairs flip over z
+                    position = tile.GameGridLocation * ProceduralMapController.ROOM_SCALE;
+                    position = new Vector3(position.x,position.y - 8.25f,position.z);
+                    GameObject floorStairs = Instantiate(FloorStairs, position, Quaternion.identity);
+                    floorStairs.transform.Rotate(0, 0, 180, Space.Self);
+                    floorStairs.transform.parent = r.transform;
+                    floorStairs.name = "FloorStairs";
+                } else
+                {
+                    //floorstairs
+                    position = tile.GameGridLocation * ProceduralMapController.ROOM_SCALE;
+                    position = new Vector3(position.x, position.y - 8.25f, position.z);
+                    GameObject floorStairs = Instantiate(FloorStairs, position, Quaternion.identity);
+                    //floorStairs.transform.Rotate(0, 0, 0, Space.Self);
+                    floorStairs.transform.parent = r.transform;
+                    floorStairs.name = "FloorStairs";
+                }
+            } else if (maxZ == 15)
+            {
+                if (minX == 5)
+                {
+                    //floorstairs rotate 180
+                    position = tile.GameGridLocation * ProceduralMapController.ROOM_SCALE;
+                    position = new Vector3(position.x, position.y - 8.25f, position.z);
+                    GameObject floorStairs = Instantiate(FloorStairs, position, Quaternion.identity);
+                    floorStairs.transform.Rotate(0, 180, 0, Space.Self);
+                    floorStairs.transform.parent = r.transform;
+                    floorStairs.name = "FloorStairs";
+                }
+                else
+                {
+                    //floorstairs flip over z rotate 180
+                    position = tile.GameGridLocation * ProceduralMapController.ROOM_SCALE;
+                    position = new Vector3(position.x, position.y - 8.25f, position.z);
+                    GameObject floorStairs = Instantiate(FloorStairs, position, Quaternion.identity);
+                    floorStairs.transform.Rotate(0, 180, 180, Space.Self);
+                    floorStairs.transform.parent = r.transform;
+                    floorStairs.name = "FloorStairs";
+                }
+            } else if (minX == 0)
+            {
+                if (minZ == 5)
+                {
+                    //floorstairs rotate 90
+                    position = tile.GameGridLocation * ProceduralMapController.ROOM_SCALE;
+                    position = new Vector3(position.x, position.y - 8.25f, position.z);
+                    GameObject floorStairs = Instantiate(FloorStairs, position, Quaternion.identity);
+                    floorStairs.transform.Rotate(0, 90, 0, Space.Self);
+                    floorStairs.transform.parent = r.transform;
+                    floorStairs.name = "FloorStairs";
+                } else
+                {
+                    //floorstairs flip over z rotate 90
+                    position = tile.GameGridLocation * ProceduralMapController.ROOM_SCALE;
+                    position = new Vector3(position.x, position.y - 8.25f, position.z);
+                    GameObject floorStairs = Instantiate(FloorStairs, position, Quaternion.identity);
+                    floorStairs.transform.Rotate(0, 90, 180, Space.Self);
+                    floorStairs.transform.parent = r.transform;
+                    floorStairs.name = "FloorStairs";
+                }
+            } else if (maxX == 15)
+            {
+                if (minZ == 5)
+                {
+                    //floorstairs flip over z rotate 270
+                    position = tile.GameGridLocation * ProceduralMapController.ROOM_SCALE;
+                    position = new Vector3(position.x, position.y - 8.25f, position.z);
+                    GameObject floorStairs = Instantiate(FloorStairs, position, Quaternion.identity);
+                    floorStairs.transform.Rotate(0, 270, 180, Space.Self);
+                    floorStairs.transform.parent = r.transform;
+                    floorStairs.name = "FloorStairs";
+                } else
+                {
+                    //floorstairs rotate 270
+                    position = tile.GameGridLocation * ProceduralMapController.ROOM_SCALE;
+                    position = new Vector3(position.x, position.y - 8.25f, position.z);
+                    GameObject floorStairs = Instantiate(FloorStairs, position, Quaternion.identity);
+                    floorStairs.transform.Rotate(0, 270, 0, Space.Self);
+                    floorStairs.transform.parent = r.transform;
+                    floorStairs.name = "FloorStairs";
+                }
+            } else if (minZ == 3)
+            {
+                if(minX == 3)
+                {
+                    //floorspiralstairs0 rotate 90
+                    position = tile.GameGridLocation * ProceduralMapController.ROOM_SCALE;
+                    position = new Vector3(position.x, position.y - 8.25f, position.z);
+                    GameObject floorSpiralStairs = Instantiate(FloorSpiralStairs0, position, Quaternion.identity);
+                    floorSpiralStairs.transform.Rotate(0, 90, 0, Space.Self);
+                    floorSpiralStairs.transform.parent = r.transform;
+                    floorSpiralStairs.name = "FloorStairs";
+                } else
+                {
+                    //floorspiralstairs0
+                    position = tile.GameGridLocation * ProceduralMapController.ROOM_SCALE;
+                    position = new Vector3(position.x, position.y - 8.25f, position.z);
+                    GameObject floorSpiralStairs = Instantiate(FloorSpiralStairs0, position, Quaternion.identity);
+                    //floorSpiralStairs.transform.Rotate(0, 0, 0, Space.Self);
+                    floorSpiralStairs.transform.parent = r.transform;
+                    floorSpiralStairs.name = "FloorStairs";
+                }
+            } else if (maxZ == 12)
+            {
+                if (minX == 3)
+                {
+                    //floorspiralstairs0 rotate 180
+                    position = tile.GameGridLocation * ProceduralMapController.ROOM_SCALE;
+                    position = new Vector3(position.x, position.y - 8.25f, position.z);
+                    GameObject floorSpiralStairs = Instantiate(FloorSpiralStairs0, position, Quaternion.identity);
+                    floorSpiralStairs.transform.Rotate(0, 180, 0, Space.Self);
+                    floorSpiralStairs.transform.parent = r.transform;
+                    floorSpiralStairs.name = "FloorStairs";
+                }
+                else
+                {
+                    //floorspiralstairs0 rotate 270
+                    position = tile.GameGridLocation * ProceduralMapController.ROOM_SCALE;
+                    position = new Vector3(position.x, position.y - 8.25f, position.z);
+                    GameObject floorSpiralStairs = Instantiate(FloorSpiralStairs0, position, Quaternion.identity);
+                    floorSpiralStairs.transform.Rotate(0, 270, 0, Space.Self);
+                    floorSpiralStairs.transform.parent = r.transform;
+                    floorSpiralStairs.name = "FloorStairs";
+                }
+            } else if (minZ == 6)
+            {
+                if (minX == 6)
+                {
+                    //floorspiralstairs1 rotate 90
+                    position = tile.GameGridLocation * ProceduralMapController.ROOM_SCALE;
+                    position = new Vector3(position.x, position.y - 8.25f, position.z);
+                    GameObject floorSpiralStairs = Instantiate(FloorSpiralStairs1, position, Quaternion.identity);
+                    floorSpiralStairs.transform.Rotate(0, 90, 0, Space.Self);
+                    floorSpiralStairs.transform.parent = r.transform;
+                    floorSpiralStairs.name = "FloorStairs";
+                }
+                else
+                {
+                    //floorspiralstairs1
+                    position = tile.GameGridLocation * ProceduralMapController.ROOM_SCALE;
+                    position = new Vector3(position.x, position.y - 8.25f, position.z);
+                    GameObject floorSpiralStairs = Instantiate(FloorSpiralStairs1, position, Quaternion.identity);
+                    //floorSpiralStairs.transform.Rotate(0, 0, 0, Space.Self);
+                    floorSpiralStairs.transform.parent = r.transform;
+                    floorSpiralStairs.name = "FloorStairs";
+                }
+            } else if (maxZ == 9)
+            {
+                if (minX == 6)
+                {
+                    //floorspiralstairs1 rotate 180
+                    position = tile.GameGridLocation * ProceduralMapController.ROOM_SCALE;
+                    position = new Vector3(position.x, position.y - 8.25f, position.z);
+                    GameObject floorSpiralStairs = Instantiate(FloorSpiralStairs1, position, Quaternion.identity);
+                    floorSpiralStairs.transform.Rotate(0, 180, 0, Space.Self);
+                    floorSpiralStairs.transform.parent = r.transform;
+                    floorSpiralStairs.name = "FloorStairs";
+                }
+                else
+                {
+                    //floorspiralstairs1 rotate 270
+                    position = tile.GameGridLocation * ProceduralMapController.ROOM_SCALE;
+                    position = new Vector3(position.x, position.y - 8.25f, position.z);
+                    GameObject floorSpiralStairs = Instantiate(FloorSpiralStairs1, position, Quaternion.identity);
+                    floorSpiralStairs.transform.Rotate(0, 270, 0, Space.Self);
+                    floorSpiralStairs.transform.parent = r.transform;
+                    floorSpiralStairs.name = "FloorStairs";
+                }
+            } else
+            {
+                //floor
+                position = tile.GameGridLocation * ProceduralMapController.ROOM_SCALE;
+                position = new Vector3(position.x, position.y - 8.25f, position.z);
+                GameObject floorSpiralStairs = Instantiate(Floor, position, Quaternion.identity);
+                //floorSpiralStairs.transform.Rotate(0, 0, 0, Space.Self);
+                floorSpiralStairs.transform.parent = r.transform;
+                floorSpiralStairs.name = "Floor";
+            }
+        }
     }
 
     public static void PlaceDoors(Room r)

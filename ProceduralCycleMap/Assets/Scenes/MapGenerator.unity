@@ -184,6 +184,13 @@ MonoBehaviour:
     type: 3}
   platform: {fileID: 6631785337619450035, guid: 17a0198643ddd4e9a840baf2bd0bc9ae,
     type: 3}
+  floor: {fileID: 711909915170163349, guid: cc673d2afd06042ee9ccf839dbf73070, type: 3}
+  floorStairs: {fileID: 1032254670710342516, guid: d0334ffa857fc4e46aed4600c03c9d9a,
+    type: 3}
+  floorSpiralStairs0: {fileID: 3867923921719055740, guid: b9ed8411871134bd7a3169887e2ee8a7,
+    type: 3}
+  floorSpiralStairs1: {fileID: 2126038859633990589, guid: c0ca1e6a9839e4ab682cb005d542f195,
+    type: 3}
 --- !u!1 &1266712919
 GameObject:
   m_ObjectHideFlags: 0
