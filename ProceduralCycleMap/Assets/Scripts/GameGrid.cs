@@ -327,7 +327,7 @@ public class GameGrid
                     if ((d.RoomFirst == r && d.RoomSecond == r0) ||(d.RoomFirst == r0 && d.RoomSecond == r))
                     {
                         //assign door to be remote since no path can be built
-                        d.remote = true;
+                        d.Remote = true;
                     }
                 }
                 Debug.Log("Couldn't Build Brige between Room: " + r.Order + " and Room: " + r0.Order);
@@ -405,6 +405,7 @@ public class GameGrid
             gameGrid[p.x, p.y, p.z] = start;
         }
         start.GameGridPosition.AddRange(path);
+        start.Path = path;
         return true;
     }
 

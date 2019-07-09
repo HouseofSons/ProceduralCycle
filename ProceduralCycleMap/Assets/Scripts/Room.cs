@@ -6,6 +6,7 @@ public class Room : MonoBehaviour
 {
     public static List<Room> Rooms { get; } = new List<Room>();
     public List<Door> Doors { get; private set; } = new List<Door>();
+    public List<Vector3Int> Path { get; set; } = new List<Vector3Int>();
     public int Order { get; private set; }
     public bool HasCycle;
     public List<Vector3Int> GameGridPosition { get; set; }
@@ -100,7 +101,7 @@ public class Room : MonoBehaviour
     {
         foreach (Vector3Int v in GameGridPosition)
         {
-            Floor.Add(new FloorTile(v));
+            Floor.Add(new FloorTile(this,v));
         }
     }
 

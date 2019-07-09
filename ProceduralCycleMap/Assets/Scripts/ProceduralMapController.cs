@@ -149,10 +149,14 @@ public class ProceduralMapController : MonoBehaviour
         {
             r.InitializeFloorTiles();
         }
-
         foreach (Room r in Room.Rooms)
         {
-            RoomDesigner.PlaceStairs(r);
+            RoomDesigner.PlaceStairsToRoom(r);
+            yield return null;
+        }
+        foreach (Room r in Room.Rooms)
+        {
+            RoomDesigner.PlaceStairsInPath(r);
             yield return null;
         }
         foreach (Room r in Room.Rooms)
