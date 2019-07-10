@@ -403,6 +403,7 @@ public class GameGrid
             pathStep.transform.name = "Path: " + start.Order + " to " + end.Order;
             pathStep.transform.parent = start.transform;
             gameGrid[p.x, p.y, p.z] = start;
+            pathStep.transform.GetComponent<MeshRenderer>().enabled = false;
         }
         start.GameGridPosition.AddRange(path);
         start.Path = path;

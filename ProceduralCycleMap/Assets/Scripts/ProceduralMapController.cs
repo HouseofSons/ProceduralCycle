@@ -111,6 +111,7 @@ public class ProceduralMapController : MonoBehaviour
             r.transform.localScale = new Vector3Int(size.x * scalar[0], size.y, size.z * scalar[1]);
             r.transform.position = r.RoomPosition();
             r.GetComponent<Renderer>().material.SetColor("_Color", color);
+            r.transform.GetComponent<MeshRenderer>().enabled = false;
             for (int i = 0; i < 5; i++)
             {
                 yield return null;
@@ -131,13 +132,13 @@ public class ProceduralMapController : MonoBehaviour
                 yield return null;
             }
         }
-        foreach (Room r in Room.Rooms)
-        {
-            foreach (Door d in r.Doors)
-            {
-                Debug.Log("Room: " + r.Order + " to Door: " + d.RoomSecond.Order);
-            }
-        }
+        //foreach (Room r in Room.Rooms)
+        //{
+        //    foreach (Door d in r.Doors)
+        //    {
+        //        Debug.Log("Room: " + r.Order + " to Door: " + d.RoomSecond.Order);
+        //    }
+        //}
         designRooms = true;
     }
 
@@ -152,27 +153,42 @@ public class ProceduralMapController : MonoBehaviour
         foreach (Room r in Room.Rooms)
         {
             RoomDesigner.PlaceStairsToRoom(r);
-            yield return null;
+            for (int i = 0; i < 5; i++)
+            {
+                yield return null;
+            }
         }
         foreach (Room r in Room.Rooms)
         {
             RoomDesigner.PlaceStairsInPath(r);
-            yield return null;
+            for (int i = 0; i < 5; i++)
+            {
+                yield return null;
+            }
         }
         foreach (Room r in Room.Rooms)
         {
             RoomDesigner.PlaceFloors(r);
-            yield return null;
+            for (int i = 0; i < 5; i++)
+            {
+                yield return null;
+            }
         }
         foreach (Room r in Room.Rooms)
         {
             RoomDesigner.PlaceDoors(r);
-            yield return null;
+            for (int i = 0; i < 5; i++)
+            {
+                yield return null;
+            }
         }
         foreach (Room r in Room.Rooms)
         {
             RoomDesigner.PlaceWalls(r);
-            yield return null;
+            for (int i = 0; i < 5; i++)
+            {
+                yield return null;
+            }
         }
     }
 }

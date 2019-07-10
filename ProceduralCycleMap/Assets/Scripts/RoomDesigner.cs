@@ -60,7 +60,8 @@ public class RoomDesigner : MonoBehaviour
         Vector3Int pathStepPrev;
         Vector3Int pathStepCurr = Vector3Int.zero;
 
-        if (r.Path.Count > 0) {
+        if (r.Path.Count > 0)
+        {
             foreach (Vector3Int p in r.Path)
             {
                 pathStepPrev = pathStepCurr;
@@ -83,15 +84,20 @@ public class RoomDesigner : MonoBehaviour
 
     public static void PlaceFloors(Room r)
     {
-        int minX = 16;
-        int maxX = -1;
-        int minZ = 16;
-        int maxZ = -1;
+        int minX;
+        int maxX;
+        int minZ;
+        int maxZ;
 
         Vector3 position;
 
         foreach (FloorTile tile in r.Floor)
         {
+            minX = 16;
+            maxX = -1;
+            minZ = 16;
+            maxZ = -1;
+
             for (int i = 0; i < tile.FloorGrid.GetLength(0); i++)
             {
                 for (int k = 0; k < tile.FloorGrid.GetLength(2); k++)
@@ -105,17 +111,17 @@ public class RoomDesigner : MonoBehaviour
                     }
                 }
             }
-
+            //Debug.Log("Room: " + tile.Room.Order + " Tile: " + tile.GameGridLocation + " coords: " + minX + " " + maxX + " " + minZ + " " + maxZ);
             if (minZ == 0)
             {
                 if (minX == 5)
                 {
                     //floorstairs flip over z
                     position = tile.GameGridLocation * ProceduralMapController.ROOM_SCALE;
-                    position = new Vector3(position.x,position.y - 8.25f,position.z);
+                    position = new Vector3(position.x, position.y - 8.25f, position.z);
                     GameObject floorStairs = Instantiate(FloorStairs, position, Quaternion.identity);
                     floorStairs.transform.Rotate(0, 0, 180, Space.Self);
-                    floorStairs.transform.parent = r.transform;
+                    floorStairs.transform.parent = tile.Room.transform;
                     floorStairs.name = "FloorStairs";
                 } else
                 {
@@ -124,7 +130,7 @@ public class RoomDesigner : MonoBehaviour
                     position = new Vector3(position.x, position.y - 8.25f, position.z);
                     GameObject floorStairs = Instantiate(FloorStairs, position, Quaternion.identity);
                     //floorStairs.transform.Rotate(0, 0, 0, Space.Self);
-                    floorStairs.transform.parent = r.transform;
+                    floorStairs.transform.parent = tile.Room.transform;
                     floorStairs.name = "FloorStairs";
                 }
             } else if (maxZ == 15)
@@ -136,7 +142,7 @@ public class RoomDesigner : MonoBehaviour
                     position = new Vector3(position.x, position.y - 8.25f, position.z);
                     GameObject floorStairs = Instantiate(FloorStairs, position, Quaternion.identity);
                     floorStairs.transform.Rotate(0, 180, 0, Space.Self);
-                    floorStairs.transform.parent = r.transform;
+                    floorStairs.transform.parent = tile.Room.transform;
                     floorStairs.name = "FloorStairs";
                 }
                 else
@@ -146,7 +152,7 @@ public class RoomDesigner : MonoBehaviour
                     position = new Vector3(position.x, position.y - 8.25f, position.z);
                     GameObject floorStairs = Instantiate(FloorStairs, position, Quaternion.identity);
                     floorStairs.transform.Rotate(0, 180, 180, Space.Self);
-                    floorStairs.transform.parent = r.transform;
+                    floorStairs.transform.parent = tile.Room.transform;
                     floorStairs.name = "FloorStairs";
                 }
             } else if (minX == 0)
@@ -158,7 +164,7 @@ public class RoomDesigner : MonoBehaviour
                     position = new Vector3(position.x, position.y - 8.25f, position.z);
                     GameObject floorStairs = Instantiate(FloorStairs, position, Quaternion.identity);
                     floorStairs.transform.Rotate(0, 90, 0, Space.Self);
-                    floorStairs.transform.parent = r.transform;
+                    floorStairs.transform.parent = tile.Room.transform;
                     floorStairs.name = "FloorStairs";
                 } else
                 {
@@ -167,7 +173,7 @@ public class RoomDesigner : MonoBehaviour
                     position = new Vector3(position.x, position.y - 8.25f, position.z);
                     GameObject floorStairs = Instantiate(FloorStairs, position, Quaternion.identity);
                     floorStairs.transform.Rotate(0, 90, 180, Space.Self);
-                    floorStairs.transform.parent = r.transform;
+                    floorStairs.transform.parent = tile.Room.transform;
                     floorStairs.name = "FloorStairs";
                 }
             } else if (maxX == 15)
@@ -179,7 +185,7 @@ public class RoomDesigner : MonoBehaviour
                     position = new Vector3(position.x, position.y - 8.25f, position.z);
                     GameObject floorStairs = Instantiate(FloorStairs, position, Quaternion.identity);
                     floorStairs.transform.Rotate(0, 270, 180, Space.Self);
-                    floorStairs.transform.parent = r.transform;
+                    floorStairs.transform.parent = tile.Room.transform;
                     floorStairs.name = "FloorStairs";
                 } else
                 {
@@ -188,7 +194,7 @@ public class RoomDesigner : MonoBehaviour
                     position = new Vector3(position.x, position.y - 8.25f, position.z);
                     GameObject floorStairs = Instantiate(FloorStairs, position, Quaternion.identity);
                     floorStairs.transform.Rotate(0, 270, 0, Space.Self);
-                    floorStairs.transform.parent = r.transform;
+                    floorStairs.transform.parent = tile.Room.transform;
                     floorStairs.name = "FloorStairs";
                 }
             } else if (minZ == 3)
@@ -200,7 +206,7 @@ public class RoomDesigner : MonoBehaviour
                     position = new Vector3(position.x, position.y - 8.25f, position.z);
                     GameObject floorSpiralStairs = Instantiate(FloorSpiralStairs0, position, Quaternion.identity);
                     floorSpiralStairs.transform.Rotate(0, 90, 0, Space.Self);
-                    floorSpiralStairs.transform.parent = r.transform;
+                    floorSpiralStairs.transform.parent = tile.Room.transform;
                     floorSpiralStairs.name = "FloorStairs";
                 } else
                 {
@@ -209,7 +215,7 @@ public class RoomDesigner : MonoBehaviour
                     position = new Vector3(position.x, position.y - 8.25f, position.z);
                     GameObject floorSpiralStairs = Instantiate(FloorSpiralStairs0, position, Quaternion.identity);
                     //floorSpiralStairs.transform.Rotate(0, 0, 0, Space.Self);
-                    floorSpiralStairs.transform.parent = r.transform;
+                    floorSpiralStairs.transform.parent = tile.Room.transform;
                     floorSpiralStairs.name = "FloorStairs";
                 }
             } else if (maxZ == 12)
@@ -221,7 +227,7 @@ public class RoomDesigner : MonoBehaviour
                     position = new Vector3(position.x, position.y - 8.25f, position.z);
                     GameObject floorSpiralStairs = Instantiate(FloorSpiralStairs0, position, Quaternion.identity);
                     floorSpiralStairs.transform.Rotate(0, 180, 0, Space.Self);
-                    floorSpiralStairs.transform.parent = r.transform;
+                    floorSpiralStairs.transform.parent = tile.Room.transform;
                     floorSpiralStairs.name = "FloorStairs";
                 }
                 else
@@ -231,7 +237,7 @@ public class RoomDesigner : MonoBehaviour
                     position = new Vector3(position.x, position.y - 8.25f, position.z);
                     GameObject floorSpiralStairs = Instantiate(FloorSpiralStairs0, position, Quaternion.identity);
                     floorSpiralStairs.transform.Rotate(0, 270, 0, Space.Self);
-                    floorSpiralStairs.transform.parent = r.transform;
+                    floorSpiralStairs.transform.parent = tile.Room.transform;
                     floorSpiralStairs.name = "FloorStairs";
                 }
             } else if (minZ == 6)
@@ -243,7 +249,7 @@ public class RoomDesigner : MonoBehaviour
                     position = new Vector3(position.x, position.y - 8.25f, position.z);
                     GameObject floorSpiralStairs = Instantiate(FloorSpiralStairs1, position, Quaternion.identity);
                     floorSpiralStairs.transform.Rotate(0, 90, 0, Space.Self);
-                    floorSpiralStairs.transform.parent = r.transform;
+                    floorSpiralStairs.transform.parent = tile.Room.transform;
                     floorSpiralStairs.name = "FloorStairs";
                 }
                 else
@@ -253,7 +259,7 @@ public class RoomDesigner : MonoBehaviour
                     position = new Vector3(position.x, position.y - 8.25f, position.z);
                     GameObject floorSpiralStairs = Instantiate(FloorSpiralStairs1, position, Quaternion.identity);
                     //floorSpiralStairs.transform.Rotate(0, 0, 0, Space.Self);
-                    floorSpiralStairs.transform.parent = r.transform;
+                    floorSpiralStairs.transform.parent = tile.Room.transform;
                     floorSpiralStairs.name = "FloorStairs";
                 }
             } else if (maxZ == 9)
@@ -265,7 +271,7 @@ public class RoomDesigner : MonoBehaviour
                     position = new Vector3(position.x, position.y - 8.25f, position.z);
                     GameObject floorSpiralStairs = Instantiate(FloorSpiralStairs1, position, Quaternion.identity);
                     floorSpiralStairs.transform.Rotate(0, 180, 0, Space.Self);
-                    floorSpiralStairs.transform.parent = r.transform;
+                    floorSpiralStairs.transform.parent = tile.Room.transform;
                     floorSpiralStairs.name = "FloorStairs";
                 }
                 else
@@ -275,7 +281,7 @@ public class RoomDesigner : MonoBehaviour
                     position = new Vector3(position.x, position.y - 8.25f, position.z);
                     GameObject floorSpiralStairs = Instantiate(FloorSpiralStairs1, position, Quaternion.identity);
                     floorSpiralStairs.transform.Rotate(0, 270, 0, Space.Self);
-                    floorSpiralStairs.transform.parent = r.transform;
+                    floorSpiralStairs.transform.parent = tile.Room.transform;
                     floorSpiralStairs.name = "FloorStairs";
                 }
             } else
@@ -285,7 +291,7 @@ public class RoomDesigner : MonoBehaviour
                 position = new Vector3(position.x, position.y - 8.25f, position.z);
                 GameObject floorSpiralStairs = Instantiate(Floor, position, Quaternion.identity);
                 //floorSpiralStairs.transform.Rotate(0, 0, 0, Space.Self);
-                floorSpiralStairs.transform.parent = r.transform;
+                floorSpiralStairs.transform.parent = tile.Room.transform;
                 floorSpiralStairs.name = "Floor";
             }
         }

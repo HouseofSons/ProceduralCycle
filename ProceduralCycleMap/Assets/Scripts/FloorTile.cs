@@ -66,7 +66,10 @@ public class FloorTile
             {
                 for (int k = zMin - 1; k < zMax; k++)
                 {
-                    FloorGrid[i, j, k] = 2;
+                    if(FloorGrid[i, j, k] != 1)
+                    {
+                        FloorGrid[i, j, k] = 2;
+                    }
                 }
             }
         }
