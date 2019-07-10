@@ -696,6 +696,7 @@ public class RoomDesigner : MonoBehaviour
 
                             stairsOne.name = "SpiralStairsOne";
                             stairsTwo.name = "SpiralStairsTwo";
+                            stairsOne.GetComponentInChildren<Renderer>().material.SetColor("_Color", Color.black);
                         }
 
                         break;
@@ -725,6 +726,7 @@ public class RoomDesigner : MonoBehaviour
 
                             stairsOne.name = "SpiralStairsOne";
                             stairsTwo.name = "SpiralStairsTwo";
+                            stairsOne.GetComponentInChildren<Renderer>().material.SetColor("_Color", Color.yellow);
                         }
 
                         break;
@@ -814,6 +816,7 @@ public class RoomDesigner : MonoBehaviour
 
                             stairsOne.name = "SpiralStairsOne";
                             stairsTwo.name = "SpiralStairsTwo";
+                            stairsOne.GetComponentInChildren<Renderer>().material.SetColor("_Color", Color.blue);
                         }
 
                         break;
@@ -843,6 +846,7 @@ public class RoomDesigner : MonoBehaviour
 
                             stairsOne.name = "SpiralStairsOne";
                             stairsTwo.name = "SpiralStairsTwo";
+                            stairsOne.GetComponentInChildren<Renderer>().material.SetColor("_Color", Color.green);
                         }
 
                         break;
