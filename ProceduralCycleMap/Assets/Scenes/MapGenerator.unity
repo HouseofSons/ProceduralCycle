@@ -150,8 +150,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b97d580650a314acb8af0bc42cd26fd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numberOfRooms: 20
-  numberOfCycles: 5
+  numberOfRooms: 40
+  numberOfCycles: 10
   pathRoomDistance: 7
 --- !u!4 &1001995745
 Transform:
@@ -187,9 +187,7 @@ MonoBehaviour:
   floor: {fileID: 711909915170163349, guid: cc673d2afd06042ee9ccf839dbf73070, type: 3}
   floorStairs: {fileID: 1032254670710342516, guid: d0334ffa857fc4e46aed4600c03c9d9a,
     type: 3}
-  floorSpiralStairs0: {fileID: 3867923921719055740, guid: b9ed8411871134bd7a3169887e2ee8a7,
-    type: 3}
-  floorSpiralStairs1: {fileID: 2126038859633990589, guid: c0ca1e6a9839e4ab682cb005d542f195,
+  floorSpiralStairs: {fileID: 3651508467939876263, guid: 7cfef25b342094554ae3068983b8c986,
     type: 3}
 --- !u!1 &1266712919
 GameObject:
