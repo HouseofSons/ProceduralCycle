@@ -327,12 +327,12 @@ public class RoomDesigner : MonoBehaviour
                 switch (i)
                 {
                     case 0: //Corner Stairs
-                        if (top.FloorSpace(1, 3, 1, 1, 9, 14) &&
+                        if (top.FloorSpace(1, 3, 1, 1, 7, 14) &&
                             bottom.FloorSpace(1, 11, 1, 8, 1, 3) &&
                             bottom.FloorSpace(1, 3, 9, 16, 1, 11))
                         {
                             positionFound = true;
-                            top.AllocateFloorHole(1, 3, 1, 1, 9, 11);
+                            top.AllocateFloorHole(1, 3, 1, 1, 7, 11);
                             top.AllocateFloorOccupied(1, 3, 1, 1, 12, 14);
                             bottom.AllocateFloorOccupied(1, 11, 1, 8, 1, 3);
                             bottom.AllocateFloorOccupied(1, 3, 9, 16, 1, 11);
@@ -363,12 +363,12 @@ public class RoomDesigner : MonoBehaviour
 
                         break;
                     case 1: //Corner Stairs
-                        if (top.FloorSpace(14, 16, 1, 1, 9, 14) &&
+                        if (top.FloorSpace(14, 16, 1, 1, 7, 14) &&
                             bottom.FloorSpace(5, 16, 1, 8, 1, 3) &&
                             bottom.FloorSpace(14, 16, 9, 16, 1, 11))
                         {
                             positionFound = true;
-                            top.AllocateFloorHole(14, 16, 1, 1, 9, 11);
+                            top.AllocateFloorHole(14, 16, 1, 1, 7, 11);
                             top.AllocateFloorOccupied(14, 16, 1, 1, 12, 14);
                             bottom.AllocateFloorOccupied(5, 16, 1, 8, 1, 3);
                             bottom.AllocateFloorOccupied(14, 16, 9, 16, 1, 11);
@@ -399,12 +399,12 @@ public class RoomDesigner : MonoBehaviour
 
                         break;
                     case 2: //Corner Stairs
-                        if (top.FloorSpace(1, 3, 1, 1, 3, 8) &&
+                        if (top.FloorSpace(1, 3, 1, 1, 3, 10) &&
                             bottom.FloorSpace(1, 11, 1, 8, 14, 16) &&
                             bottom.FloorSpace(1, 3, 9, 16, 6, 16))
                         {
                             positionFound = true;
-                            top.AllocateFloorHole(1, 3, 1, 1, 6, 8);
+                            top.AllocateFloorHole(1, 3, 1, 1, 6, 10);
                             top.AllocateFloorOccupied(1, 3, 1, 1, 3, 5);
                             bottom.AllocateFloorOccupied(1, 11, 1, 8, 14, 16);
                             bottom.AllocateFloorOccupied(1, 3, 9, 16, 6, 16);
@@ -435,12 +435,12 @@ public class RoomDesigner : MonoBehaviour
 
                         break;
                     case 3: //Corner Stairs
-                        if (top.FloorSpace(14, 16, 1, 1, 3, 8) &&
+                        if (top.FloorSpace(14, 16, 1, 1, 3, 10) &&
                             bottom.FloorSpace(5, 16, 1, 8, 14, 16) &&
                             bottom.FloorSpace(14, 16, 9, 16, 6, 16))
                         {
                             positionFound = true;
-                            top.AllocateFloorHole(14, 16, 1, 1, 6, 8);
+                            top.AllocateFloorHole(14, 16, 1, 1, 6, 10);
                             top.AllocateFloorOccupied(14, 16, 1, 1, 3, 5);
                             bottom.AllocateFloorOccupied(5, 16, 1, 8, 14, 16);
                             bottom.AllocateFloorOccupied(14, 16, 9, 16, 6, 16);
@@ -471,12 +471,12 @@ public class RoomDesigner : MonoBehaviour
 
                         break;
                     case 4: //Corner Stairs
-                        if (top.FloorSpace(9, 14, 1, 1, 1, 3) &&
+                        if (top.FloorSpace(7, 14, 1, 1, 1, 3) &&
                             bottom.FloorSpace(1, 3, 1, 8, 1, 11) &&
                             bottom.FloorSpace(1, 11, 9, 16, 1, 3))
                         {
                             positionFound = true;
-                            top.AllocateFloorHole(9, 11, 1, 1, 1, 3);
+                            top.AllocateFloorHole(7, 11, 1, 1, 1, 3);
                             top.AllocateFloorOccupied(12, 14, 1, 1, 1, 3);
                             bottom.AllocateFloorOccupied(1, 3, 1, 8, 1, 11);
                             bottom.AllocateFloorOccupied(1, 11, 9, 16, 1, 3);
@@ -507,12 +507,12 @@ public class RoomDesigner : MonoBehaviour
 
                         break;
                     case 5: //Corner Stairs
-                        if (top.FloorSpace(9, 14, 1, 1, 14, 16) &&
+                        if (top.FloorSpace(7, 14, 1, 1, 14, 16) &&
                             bottom.FloorSpace(1, 3, 1, 8, 5, 16) &&
                             bottom.FloorSpace(1, 11, 9, 16, 14, 16))
                         {
                             positionFound = true;
-                            top.AllocateFloorHole(9, 11, 1, 1, 14, 16);
+                            top.AllocateFloorHole(7, 11, 1, 1, 14, 16);
                             top.AllocateFloorOccupied(12, 14, 1, 1, 14, 16);
                             bottom.AllocateFloorOccupied(1, 3, 1, 8, 5, 16);
                             bottom.AllocateFloorOccupied(1, 11, 9, 16, 14, 16);
@@ -543,12 +543,12 @@ public class RoomDesigner : MonoBehaviour
 
                         break;
                     case 6: //Corner Stairs
-                        if (top.FloorSpace(3, 8, 1, 1, 1, 3) &&
+                        if (top.FloorSpace(3, 10, 1, 1, 1, 3) &&
                             bottom.FloorSpace(14, 16, 1, 8, 1, 11) &&
                             bottom.FloorSpace(6, 16, 9, 16, 1, 3))
                         {
                             positionFound = true;
-                            top.AllocateFloorHole(6, 8, 1, 1, 1, 3);
+                            top.AllocateFloorHole(6, 10, 1, 1, 1, 3);
                             top.AllocateFloorOccupied(3, 5, 1, 1, 1, 3);
                             bottom.AllocateFloorOccupied(14, 16, 1, 8, 1, 11);
                             bottom.AllocateFloorOccupied(6, 16, 9, 16, 1, 3);
@@ -579,12 +579,12 @@ public class RoomDesigner : MonoBehaviour
 
                         break;
                     case 7: //Corner Stairs
-                        if (top.FloorSpace(3, 8, 1, 1, 14, 16) &&
+                        if (top.FloorSpace(3, 10, 1, 1, 14, 16) &&
                             bottom.FloorSpace(14, 16, 1, 8, 5, 16) &&
                             bottom.FloorSpace(6, 16, 9, 16, 14, 16))
                         {
                             positionFound = true;
-                            top.AllocateFloorHole(6, 8, 1, 1, 14, 16);
+                            top.AllocateFloorHole(6, 10, 1, 1, 14, 16);
                             top.AllocateFloorOccupied(3, 5, 1, 1, 14, 16);
                             bottom.AllocateFloorOccupied(14, 16, 1, 8, 5, 16);
                             bottom.AllocateFloorOccupied(6, 16, 9, 16, 14, 16);
@@ -615,12 +615,12 @@ public class RoomDesigner : MonoBehaviour
 
                         break;
                     case 8: //Spiral Stairs
-                        if (top.FloorSpace(8, 13, 1, 1, 4, 6) &&
+                        if (top.FloorSpace(8, 13, 1, 1, 4, 9) &&
                             bottom.FloorSpace(11, 13, 1, 8, 4, 9) &&
                             bottom.FloorSpace(8, 10, 9, 16, 4, 9))
                         {
                             positionFound = true;
-                            top.AllocateFloorHole(11, 13, 1, 1, 4, 6);
+                            top.AllocateFloorHole(11, 13, 1, 1, 4, 9);
                             top.AllocateFloorOccupied(8, 10, 1, 1, 4, 6);
                             bottom.AllocateFloorOccupied(11, 13, 1, 8, 4, 9);
                             bottom.AllocateFloorOccupied(8, 10, 9, 16, 4, 9);
@@ -644,12 +644,12 @@ public class RoomDesigner : MonoBehaviour
 
                         break;
                     case 9: //Spiral Stairs
-                        if (top.FloorSpace(8, 13, 1, 1, 7, 9) &&
+                        if (top.FloorSpace(8, 13, 1, 1, 4, 9) &&
                             bottom.FloorSpace(8, 10, 9, 16, 4, 9) &&
                             bottom.FloorSpace(11, 13, 1, 8, 4, 9))
                         {
                             positionFound = true;
-                            top.AllocateFloorHole(8, 10, 1, 1, 7, 9);
+                            top.AllocateFloorHole(8, 10, 1, 1, 4, 9);
                             top.AllocateFloorOccupied(11, 13, 1, 1, 7, 9);
                             bottom.AllocateFloorOccupied(8, 10, 9, 16, 4, 9);
                             bottom.AllocateFloorOccupied(11, 13, 1, 8, 4, 9);
@@ -674,12 +674,12 @@ public class RoomDesigner : MonoBehaviour
                         break;
 
                     case 10: //Spiral Stairs
-                        if (top.FloorSpace(4, 9, 1, 1, 4, 6) &&
+                        if (top.FloorSpace(4, 9, 1, 1, 4, 9) &&
                             bottom.FloorSpace(7, 9, 1, 8, 4, 9) &&
                             bottom.FloorSpace(4, 6, 9, 16, 4, 9))
                         {
                             positionFound = true;
-                            top.AllocateFloorHole(7, 9, 1, 1, 4, 6);
+                            top.AllocateFloorHole(7, 9, 1, 1, 4, 9);
                             top.AllocateFloorOccupied(4, 6, 1, 1, 4, 6);
                             bottom.AllocateFloorOccupied(7, 9, 1, 8, 4, 9);
                             bottom.AllocateFloorOccupied(4, 6, 9, 16, 4, 9);
@@ -703,12 +703,12 @@ public class RoomDesigner : MonoBehaviour
 
                         break;
                     case 11: //Spiral Stairs
-                        if (top.FloorSpace(4, 9, 1, 1, 7, 9) &&
+                        if (top.FloorSpace(4, 9, 1, 1, 4, 9) &&
                             bottom.FloorSpace(4, 6, 1, 8, 4, 9) &&
                             bottom.FloorSpace(7, 9, 9, 16, 4, 9))
                         {
                             positionFound = true;
-                            top.AllocateFloorHole(4, 6, 1, 1, 7, 9);
+                            top.AllocateFloorHole(4, 6, 1, 1, 4, 9);
                             top.AllocateFloorOccupied(7, 9, 1, 1, 7, 9);
                             bottom.AllocateFloorOccupied(4, 6, 1, 8, 4, 9);
                             bottom.AllocateFloorOccupied(7, 9, 9, 16, 4, 9);
@@ -733,12 +733,12 @@ public class RoomDesigner : MonoBehaviour
                         break;
 
                     case 12: //Spiral Stairs
-                        if (top.FloorSpace(4, 9, 1, 1, 8, 10) &&
+                        if (top.FloorSpace(4, 9, 1, 1, 8, 13) &&
                             bottom.FloorSpace(7, 9, 1, 8, 8, 13) &&
                             bottom.FloorSpace(4, 6, 9, 16, 8, 13))
                         {
                             positionFound = true;
-                            top.AllocateFloorHole(7, 9, 1, 1, 8, 10);
+                            top.AllocateFloorHole(7, 9, 1, 1, 8, 13);
                             top.AllocateFloorOccupied(4, 6, 1, 1, 8, 10);
                             bottom.AllocateFloorOccupied(7, 9, 1, 8, 8, 13);
                             bottom.AllocateFloorOccupied(4, 6, 9, 16, 8, 13);
@@ -762,12 +762,12 @@ public class RoomDesigner : MonoBehaviour
 
                         break;
                     case 13: //Spiral Stairs
-                        if (top.FloorSpace(4, 9, 1, 1, 11, 13) &&
+                        if (top.FloorSpace(4, 9, 1, 1, 8, 13) &&
                             bottom.FloorSpace(4, 6, 1, 8, 8, 13) &&
                             bottom.FloorSpace(7, 9, 9, 16, 8, 13))
                         {
                             positionFound = true;
-                            top.AllocateFloorHole(4, 6, 1, 1, 11, 13);
+                            top.AllocateFloorHole(4, 6, 1, 1, 8, 13);
                             top.AllocateFloorOccupied(7, 9, 1, 1, 11, 13);
                             bottom.AllocateFloorOccupied(4, 6, 1, 8, 8, 13);
                             bottom.AllocateFloorOccupied(7, 9, 9, 16, 8, 13);
@@ -792,12 +792,12 @@ public class RoomDesigner : MonoBehaviour
                         break;
 
                     case 14: //Spiral Stairs
-                        if (top.FloorSpace(8, 13, 1, 1, 8, 10) &&
+                        if (top.FloorSpace(8, 13, 1, 1, 8, 13) &&
                             bottom.FloorSpace(11, 13, 1, 8, 8, 13) &&
                             bottom.FloorSpace(8, 10, 9, 16, 8, 13))
                         {
                             positionFound = true;
-                            top.AllocateFloorHole(11, 13, 1, 1, 8, 10);
+                            top.AllocateFloorHole(11, 13, 1, 1, 8, 13);
                             top.AllocateFloorOccupied(8, 10, 1, 1, 8, 10);
                             bottom.AllocateFloorOccupied(11, 13, 1, 8, 8, 13);
                             bottom.AllocateFloorOccupied(8, 10, 9, 16, 8, 13);
@@ -821,12 +821,12 @@ public class RoomDesigner : MonoBehaviour
 
                         break;
                     default: //Spiral Stairs
-                        if (top.FloorSpace(8, 13, 1, 1, 11, 13) &&
+                        if (top.FloorSpace(8, 13, 1, 1, 8, 13) &&
                             bottom.FloorSpace(8, 10, 1, 8, 8, 13) &&
                             bottom.FloorSpace(11, 13, 9, 16, 8, 13))
                         {
                             positionFound = true;
-                            top.AllocateFloorHole(8, 10, 1, 1, 11, 13);
+                            top.AllocateFloorHole(8, 10, 1, 1, 8, 13);
                             top.AllocateFloorOccupied(11, 13, 1, 1, 11, 13);
                             bottom.AllocateFloorOccupied(8, 10, 1, 8, 8, 13);
                             bottom.AllocateFloorOccupied(11, 13, 9, 16, 8, 13);
