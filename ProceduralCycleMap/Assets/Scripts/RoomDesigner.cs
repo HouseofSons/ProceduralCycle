@@ -24,6 +24,19 @@ public class RoomDesigner : MonoBehaviour
         instance = this;
     }
 
+    public static void PlaceDoors(Room r)
+    {
+
+    }
+
+    public static void PlaceWalls(Room r)
+    {
+        foreach(FloorTile f in r.Floor)
+        {
+
+        }
+    }
+
     public static void PlaceStairsToRoom(Room r)
     {
         FloorTile firstFloorTile;
@@ -298,16 +311,6 @@ public class RoomDesigner : MonoBehaviour
                 floorSpiralStairs.name = "Floor";
             }
         }
-    }
-
-    public static void PlaceDoors(Room r)
-    {
-
-    }
-
-    public static void PlaceWalls(Room r)
-    {
-
     }
 
     public static void PlaceStairs(FloorTile bottom, FloorTile top, Vector3Int stairsLocation)
