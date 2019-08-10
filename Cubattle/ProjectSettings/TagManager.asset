@@ -14,21 +14,21 @@ TagManager:
   - 
   - 
   - 
-  - BlockInside
   - BlockOutside
+  - BlockTop
+  - BlockBottom
+  - BlockLeft
+  - BlockRight
+  - BlockFront
+  - BlockBack
   - 
   - 
   - 
   - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - Player1
+  - Player2
+  - Player3
+  - Player4
   - 
   - 
   - 
