@@ -28,7 +28,6 @@ public class Player : MonoBehaviour {
         playerTransform = this.gameObject.transform;
         prevPosition = this.gameObject.transform.position;
         UpdateSidesToLayers();
-        sides = new List<int>();
 
         playerInactive = true;
         PlayerToggleActive();
@@ -44,7 +43,7 @@ public class Player : MonoBehaviour {
 
             CheckEdgeCollision();
 
-            if (IsGrounded() && jumpFrameCount == 0)
+            if (IsGrounded()/* && jumpFrameCount == 0*/)
             {
                 if (!beenGrounded)
                 {
@@ -68,16 +67,6 @@ public class Player : MonoBehaviour {
                 }
             }
 
-            ////Drop Through Ledges
-            //if (Input.GetKey(KeyCode.S) && Input.GetKeyDown(KeyCode.Space))
-            //{
-            //    if (IsGrounded())
-            //    {
-            //        this.gameObject.transform.position -= LevelManager.Orientation.up * 2;
-            //        gravity += -LevelManager.Orientation.up * fallSpeed * Time.deltaTime;
-            //    }
-            //}
-            //else
             if (Input.GetKeyDown(KeyCode.Space) /*&& jumpCount < jumpCountMax*/)
             {
                 gravity = Vector3.zero;
@@ -100,72 +89,76 @@ public class Player : MonoBehaviour {
 
 	private bool IsGrounded()
     {
+        if (!Physics.GetIgnoreLayerCollision(this.gameObject.layer, sides[1]))
+        {
+            Ray ray = new Ray();
+            ray.origin = this.gameObject.transform.position;
+            ray.direction = -playerTransform.up;
+            RaycastHit hit;
+            if (Physics.SphereCast(ray, controller.radius, out hit, groundRayLength, 1 << 11))
+            {
+                if (!beenGrounded)
+                {
+                    this.gameObject.transform.position = Vector3.MoveTowards(this.gameObject.transform.position,
+                        this.gameObject.transform.position - playerTransform.up * 3.0f,
+                        Mathf.Abs(Vector3.Scale(this.gameObject.transform.position - playerTransform.up * controller.radius
+                            , playerTransform.up).magnitude -
+                            Vector3.Scale(hit.point, playerTransform.up).magnitude) - 0.1f);
+                }
+                return true;
+            }
+        }
+        return false;
 
-		Ray ray = new Ray ();
-		ray.origin = this.gameObject.transform.position;
-		ray.direction = -playerTransform.up;
-		RaycastHit hit;
-		if (Physics.SphereCast(ray,controller.radius,out hit, groundRayLength, 1 << 9)) {
-			if(!beenGrounded) {
-				this.gameObject.transform.position = Vector3.MoveTowards (this.gameObject.transform.position,
-					this.gameObject.transform.position - playerTransform.up * 3.0f,
-					Mathf.Abs (Vector3.Scale(this.gameObject.transform.position - playerTransform.up * controller.radius
-						, playerTransform.up).magnitude -
-						Vector3.Scale(hit.point, playerTransform.up).magnitude) - 0.1f);
-			}
-			return true;
-		} else {
-			return false;
-		}
-	}
+    }
 
-    private void CheckEdgeCollision()
+    private void CheckEdgeCollision() //NEED TO RETHINK THIS!!!
     {
         //reset collission layers
-        Physics.IgnoreLayerCollision(this.gameObject.layer, 10, false);
-        Physics.IgnoreLayerCollision(this.gameObject.layer, 11, false);
-        Physics.IgnoreLayerCollision(this.gameObject.layer, 12, false);
-        Physics.IgnoreLayerCollision(this.gameObject.layer, 13, false);
-        Physics.IgnoreLayerCollision(this.gameObject.layer, 14, false);
-        Physics.IgnoreLayerCollision(this.gameObject.layer, 15, false);
+        Physics.IgnoreLayerCollision(this.gameObject.layer, 10, true);
+        Physics.IgnoreLayerCollision(this.gameObject.layer, 11, true);
+        Physics.IgnoreLayerCollision(this.gameObject.layer, 12, true);
+        Physics.IgnoreLayerCollision(this.gameObject.layer, 13, true);
+        Physics.IgnoreLayerCollision(this.gameObject.layer, 14, true);
+        Physics.IgnoreLayerCollision(this.gameObject.layer, 15, true);
 
-        Vector3 playerVelocity = (this.gameObject.transform.position - prevPosition) / Time.deltaTime;
+        Vector3 unitPlayerVelocity = Vector3.Normalize((this.gameObject.transform.position - prevPosition) / Time.deltaTime);
         prevPosition = this.gameObject.transform.position;
 
         Ray ray = new Ray();
         ray.direction = playerTransform.forward;
 
         //north east ray
-        ray.origin = playerTransform.position + (Vector3.Normalize(playerVelocity) + playerTransform.lossyScale) +
+        ray.origin = playerTransform.position + unitPlayerVelocity +
             (playerTransform.up * (playerTransform.lossyScale.y / 2.0f)) + (playerTransform.right * (playerTransform.lossyScale.x / 2.0f)) -
             (playerTransform.forward * (LevelManager.GridSize + 1) * LevelManager.BlockSize);
-        if(!Physics.Raycast(ray, ((LevelManager.GridSize + 1) * LevelManager.BlockSize) * 2, 1 << 9))
+        if(!Physics.Raycast(ray, ((LevelManager.GridSize + 1) * LevelManager.BlockSize) * 2))
         {
-            ToggleLayerCollision(playerTransform.position + ray.origin);
+            ToggleLayerCollision(ray.origin);
         }
         //north west ray
-        ray.origin = playerTransform.position + (Vector3.Normalize(playerVelocity) + playerTransform.lossyScale) +
+        ray.origin = playerTransform.position + unitPlayerVelocity +
             (playerTransform.up * (playerTransform.lossyScale.y / 2.0f)) - (playerTransform.right * (playerTransform.lossyScale.x / 2.0f)) -
             (playerTransform.forward * (LevelManager.GridSize + 1) * LevelManager.BlockSize);
-        if (!Physics.Raycast(ray, ((LevelManager.GridSize + 1) * LevelManager.BlockSize) * 2, 1 << 9))
+        if (!Physics.Raycast(ray, ((LevelManager.GridSize + 1) * LevelManager.BlockSize) * 2))
         {
-            ToggleLayerCollision(playerTransform.position + ray.origin);
+            ToggleLayerCollision(ray.origin);
         }
         //south east ray
-        ray.origin = playerTransform.position + (Vector3.Normalize(playerVelocity) + playerTransform.lossyScale) -
+        ray.origin = playerTransform.position + unitPlayerVelocity -
             (playerTransform.up * (playerTransform.lossyScale.y / 2.0f)) + (playerTransform.right * (playerTransform.lossyScale.x / 2.0f)) -
             (playerTransform.forward * (LevelManager.GridSize + 1) * LevelManager.BlockSize);
-        if (!Physics.Raycast(ray, ((LevelManager.GridSize + 1) * LevelManager.BlockSize) * 2, 1 << 9))
+        if (!Physics.Raycast(ray, ((LevelManager.GridSize + 1) * LevelManager.BlockSize) * 2))
         {
-            ToggleLayerCollision(playerTransform.position + ray.origin);
+            ToggleLayerCollision(ray.origin);
         }
         //south west ray
-        ray.origin = playerTransform.position + (Vector3.Normalize(playerVelocity) + playerTransform.lossyScale) -
+        ray.origin = playerTransform.position + unitPlayerVelocity -
             (playerTransform.up * (playerTransform.lossyScale.y / 2.0f)) - (playerTransform.right * (playerTransform.lossyScale.x / 2.0f)) -
             (playerTransform.forward * (LevelManager.GridSize + 1) * LevelManager.BlockSize);
-        if (!Physics.Raycast(ray, ((LevelManager.GridSize + 1) * LevelManager.BlockSize) * 2, 1 << 9))
+        if (!Physics.Raycast(ray, ((LevelManager.GridSize + 1) * LevelManager.BlockSize) * 2))
         {
-            ToggleLayerCollision(playerTransform.position + ray.origin);
+            ToggleLayerCollision(ray.origin);
         }
     }
     //called when cube not hit
@@ -173,19 +166,19 @@ public class Player : MonoBehaviour {
     {
         if (direction.x > (playerTransform.lossyScale.x / 2.0f))
         {
-            Physics.IgnoreLayerCollision(this.gameObject.layer, sides[3], true);
+            Physics.IgnoreLayerCollision(this.gameObject.layer, sides[3], false);
         }
         if (direction.x < -(playerTransform.lossyScale.x / 2.0f))
         {
-            Physics.IgnoreLayerCollision(this.gameObject.layer, sides[2], true);
+            Physics.IgnoreLayerCollision(this.gameObject.layer, sides[2], false);
         }
         if (direction.y > (playerTransform.lossyScale.y / 2.0f))
         {
-            Physics.IgnoreLayerCollision(this.gameObject.layer, sides[0], true);
+            Physics.IgnoreLayerCollision(this.gameObject.layer, sides[0], false);
         }
         if (direction.y < -(playerTransform.lossyScale.y / 2.0f))
         {
-            Physics.IgnoreLayerCollision(this.gameObject.layer, sides[1], true);
+            Physics.IgnoreLayerCollision(this.gameObject.layer, sides[1], false);
         }
     }
     //Should be called whenever Player changes Orientation
