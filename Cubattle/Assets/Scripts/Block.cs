@@ -4,19 +4,31 @@ using UnityEngine;
 
 public class Block : MonoBehaviour
 {
-    public Vector3Int MapGridLocation { get; private set; }
+    public static List<Block> Blocks = new List<Block>();
+
+    public Vector3Int MapGridLocation { get; set; }
+    public Vector3Int PrevMapGridLocation { get; set; }
+
+    public bool Moving { get; set; }
 
     void Start()
     {
-        MapGridLocation = MapGrid.UpdateBlockLocation(this,Vector3Int.down,this.gameObject.transform.position);
-        this.gameObject.transform.position = MapGridLocation * LevelManager.BlockSize;
-        UpdateBlockColliders();
+        Blocks.Add(this);
+        MapGrid.UpdateBlockLocation(this,this.gameObject.transform.position);
+    }
+
+    void Update()
+    {
+        if (Moving)
+        {
+            MapGrid.UpdateBlockLocation(this, this.gameObject.transform.position);
+        }
     }
 
     public void UpdateBlockColliders()
     {
         int facingCoordinate;
-        bool [] sides;
+        bool [] sidesEnabled;
 
         if (Mathf.RoundToInt(LevelManager.GameOrientation.transform.forward.x) == 1)
         {
@@ -24,22 +36,23 @@ public class Block : MonoBehaviour
         } else if (Mathf.RoundToInt(LevelManager.GameOrientation.transform.forward.y) == 1)
         {
             facingCoordinate = 1;
-        }
-        else /*(Mathf.RoundToInt(LevelManager.GameOrientation.transform.forward.z) == 1)*/
+        } else /*(Mathf.RoundToInt(LevelManager.GameOrientation.transform.forward.z) == 1)*/
         {
             facingCoordinate = 2;
         }
 
-        sides = MapGrid.BlockHasColumnNeighbors(MapGridLocation, facingCoordinate);
+        sidesEnabled = MapGrid.BlockHasColumnNeighbors(MapGridLocation, facingCoordinate);
 
         for (int i = 0; i < 6; i++)
         {
-            if(sides[i])
+            if(sidesEnabled[i])
             {
                 this.gameObject.transform.GetChild(0).GetChild(i).GetComponent<MeshCollider>().enabled = false;
+                //Debug.Log(this.gameObject.name + " wall: " + this.gameObject.transform.GetChild(0).GetChild(i).name + " bool: " + false);
             } else
             {
                 this.gameObject.transform.GetChild(0).GetChild(i).GetComponent<MeshCollider>().enabled = true;
+                //Debug.Log(this.gameObject.name + " wall: " + this.gameObject.transform.GetChild(0).GetChild(i).name + " bool: " + true);
             }
         }
     }
