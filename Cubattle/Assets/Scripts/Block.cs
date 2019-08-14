@@ -4,20 +4,43 @@ using UnityEngine;
 
 public class Block : MonoBehaviour
 {
-    public MeshCollider topMC;
-    public MeshCollider bottomMC;
-    public MeshCollider leftMC;
-    public MeshCollider rightMC;
-    public MeshCollider frontMC;
-    public MeshCollider backMC;
+    public Vector3Int MapGridLocation { get; private set; }
 
     void Start()
     {
-        topMC = this.gameObject.transform.GetChild(1).GetChild(0).GetComponent<MeshCollider>();
-        bottomMC = this.gameObject.transform.GetChild(1).GetChild(1).GetComponent<MeshCollider>();
-        leftMC = this.gameObject.transform.GetChild(1).GetChild(2).GetComponent<MeshCollider>();
-        rightMC = this.gameObject.transform.GetChild(1).GetChild(3).GetComponent<MeshCollider>();
-        frontMC = this.gameObject.transform.GetChild(1).GetChild(4).GetComponent<MeshCollider>();
-        backMC = this.gameObject.transform.GetChild(1).GetChild(5).GetComponent<MeshCollider>();
+        MapGridLocation = MapGrid.UpdateBlockLocation(this,Vector3Int.down,this.gameObject.transform.position);
+        this.gameObject.transform.position = MapGridLocation * LevelManager.BlockSize;
+        UpdateBlockColliders();
+    }
+
+    public void UpdateBlockColliders()
+    {
+        int facingCoordinate;
+        bool [] sides;
+
+        if (Mathf.RoundToInt(LevelManager.GameOrientation.transform.forward.x) == 1)
+        {
+            facingCoordinate = 0;
+        } else if (Mathf.RoundToInt(LevelManager.GameOrientation.transform.forward.y) == 1)
+        {
+            facingCoordinate = 1;
+        }
+        else /*(Mathf.RoundToInt(LevelManager.GameOrientation.transform.forward.z) == 1)*/
+        {
+            facingCoordinate = 2;
+        }
+
+        sides = MapGrid.BlockHasColumnNeighbors(MapGridLocation, facingCoordinate);
+
+        for (int i = 0; i < 6; i++)
+        {
+            if(sides[i])
+            {
+                this.gameObject.transform.GetChild(0).GetChild(i).GetComponent<MeshCollider>().enabled = false;
+            } else
+            {
+                this.gameObject.transform.GetChild(0).GetChild(i).GetComponent<MeshCollider>().enabled = true;
+            }
+        }
     }
 }

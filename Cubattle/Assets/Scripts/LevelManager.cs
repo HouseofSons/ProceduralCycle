@@ -6,11 +6,12 @@ public class LevelManager : MonoBehaviour
 {
     public static int BlockSize { get; private set; }
     public static int GridSize { get; private set; }
+    public static Transform GameOrientation { get; private set; }
 
-    // Start is called before the first frame update
     void Awake()
     {
-        BlockSize = 5;
+        BlockSize = 4;
         GridSize = 64;
+        GameOrientation = this.gameObject.transform;
     }
 }
