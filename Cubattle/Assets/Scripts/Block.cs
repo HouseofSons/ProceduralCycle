@@ -4,22 +4,22 @@ using UnityEngine;
 
 public class Block : MonoBehaviour
 {
-    public static List<Block> Blocks = new List<Block>();
+    public static List<Block> Blocks = new List<Block>();//might be removed in future
 
     public Vector3Int MapGridLocation { get; set; }
     public Vector3Int PrevMapGridLocation { get; set; }
 
-    public bool Moving { get; set; }
+    public bool moved;
 
     void Start()
     {
-        Blocks.Add(this);
+        Blocks.Add(this);//might be removed in future
         MapGrid.UpdateBlockLocation(this,this.gameObject.transform.position);
     }
 
     void Update()
     {
-        if (Moving)
+        if (moved)
         {
             MapGrid.UpdateBlockLocation(this, this.gameObject.transform.position);
         }
@@ -27,21 +27,9 @@ public class Block : MonoBehaviour
 
     public void UpdateBlockColliders()
     {
-        int facingCoordinate;
         bool [] sidesEnabled;
 
-        if (Mathf.RoundToInt(LevelManager.GameOrientation.transform.forward.x) == 1)
-        {
-            facingCoordinate = 0;
-        } else if (Mathf.RoundToInt(LevelManager.GameOrientation.transform.forward.y) == 1)
-        {
-            facingCoordinate = 1;
-        } else /*(Mathf.RoundToInt(LevelManager.GameOrientation.transform.forward.z) == 1)*/
-        {
-            facingCoordinate = 2;
-        }
-
-        sidesEnabled = MapGrid.BlockHasColumnNeighbors(MapGridLocation, facingCoordinate);
+        sidesEnabled = MapGrid.GridLocationHasColumnNeighbors(MapGridLocation, LevelManager.FacingCoordinate());
 
         for (int i = 0; i < 6; i++)
         {

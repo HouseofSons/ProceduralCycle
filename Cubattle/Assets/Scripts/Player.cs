@@ -33,10 +33,9 @@ public class Player : MonoBehaviour {
 		if (!playerInactive)
         { 
             move = Input.GetAxisRaw ("Horizontal") * PlayerTransform.right;
-
 			move *= moveSpeed;
 
-            if (IsGrounded() && jumpFrameCount == 0)
+            if (IsGrounded() /*&& jumpFrameCount == 0*/)
             {
                 if (!beenGrounded)
                 {
@@ -60,7 +59,7 @@ public class Player : MonoBehaviour {
                 }
             }
 
-            if (Input.GetKeyDown(KeyCode.Space) && jumpCount < jumpCountMax)
+            if (Input.GetKeyDown(KeyCode.Space) /*&& jumpCount < jumpCountMax*/)
             {
                 gravity = Vector3.zero;
                 gravity += PlayerTransform.up * jumpSpeed;
@@ -70,6 +69,7 @@ public class Player : MonoBehaviour {
 
             move += gravity;
 			controller.Move (move * Time.deltaTime);
+            UpdateThirdDimension();
         } else {
 			gravity = Vector3.zero;
 		}
@@ -82,11 +82,12 @@ public class Player : MonoBehaviour {
 
 	private bool IsGrounded()
     {
-        Ray ray = new Ray();
-        ray.origin = this.gameObject.transform.position;
-        ray.direction = -PlayerTransform.up;
-        RaycastHit hit;
-        if (Physics.SphereCast(ray, controller.radius, out hit, groundRayLength))
+        Ray ray = new Ray
+        {
+            origin = this.gameObject.transform.position,
+            direction = -PlayerTransform.up
+        };
+        if (Physics.SphereCast(ray, controller.radius, out RaycastHit hit, groundRayLength))
         {
             if (!beenGrounded)
             {
@@ -99,5 +100,58 @@ public class Player : MonoBehaviour {
             return true;
         }
         return false;
+    }
+
+    private void UpdateThirdDimension()
+    {
+        
+        Vector3 origin;
+        int coord = LevelManager.FacingCoordinate();
+        Vector3 orientation = LevelManager.GameOrientation.forward;
+        
+        if (coord == 0)
+        {
+            if (orientation.x > 0) {
+                origin = new Vector3(-1, this.gameObject.transform.position.y, this.gameObject.transform.position.z);
+            } else
+            {
+                origin = new Vector3(LevelManager.GridSize * LevelManager.BlockSize, this.gameObject.transform.position.y, this.gameObject.transform.position.z);
+            }
+        } else if (coord == 1)
+        {
+            if (orientation.y > 0) {
+                origin = new Vector3(this.gameObject.transform.position.x, -1, this.gameObject.transform.position.z);
+            } else
+            {
+                origin = new Vector3(this.gameObject.transform.position.x, LevelManager.GridSize * LevelManager.BlockSize, this.gameObject.transform.position.z);
+            }
+        } else /*(coord == 2)*/
+        {
+            if (orientation.z > 0) {
+                origin = new Vector3(this.gameObject.transform.position.x, this.gameObject.transform.position.y, -1);
+            } else
+            {
+                origin = new Vector3(this.gameObject.transform.position.x, this.gameObject.transform.position.y, LevelManager.GridSize * LevelManager.BlockSize);
+            }
+        }
+        
+        Ray ray = new Ray(origin, LevelManager.GameOrientation.transform.forward);
+        
+        if (Physics.Raycast(ray, out RaycastHit hit, LevelManager.GridSize * LevelManager.BlockSize + LevelManager.BlockSize, ~(1<<20)))
+        {
+            if(coord == 0)
+            {
+                this.gameObject.transform.position = new Vector3(hit.transform.parent.transform.position.x, this.gameObject.transform.position.y, this.gameObject.transform.position.z);
+            } else if (coord == 1)
+            {
+                this.gameObject.transform.position = new Vector3(this.gameObject.transform.position.x, hit.transform.parent.transform.position.y, this.gameObject.transform.position.z);
+            } else /*(coord == 2)*/
+            {
+                this.gameObject.transform.position = new Vector3(this.gameObject.transform.position.x, this.gameObject.transform.position.y, hit.transform.parent.transform.position.z);
+            }
+        } else
+        {
+            Debug.Log("Character Out of Bounds");
+        }
     }
 }

@@ -23,11 +23,24 @@ public class LevelManager : MonoBehaviour
     {
         if(!gameHasStarted)
         {
-            foreach(Block b in Block.Blocks)
+            foreach(Block b in Block.Blocks)//should be removed in future
             {
                 b.UpdateBlockColliders();
             }
             gameHasStarted = true;
         }
+    }
+
+    public static int FacingCoordinate()
+    {
+        if (Mathf.RoundToInt(GameOrientation.transform.forward.x) == 1)
+        {
+            return 0;
+        }
+        if (Mathf.RoundToInt(GameOrientation.transform.forward.y) == 1)
+        {
+            return 1;
+        }
+        return 2;
     }
 }

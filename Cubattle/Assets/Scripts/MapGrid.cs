@@ -27,14 +27,14 @@ public class MapGrid
                 b.PrevMapGridLocation = b.MapGridLocation;
                 b.MapGridLocation = newLocation;
                 Blocks[newLocation.x, newLocation.y, newLocation.z] = b;
-                //UpdateMapWalls(b);
+                UpdateMapWalls(b);
                 return true;
             }
         }
         return false;
     }
 
-    public static bool[] BlockHasColumnNeighbors(Vector3Int blockLocation, int playerForwardCoordinate)
+    public static bool[] GridLocationHasColumnNeighbors(Vector3Int blockLocation, int playerForwardCoordinate)
     {
         //+X,-X,+Y,-Y,+Z,-Z
         bool xp,xm,yp,ym,zp,zm;
@@ -43,24 +43,24 @@ public class MapGrid
         {
             xp = false;
             xm = false;
-            yp = ColumnOccupied(new Vector2Int(blockLocation.y + 1, blockLocation.z), playerForwardCoordinate);
-            ym = ColumnOccupied(new Vector2Int(blockLocation.y - 1, blockLocation.z), playerForwardCoordinate);
-            zp = ColumnOccupied(new Vector2Int(blockLocation.y, blockLocation.z + 1), playerForwardCoordinate);
-            zm = ColumnOccupied(new Vector2Int(blockLocation.y, blockLocation.z - 1), playerForwardCoordinate);
+            yp = ColumnOccupied(blockLocation.y + 1, blockLocation.z, playerForwardCoordinate);
+            ym = ColumnOccupied(blockLocation.y - 1, blockLocation.z, playerForwardCoordinate);
+            zp = ColumnOccupied(blockLocation.y, blockLocation.z + 1, playerForwardCoordinate);
+            zm = ColumnOccupied(blockLocation.y, blockLocation.z - 1, playerForwardCoordinate);
         } else if (playerForwardCoordinate == 1)
         {
-            xp = ColumnOccupied(new Vector2Int(blockLocation.x + 1, blockLocation.z), playerForwardCoordinate);
-            xm = ColumnOccupied(new Vector2Int(blockLocation.x - 1, blockLocation.z), playerForwardCoordinate);
+            xp = ColumnOccupied(blockLocation.x + 1, blockLocation.z, playerForwardCoordinate);
+            xm = ColumnOccupied(blockLocation.x - 1, blockLocation.z, playerForwardCoordinate);
             yp = false;
             ym = false;
-            zp = ColumnOccupied(new Vector2Int(blockLocation.x, blockLocation.z + 1), playerForwardCoordinate);
-            zm = ColumnOccupied(new Vector2Int(blockLocation.x, blockLocation.z - 1), playerForwardCoordinate);
+            zp = ColumnOccupied(blockLocation.x, blockLocation.z + 1, playerForwardCoordinate);
+            zm = ColumnOccupied(blockLocation.x, blockLocation.z - 1, playerForwardCoordinate);
         } else /*(playerFacingCoordinate == 2)*/
         {
-            xp = ColumnOccupied(new Vector2Int(blockLocation.x + 1, blockLocation.y), playerForwardCoordinate);
-            xm = ColumnOccupied(new Vector2Int(blockLocation.x - 1, blockLocation.y), playerForwardCoordinate);
-            yp = ColumnOccupied(new Vector2Int(blockLocation.x, blockLocation.y + 1), playerForwardCoordinate);
-            ym = ColumnOccupied(new Vector2Int(blockLocation.x, blockLocation.y - 1), playerForwardCoordinate);
+            xp = ColumnOccupied(blockLocation.x + 1, blockLocation.y, playerForwardCoordinate);
+            xm = ColumnOccupied(blockLocation.x - 1, blockLocation.y, playerForwardCoordinate);
+            yp = ColumnOccupied(blockLocation.x, blockLocation.y + 1, playerForwardCoordinate);
+            ym = ColumnOccupied(blockLocation.x, blockLocation.y - 1, playerForwardCoordinate);
             zp = false;
             zm = false;
         }
@@ -68,18 +68,18 @@ public class MapGrid
         return new bool[6] { xp, xm, yp, ym, zp, zm };
     }
 
-    private static bool ColumnOccupied(Vector2Int col, int colCoord)
+    private static bool ColumnOccupied(int x, int y, int colCoord)
     {
-        if (col.x < 0 || col.x > LevelManager.GridSize - 1 ||
-            col.y < 0 || col.y > LevelManager.GridSize - 1)
+        if (x < 0 || x > LevelManager.GridSize - 1 ||
+            y < 0 || y > LevelManager.GridSize - 1)
         {
             return false;
         }
         int q, r, s, t, u, v;
-        if (colCoord == 0)         { q = 0; r = Blocks.GetLength(0); s = col.x; t = col.x + 1; u = col.y; v = col.y + 1; }
-        else if (colCoord == 1)    { q = col.x; r = col.x + 1; s = 0; t = Blocks.GetLength(1); u = col.y; v = col.y + 1; }
-        else  /*(colCoord == 2)*/  { q = col.x; r = col.x + 1; s = col.y; t = col.y + 1; u = 0; v = Blocks.GetLength(2); }
-        
+        if (colCoord == 0) { q = 0; r = Blocks.GetLength(0); s = x; t = x + 1; u = y; v = y + 1; }
+        else if (colCoord == 1) { q = x; r = x + 1; s = 0; t = Blocks.GetLength(1); u = y; v = y + 1; }
+        else  /*(colCoord == 2)*/  { q = x; r = x + 1; s = y; t = y + 1; u = 0; v = Blocks.GetLength(2); }
+
         for (int i = q; i < r; i++) {
             //Debug.Log(" q: " + q + " r: " + r + " s: " + s + " t: " + t + " u: " + u + " v: " + v);
             for (int j = s; j < t; j++) {
@@ -91,5 +91,75 @@ public class MapGrid
             }
         }
         return false;
+    }
+
+    private static void UpdateMapWalls(Block b)
+    {
+        List<Block> blocksToUpdate = GridLocationColumnNeighborBlocks(b.MapGridLocation, LevelManager.FacingCoordinate());
+        blocksToUpdate.AddRange(GridLocationColumnNeighborBlocks(b.PrevMapGridLocation, LevelManager.FacingCoordinate()));
+
+        foreach (Block btu in blocksToUpdate)
+        {
+            btu.UpdateBlockColliders();
+        }
+    }
+
+    public static List<Block> GridLocationColumnNeighborBlocks(Vector3Int blockLocation, int playerForwardCoordinate)
+    {
+        List<Block> columnNeighbors = new List<Block>();
+
+        if (playerForwardCoordinate == 0)
+        {
+            columnNeighbors.AddRange(ColumnBlocks(blockLocation.y + 1, blockLocation.z, playerForwardCoordinate));
+            columnNeighbors.AddRange(ColumnBlocks(blockLocation.y - 1, blockLocation.z, playerForwardCoordinate));
+            columnNeighbors.AddRange(ColumnBlocks(blockLocation.y, blockLocation.z + 1, playerForwardCoordinate));
+            columnNeighbors.AddRange(ColumnBlocks(blockLocation.y, blockLocation.z - 1, playerForwardCoordinate));
+        }
+        else if (playerForwardCoordinate == 1)
+        {
+            columnNeighbors.AddRange(ColumnBlocks(blockLocation.x + 1, blockLocation.z, playerForwardCoordinate));
+            columnNeighbors.AddRange(ColumnBlocks(blockLocation.x - 1, blockLocation.z, playerForwardCoordinate));
+            columnNeighbors.AddRange(ColumnBlocks(blockLocation.x, blockLocation.z + 1, playerForwardCoordinate));
+            columnNeighbors.AddRange(ColumnBlocks(blockLocation.x, blockLocation.z - 1, playerForwardCoordinate));
+        }
+        else /*(playerFacingCoordinate == 2)*/
+        {
+            columnNeighbors.AddRange(ColumnBlocks(blockLocation.x + 1, blockLocation.y, playerForwardCoordinate));
+            columnNeighbors.AddRange(ColumnBlocks(blockLocation.x - 1, blockLocation.y, playerForwardCoordinate));
+            columnNeighbors.AddRange(ColumnBlocks(blockLocation.x, blockLocation.y + 1, playerForwardCoordinate));
+            columnNeighbors.AddRange(ColumnBlocks(blockLocation.x, blockLocation.y - 1, playerForwardCoordinate));
+        }
+
+        return columnNeighbors;
+    }
+
+    private static List<Block> ColumnBlocks(int x, int y, int colCoord)
+    {
+        List<Block> colBlocks = new List<Block>();
+
+        if (x < 0 || x > LevelManager.GridSize - 1 ||
+            y < 0 || y > LevelManager.GridSize - 1)
+        {
+            return colBlocks;
+        }
+        int q, r, s, t, u, v;
+        if (colCoord == 0) { q = 0; r = Blocks.GetLength(0); s = x; t = x + 1; u = y; v = y + 1; }
+        else if (colCoord == 1) { q = x; r = x + 1; s = 0; t = Blocks.GetLength(1); u = y; v = y + 1; }
+        else  /*(colCoord == 2)*/  { q = x; r = x + 1; s = y; t = y + 1; u = 0; v = Blocks.GetLength(2); }
+
+        for (int i = q; i < r; i++)
+        {
+            for (int j = s; j < t; j++)
+            {
+                for (int k = u; k < v; k++)
+                {
+                    if (Blocks[i, j, k] != null)
+                    {
+                        colBlocks.Add(Blocks[i, j, k]);
+                    }
+                }
+            }
+        }
+        return colBlocks;
     }
 }

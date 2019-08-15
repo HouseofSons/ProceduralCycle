@@ -145,7 +145,7 @@ PrefabInstance:
     - target: {fileID: 4751266148167385127, guid: d253df95dbe904ebdb7a295225104dad,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 4751266148167385127, guid: d253df95dbe904ebdb7a295225104dad,
         type: 3}
@@ -425,6 +425,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21d2de354dcfe4e33a777fdbcbeca1e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gameHasStarted: 0
 --- !u!4 &773295413
 Transform:
   m_ObjectHideFlags: 0
@@ -682,7 +683,7 @@ PrefabInstance:
     - target: {fileID: 4751266148167385127, guid: d253df95dbe904ebdb7a295225104dad,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 4751266148167385127, guid: d253df95dbe904ebdb7a295225104dad,
         type: 3}
@@ -820,7 +821,7 @@ PrefabInstance:
     - target: {fileID: 4751266148167385127, guid: d253df95dbe904ebdb7a295225104dad,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 4751266148167385127, guid: d253df95dbe904ebdb7a295225104dad,
         type: 3}
@@ -1031,6 +1032,26 @@ PrefabInstance:
         type: 3}
       propertyPath: moveSpeed
       value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 341052899227136515, guid: 82c75808b93e0414ea3bd2928d202086,
+        type: 3}
+      propertyPath: m_SkinWidth
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 341052899227136515, guid: 82c75808b93e0414ea3bd2928d202086,
+        type: 3}
+      propertyPath: m_MinMoveDistance
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 341052899227136515, guid: 82c75808b93e0414ea3bd2928d202086,
+        type: 3}
+      propertyPath: m_Radius
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 341052899227136515, guid: 82c75808b93e0414ea3bd2928d202086,
+        type: 3}
+      propertyPath: m_Height
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 82c75808b93e0414ea3bd2928d202086, type: 3}

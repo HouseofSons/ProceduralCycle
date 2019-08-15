@@ -303,6 +303,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfa9cb1fe44904a2f8ef56bf46a0ddae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  moved: 0
 --- !u!1 &6455464855746797400
 GameObject:
   m_ObjectHideFlags: 0
@@ -389,7 +390,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8101547560200133435}
-  m_Layer: 10
+  m_Layer: 0
   m_Name: BlockInside
   m_TagString: Untagged
   m_Icon: {fileID: 0}
