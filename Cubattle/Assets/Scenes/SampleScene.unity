@@ -145,7 +145,7 @@ PrefabInstance:
     - target: {fileID: 4751266148167385127, guid: d253df95dbe904ebdb7a295225104dad,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 8
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4751266148167385127, guid: d253df95dbe904ebdb7a295225104dad,
         type: 3}
@@ -587,7 +587,7 @@ GameObject:
   - component: {fileID: 963194227}
   - component: {fileID: 963194226}
   m_Layer: 0
-  m_Name: Main Camera
+  m_Name: PlayerCamera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -683,7 +683,7 @@ PrefabInstance:
     - target: {fileID: 4751266148167385127, guid: d253df95dbe904ebdb7a295225104dad,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 12
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4751266148167385127, guid: d253df95dbe904ebdb7a295225104dad,
         type: 3}
@@ -821,7 +821,7 @@ PrefabInstance:
     - target: {fileID: 4751266148167385127, guid: d253df95dbe904ebdb7a295225104dad,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 4
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4751266148167385127, guid: d253df95dbe904ebdb7a295225104dad,
         type: 3}
