@@ -4,9 +4,12 @@ using System.Collections.Generic;
 
 public class Player : MonoBehaviour {
 
-	private bool playerInactive;
+    public static List<Player> Players { get; private set; }
+	private static bool playersActive;
 	private CharacterController controller;
     public Transform PlayerTransform { get; private set; }
+
+    public PlayerCamera playerCamera;
 
 	protected Vector3 move = Vector3.zero;
     protected Vector3 gravity = Vector3.zero;
@@ -20,17 +23,24 @@ public class Player : MonoBehaviour {
 	private int jumpFrameCount;
 	private bool beenGrounded;
 
-    void Start ()
+    private void Awake()
     {
-		controller = this.gameObject.GetComponent<CharacterController> ();
+        //Players.Add(this);
+
+        controller = this.gameObject.GetComponent<CharacterController>();
         PlayerTransform = this.gameObject.transform;
-        playerInactive = true;
-        PlayerToggleActive();
+        playersActive = true;
+
+        playerCamera = (Instantiate(Resources.Load("PlayerCamera")) as GameObject).GetComponent<PlayerCamera>();
+        playerCamera.AssignPlayer(this);
     }
 
 	void Update()
     {
-		if (!playerInactive)
+        //Always looking at Camera
+        this.transform.GetChild(0).transform.LookAt(2 * this.transform.position - playerCamera.transform.position);
+
+		if (playersActive)
         { 
             move = Input.GetAxisRaw ("Horizontal") * PlayerTransform.right;
 			move *= moveSpeed;
@@ -74,9 +84,9 @@ public class Player : MonoBehaviour {
 		}
 	}
 
-	public void PlayerToggleActive()
+	public static void PlayerToggleActive()
     {
-		playerInactive = !playerInactive;
+        playersActive = !playersActive;
 	}
 
 	private bool IsGrounded()

@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class LevelManager : MonoBehaviour
 {
-    public static int BlockSize { get; private set; }
-    public static int GridSize { get; private set; }
+    public static int BlockSize;
+    public static int GridSize;
     public static Transform GameOrientation { get; private set; }
 
     public bool gameHasStarted;
@@ -17,6 +17,11 @@ public class LevelManager : MonoBehaviour
         GameOrientation = this.gameObject.transform;
         _ = new MapGrid(GridSize, BlockSize);
         gameHasStarted = false;
+    }
+
+    private void Start()
+    {
+        
     }
 
     void Update()
@@ -41,6 +46,23 @@ public class LevelManager : MonoBehaviour
         {
             return 1;
         }
-        return 2;
+        if (Mathf.RoundToInt(GameOrientation.transform.forward.z) == 1)
+        {
+            return 2;
+        }
+        if (Mathf.RoundToInt(GameOrientation.transform.forward.x) == -1)
+        {
+            return 3;
+        }
+        if (Mathf.RoundToInt(GameOrientation.transform.forward.y) == -1)
+        {
+            return 4;
+        }
+        if (Mathf.RoundToInt(GameOrientation.transform.forward.z) == -1)
+        {
+            return 5;
+        }
+        Debug.Log("LevelManager Askew");
+        return -1;
     }
 }

@@ -29,7 +29,7 @@ public class Block : MonoBehaviour
     {
         bool [] sidesEnabled;
 
-        sidesEnabled = MapGrid.GridLocationHasColumnNeighbors(MapGridLocation, LevelManager.FacingCoordinate());
+        sidesEnabled = MapGrid.GridLocationHasColumnNeighbors(MapGridLocation, Mathf.Abs(LevelManager.FacingCoordinate()));
 
         for (int i = 0; i < 6; i++)
         {
