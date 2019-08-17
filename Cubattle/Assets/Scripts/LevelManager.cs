@@ -6,63 +6,101 @@ public class LevelManager : MonoBehaviour
 {
     public static int BlockSize;
     public static int GridSize;
-    public static Transform GameOrientation { get; private set; }
+    public static Transform MapOrientation { get; private set; }
+    public static int FacingCoordinate { get; private set; }
 
-    public bool gameHasStarted;
+    public static bool Paused { get; private set; }
+    public bool GameHasStarted { get; private set; }
 
     void Awake()
     {
         GridSize = 64;
         BlockSize = 4;
-        GameOrientation = this.gameObject.transform;
+        MapOrientation = this.gameObject.transform;
         _ = new MapGrid(GridSize, BlockSize);
-        gameHasStarted = false;
     }
 
     private void Start()
     {
-        
+        Paused = false;
+        GameHasStarted = false;
+
+        UpdateFacingCoordinate();
     }
+
+    //TESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTEST
+    public bool testMapRotation;
+    //TESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTEST
 
     void Update()
     {
-        if(!gameHasStarted)
+        if(!GameHasStarted)
         {
-            foreach(Block b in Block.Blocks)//should be removed in future
+            foreach (Block b in Block.Blocks)//should be removed in future
             {
                 b.UpdateBlockColliders();
             }
-            gameHasStarted = true;
+            GameHasStarted = true;
+        } else
+        {
+            //gamerunning
+
+
+            //TESTETTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTES
+            if (testMapRotation)
+            {
+                testMapRotation = false;
+                RotateMapAroundAxis(Vector3.up);
+            }
         }
     }
 
-    public static int FacingCoordinate()
+    private static void UpdateFacingCoordinate()
     {
-        if (Mathf.RoundToInt(GameOrientation.transform.forward.x) == 1)
+        if (Mathf.RoundToInt(MapOrientation.transform.forward.x) == 1)
         {
-            return 0;
+            FacingCoordinate = 0;
         }
-        if (Mathf.RoundToInt(GameOrientation.transform.forward.y) == 1)
+        else if (Mathf.RoundToInt(MapOrientation.transform.forward.y) == 1)
         {
-            return 1;
+            FacingCoordinate = 1;
         }
-        if (Mathf.RoundToInt(GameOrientation.transform.forward.z) == 1)
+        else if (Mathf.RoundToInt(MapOrientation.transform.forward.z) == 1)
         {
-            return 2;
+            FacingCoordinate = 2;
         }
-        if (Mathf.RoundToInt(GameOrientation.transform.forward.x) == -1)
+        else if (Mathf.RoundToInt(MapOrientation.transform.forward.x) == -1)
         {
-            return 3;
+            FacingCoordinate = 3;
         }
-        if (Mathf.RoundToInt(GameOrientation.transform.forward.y) == -1)
+        else if (Mathf.RoundToInt(MapOrientation.transform.forward.y) == -1)
         {
-            return 4;
+            FacingCoordinate = 4;
         }
-        if (Mathf.RoundToInt(GameOrientation.transform.forward.z) == -1)
+        else if (Mathf.RoundToInt(MapOrientation.transform.forward.z) == -1)
         {
-            return 5;
+            FacingCoordinate = 5;
         }
-        Debug.Log("LevelManager Askew");
-        return -1;
+        else
+        {
+            Debug.Log("LevelManager Askew");
+            FacingCoordinate = -1;
+        }
+    }
+
+    //Rotates Cameras
+    public static void RotateMapAroundAxis(Vector3 axis)
+    {
+        Paused = true;
+
+        MapOrientation.RotateAround(MapOrientation.position, axis, 90);
+        UpdateFacingCoordinate();
+
+        foreach(Player p in Player.Players)
+        {
+            p.transform.RotateAround(p.transform.position, axis, 90);
+        }
+
+        Paused = false;
     }
 }

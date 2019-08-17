@@ -95,8 +95,8 @@ public class MapGrid
 
     private static void UpdateMapWalls(Block b)
     {
-        List<Block> blocksToUpdate = GridLocationColumnNeighborBlocks(b.MapGridLocation, Mathf.Abs(LevelManager.FacingCoordinate()));
-        blocksToUpdate.AddRange(GridLocationColumnNeighborBlocks(b.PrevMapGridLocation, Mathf.Abs(LevelManager.FacingCoordinate())));
+        List<Block> blocksToUpdate = GridLocationColumnNeighborBlocks(b.MapGridLocation, Mathf.Abs(LevelManager.FacingCoordinate));
+        blocksToUpdate.AddRange(GridLocationColumnNeighborBlocks(b.PrevMapGridLocation, Mathf.Abs(LevelManager.FacingCoordinate)));
 
         foreach (Block btu in blocksToUpdate)
         {

@@ -4,12 +4,13 @@ using UnityEngine;
 
 public class PlayerCamera : MonoBehaviour
 {
-    private Transform playerTransform;
+    public static List<PlayerCamera> playerCameras = new List<PlayerCamera>();
+    private Transform playerCameraTargetTransform;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        playerCameras.Add(this);
     }
 
     // Update is called once per frame
@@ -18,27 +19,24 @@ public class PlayerCamera : MonoBehaviour
         FollowPlayer();
     }
 
-    public void AssignPlayer(Player p)
+    public void ConfigurePlayerCameraTarget(Transform t)
     {
-        playerTransform = p.gameObject.transform;
+        playerCameraTargetTransform = t;
     }
 
     private void FollowPlayer()
     {
-        Vector3 focusPosition = playerTransform.position;
-        int face = LevelManager.FacingCoordinate();
-        Vector3 targetPosition;
+        this.transform.position = Vector3.Lerp(this.transform.position, playerCameraTargetTransform.position, 6 * Time.deltaTime);
 
-        if (face == 0 || face == 3)
+        //When Map Rotates
+        if (Mathf.Abs(Quaternion.Dot(playerCameraTargetTransform.parent.transform.rotation, this.transform.rotation)) < 1)
         {
-            targetPosition = new Vector3((face == 0 ? -1 : 1) * LevelManager.GridSize * LevelManager.BlockSize * 2, focusPosition.y, focusPosition.z);
-        } else if (face == 1 || face == 4)
-        {
-            targetPosition = new Vector3(focusPosition.x, (face == 1 ? -1 : 1) * LevelManager.GridSize * LevelManager.BlockSize * 2, focusPosition.z);
-        } else /*  is Z direction)*/
-        {
-            targetPosition = new Vector3(focusPosition.x, focusPosition.y, (face == 2 ? -1 : 1) * LevelManager.GridSize * LevelManager.BlockSize * 2);
+            this.transform.LookAt(playerCameraTargetTransform.parent.transform.position);
         }
-        this.transform.position = Vector3.Lerp(this.transform.position, targetPosition, Time.deltaTime);
+        else
+        {
+            this.transform.position = playerCameraTargetTransform.position;
+            this.transform.rotation = LevelManager.MapOrientation.rotation;
+        }
     }
 }

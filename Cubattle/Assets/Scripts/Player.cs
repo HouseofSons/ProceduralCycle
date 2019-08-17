@@ -4,8 +4,7 @@ using System.Collections.Generic;
 
 public class Player : MonoBehaviour {
 
-    public static List<Player> Players { get; private set; }
-	private static bool playersActive;
+    public static List<Player> Players = new List<Player>();
 	private CharacterController controller;
     public Transform PlayerTransform { get; private set; }
 
@@ -25,22 +24,21 @@ public class Player : MonoBehaviour {
 
     private void Awake()
     {
-        //Players.Add(this);
+        Players.Add(this);
 
         controller = this.gameObject.GetComponent<CharacterController>();
         PlayerTransform = this.gameObject.transform;
-        playersActive = true;
 
         playerCamera = (Instantiate(Resources.Load("PlayerCamera")) as GameObject).GetComponent<PlayerCamera>();
-        playerCamera.AssignPlayer(this);
+        playerCamera.ConfigurePlayerCameraTarget(this.gameObject.transform.GetChild(0).transform);
     }
 
 	void Update()
     {
         //Always looking at Camera
-        this.transform.GetChild(0).transform.LookAt(2 * this.transform.position - playerCamera.transform.position);
+        this.transform.GetChild(0).transform.LookAt(playerCamera.transform.position);
 
-		if (playersActive)
+        if (!LevelManager.Paused)
         { 
             move = Input.GetAxisRaw ("Horizontal") * PlayerTransform.right;
 			move *= moveSpeed;
@@ -82,11 +80,6 @@ public class Player : MonoBehaviour {
         } else {
 			gravity = Vector3.zero;
 		}
-	}
-
-	public static void PlayerToggleActive()
-    {
-        playersActive = !playersActive;
 	}
 
 	private bool IsGrounded()
