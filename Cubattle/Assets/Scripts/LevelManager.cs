@@ -28,23 +28,20 @@ public class LevelManager : MonoBehaviour
         UpdateFacingCoordinate();
     }
 
-    //TESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTEST
-    public bool testMapRotation;
-    //TESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTEST
+    public bool testMapRotation;//TESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTEST
 
     void Update()
     {
         if(!GameHasStarted)
         {
+            //Collapse blocks to closest face
+            //Move Players to closest Block of closest Face
             Block.UpdateAllBlockColliders();
             GameHasStarted = true;
         } else
         {
             //gamerunning
-
-
-            //TESTETTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTES
-            if (testMapRotation)
+            if (testMapRotation)//TESTETTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTES
             {
                 testMapRotation = false;
                 RotateMapAroundAxis(Vector3.up);
@@ -93,6 +90,8 @@ public class LevelManager : MonoBehaviour
         MapOrientation.RotateAround(MapOrientation.position, axis, 90);
         UpdateFacingCoordinate();
 
+        //Move Blocks to Grid positions
+        //Move Players to nearest Block of Current Face
         Block.UpdateAllBlockColliders();
 
         foreach (Player p in Player.Players)
@@ -100,6 +99,10 @@ public class LevelManager : MonoBehaviour
             p.transform.RotateAround(p.transform.position, axis, 90);
         }
 
+        //if (/*all rotations are finished*/) {
+        //Collapse blocks to closest face
+        //Move Players to closest Block of closest Face
         Paused = false;
+        //}
     }
 }

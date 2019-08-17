@@ -45,8 +45,8 @@ public class Block : MonoBehaviour
             }
         }
     }
-    //Might be used in future to update block neighbors colliders
-    //Assumption is blocks my move during gameplay and will need to update colliders
+    //Might be used in future to update block neighbor colliders
+    //Assumption is blocks may move during gameplay and will need to update colliders
     public static void UpdateNeighboringBlockColliders(Block b)
     {
         b.UpdateBlockColliders(); //update this blocks colliders
