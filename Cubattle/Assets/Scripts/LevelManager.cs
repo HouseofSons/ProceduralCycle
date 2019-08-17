@@ -36,10 +36,7 @@ public class LevelManager : MonoBehaviour
     {
         if(!GameHasStarted)
         {
-            foreach (Block b in Block.Blocks)//should be removed in future
-            {
-                b.UpdateBlockColliders();
-            }
+            Block.UpdateAllBlockColliders();
             GameHasStarted = true;
         } else
         {
@@ -96,7 +93,9 @@ public class LevelManager : MonoBehaviour
         MapOrientation.RotateAround(MapOrientation.position, axis, 90);
         UpdateFacingCoordinate();
 
-        foreach(Player p in Player.Players)
+        Block.UpdateAllBlockColliders();
+
+        foreach (Player p in Player.Players)
         {
             p.transform.RotateAround(p.transform.position, axis, 90);
         }

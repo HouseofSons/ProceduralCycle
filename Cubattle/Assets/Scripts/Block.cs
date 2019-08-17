@@ -25,12 +25,20 @@ public class Block : MonoBehaviour
         }
     }
 
+    public static void UpdateAllBlockColliders()
+    {
+        foreach(Block b in Blocks)
+        {
+            b.UpdateBlockColliders();
+        }
+    }
+
     public void UpdateBlockColliders()
     {
         bool [] sidesEnabled;
-
-        sidesEnabled = MapGrid.GridLocationHasColumnNeighbors(MapGridLocation, Mathf.Abs(LevelManager.FacingCoordinate));
-
+        
+        sidesEnabled = MapGrid.GridLocationHasNeighbors(MapGridLocation);
+        
         for (int i = 0; i < 6; i++)
         {
             if(sidesEnabled[i])
