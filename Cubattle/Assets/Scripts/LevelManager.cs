@@ -9,7 +9,7 @@ public class LevelManager : MonoBehaviour
     public static Transform MapOrientation { get; private set; }
     public static int FacingCoordinate { get; private set; }
 
-    public static bool Paused { get; private set; }
+    public static bool PlayerFreeze { get; private set; }
     public bool GameHasStarted { get; private set; }
 
     void Awake()
@@ -22,7 +22,7 @@ public class LevelManager : MonoBehaviour
 
     private void Start()
     {
-        Paused = false;
+        PlayerFreeze = false;
         GameHasStarted = false;
 
         UpdateFacingCoordinate();
@@ -36,7 +36,7 @@ public class LevelManager : MonoBehaviour
         {
             //Collapse blocks to closest face
             //Move Players to closest Block of closest Face
-            Block.UpdateAllBlockColliders();
+            Block.UpdateAllColliders();
             GameHasStarted = true;
         } else
         {
@@ -85,14 +85,13 @@ public class LevelManager : MonoBehaviour
     //Rotates Cameras
     public static void RotateMapAroundAxis(Vector3 axis)
     {
-        Paused = true;
+        PlayerFreeze = true;
 
         MapOrientation.RotateAround(MapOrientation.position, axis, 90);
         UpdateFacingCoordinate();
 
-        //Move Blocks to Grid positions
-        //Move Players to nearest Block of Current Face
-        Block.UpdateAllBlockColliders();
+        //Move Blocks to Original Grid positions
+        //Move Player to appropriate location
 
         foreach (Player p in Player.Players)
         {
@@ -101,8 +100,9 @@ public class LevelManager : MonoBehaviour
 
         //if (/*all rotations are finished*/) {
         //Collapse blocks to closest face
-        //Move Players to closest Block of closest Face
-        Paused = false;
+        Block.UpdateAllGridLocations();
+        Block.UpdateAllColliders();
+        PlayerFreeze = false;
         //}
     }
 }

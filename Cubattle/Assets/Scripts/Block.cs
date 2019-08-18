@@ -12,7 +12,7 @@ public class Block : MonoBehaviour
     void Start()
     {
         Blocks.Add(this);
-        MapGrid.UpdateGridLocation(this, this.gameObject.transform.position);
+        MapGrid.InitializeGridLocation(this);
     }
 
     void Update()
@@ -20,9 +20,17 @@ public class Block : MonoBehaviour
 
     }
 
-    public static void UpdateAllBlockColliders()
+    public static void UpdateAllGridLocations()
     {
-        foreach(Block b in Blocks)
+        foreach (Block b in Blocks)
+        {
+            b.UpdateBlockColliders();
+        }
+    }
+
+    public static void UpdateAllColliders()
+    {
+        foreach (Block b in Blocks)
         {
             b.UpdateBlockColliders();
         }
@@ -46,7 +54,7 @@ public class Block : MonoBehaviour
         }
     }
     //Might be used in future to update block neighbor colliders
-    //Assumption is blocks may move during gameplay and will need to update colliders
+    //Assumption is we might update block and neighbor colliders during gameplay
     public static void UpdateNeighboringBlockColliders(Block b)
     {
         b.UpdateBlockColliders(); //update this blocks colliders
