@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//Need to consider if Blocks will be moving during map turn
+//Map turn process should take enough time to align Blocks with a MapGridPosition
+
 public class Block : MonoBehaviour
 {
     public static List<Block> Blocks = new List<Block>();
 
-    public Vector3Int MapGridLocation { get; set; }
-    public Vector3Int PrevMapGridLocation { get; set; }
+    public Vector3Int SpawnGridLocation { get; set; }
+    public Vector3Int CurrentMapGridLocation { get; set; }
 
     void Start()
     {
@@ -36,9 +39,81 @@ public class Block : MonoBehaviour
         }
     }
 
+    public static void MoveAllBlocksToSpawnLocation()
+    {
+        foreach (Block b in Blocks)
+        {
+            MapGrid.UpdateGridLocation(b, b.SpawnGridLocation);
+        }
+    }
+
+    public static void CollapseAllBlocksToFace()
+    {
+        if (LevelManager.FacingCoordinate == 0 || LevelManager.FacingCoordinate == 3)
+        {
+            for (int i = 0; i < MapGrid.Blocks.GetLength(1); i++)
+            {
+                for (int j = 0; j < MapGrid.Blocks.GetLength(2); j++)
+                {
+                    if (LevelManager.FacingCoordinate == 0 && MapGrid.Blocks[0, j, i] == null) {
+                        for (int k = 0; k < MapGrid.Blocks.GetLength(0); k++)
+                        {
+                            if (MapGrid.Blocks[k, j, i] != null)
+                            {
+                                
+                                MapGrid.UpdateGridLocation(MapGrid.Blocks[k, j, i], new Vector3(0, j * LevelManager.BlockSize, i * LevelManager.BlockSize));
+                            }
+                        }
+                    }
+                    if (LevelManager.FacingCoordinate == 3 && MapGrid.Blocks[MapGrid.Blocks.GetLength(0) - 1, j, i] == null)
+                    {
+                        for (int k = 0; k < MapGrid.Blocks.GetLength(0); k++)
+                        {
+                            if (MapGrid.Blocks[k, j, i] != null)
+                            {
+                                MapGrid.UpdateGridLocation(MapGrid.Blocks[k, j, i], new Vector3(MapGrid.Blocks.GetLength(0) - 1, j * LevelManager.BlockSize, i * LevelManager.BlockSize));
+                            }
+                        }
+                    }
+                }
+            }
+        } else if (LevelManager.FacingCoordinate == 2 || LevelManager.FacingCoordinate == 5)
+        {
+            for (int i = 0; i < MapGrid.Blocks.GetLength(0); i++)
+            {
+                for (int j = 0; j < MapGrid.Blocks.GetLength(1); j++)
+                {
+                    if (LevelManager.FacingCoordinate == 2 && MapGrid.Blocks[i, j, 0] == null)
+                    {
+                        for (int k = 0; k < MapGrid.Blocks.GetLength(2); k++)
+                        {
+                            if (MapGrid.Blocks[i, j, k] != null)
+                            {
+                                MapGrid.UpdateGridLocation(MapGrid.Blocks[i, j, k], new Vector3(i * LevelManager.BlockSize, j * LevelManager.BlockSize, 0));
+                            }
+                        }
+                    }
+                    if (LevelManager.FacingCoordinate == 5 && MapGrid.Blocks[i, j, MapGrid.Blocks.GetLength(2) - 1] == null)
+                    {
+                        for (int k = 0; k < MapGrid.Blocks.GetLength(2); k++)
+                        {
+                            if (MapGrid.Blocks[i, j, k] != null)
+                            {
+                                MapGrid.UpdateGridLocation(MapGrid.Blocks[i, j, k], new Vector3(i * LevelManager.BlockSize, j * LevelManager.BlockSize, MapGrid.Blocks.GetLength(2) - 1));
+                            }
+                        }
+                    }
+                }
+            }
+        } else
+        {
+            Debug.Log("Bad Face Coordinate");
+        }
+    }
+
     public void UpdateBlockColliders()
     {
-        Block[] sidesEnabled = MapGrid.GridLocationHasNeighbors(MapGridLocation);
+        Block[] sidesEnabled = MapGrid.GridLocationHasNeighbors(CurrentMapGridLocation);
 
         for (int i = 0; i < sidesEnabled.Length; i++)
         {
@@ -59,7 +134,7 @@ public class Block : MonoBehaviour
     {
         b.UpdateBlockColliders(); //update this blocks colliders
 
-        Block[] blocksToUpdate = MapGrid.GridLocationHasNeighbors(b.MapGridLocation);
+        Block[] blocksToUpdate = MapGrid.GridLocationHasNeighbors(b.CurrentMapGridLocation);
         //update neighbors blocks colliders
         foreach (Block btu in blocksToUpdate)
         {

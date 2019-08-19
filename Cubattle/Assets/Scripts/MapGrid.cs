@@ -15,58 +15,57 @@ public class MapGrid
 
     public static bool InitializeGridLocation(Block b)
     {
-        Vector3Int nl = new Vector3Int(Mathf.RoundToInt(b.transform.position.x), Mathf.RoundToInt(b.transform.position.y), Mathf.RoundToInt(b.transform.position.z));
+        Vector3Int location = new Vector3Int(Mathf.RoundToInt(b.transform.position.x), Mathf.RoundToInt(b.transform.position.y), Mathf.RoundToInt(b.transform.position.z));
 
-        if (nl.x % BlockSize == 0 && nl.y % BlockSize == 0 && nl.z % BlockSize == 0)
+        if (location.x % BlockSize == 0 && location.y % BlockSize == 0 && location.z % BlockSize == 0)
         {
-            Vector3Int newLocation = new Vector3Int(nl.x / 4, nl.y / 4, nl.z / 4);
-            b.MapGridLocation = newLocation;
-            Blocks[newLocation.x, newLocation.y, newLocation.z] = b;
+            Vector3Int gridLocation = new Vector3Int(location.x / LevelManager.BlockSize, location.y / LevelManager.BlockSize, location.z / LevelManager.BlockSize);
+            b.SpawnGridLocation = location;//for initial map positions no need to divide by BlockSize
+            b.CurrentMapGridLocation = gridLocation;
+            Blocks[b.CurrentMapGridLocation.x, b.CurrentMapGridLocation.y, b.CurrentMapGridLocation.z] = b;
             return true;
         }
         Debug.Log("Block Askew: " + b.transform.position);
         return false;
     }
-    //bug with location 0,0,0 !!!!!!!!!
+    
     public static bool UpdateGridLocation(Block b, Vector3 location)
     {
         Vector3Int nl = new Vector3Int(Mathf.RoundToInt(location.x), Mathf.RoundToInt(location.y), Mathf.RoundToInt(location.z));
 
         if (nl.x % BlockSize == 0 && nl.y % BlockSize == 0 && nl.z % BlockSize == 0)
         {
-            Vector3Int newLocation = new Vector3Int(nl.x / 4, nl.y / 4, nl.z / 4);
+            Vector3Int newLocation = new Vector3Int(nl.x / LevelManager.BlockSize, nl.y / LevelManager.BlockSize, nl.z / LevelManager.BlockSize);
 
-            b.PrevMapGridLocation = b.MapGridLocation;
-            b.MapGridLocation = newLocation;
-            Blocks[b.MapGridLocation.x, b.MapGridLocation.y, b.MapGridLocation.z] = b;
-            if (b == Blocks[b.PrevMapGridLocation.x, b.PrevMapGridLocation.y, b.PrevMapGridLocation.z])
+            if (Blocks[b.CurrentMapGridLocation.x, b.CurrentMapGridLocation.y, b.CurrentMapGridLocation.z] == b)
             {
-                Blocks[b.PrevMapGridLocation.x, b.PrevMapGridLocation.y, b.PrevMapGridLocation.z] = null;
+                Blocks[b.CurrentMapGridLocation.x, b.CurrentMapGridLocation.y, b.CurrentMapGridLocation.z] = null;
             }
+
+            b.CurrentMapGridLocation = newLocation;
+            Blocks[b.CurrentMapGridLocation.x, b.CurrentMapGridLocation.y, b.CurrentMapGridLocation.z] = b;
+            b.transform.position = new Vector3Int(
+                b.CurrentMapGridLocation.x * LevelManager.BlockSize,
+                b.CurrentMapGridLocation.y * LevelManager.BlockSize,
+                b.CurrentMapGridLocation.z * LevelManager.BlockSize);
             return true;
         }
         return false;
     }
 
-    public static Block[] GridLocationHasNeighbors(Vector3Int mapGridLocation)
+    public static Block[] GridLocationHasNeighbors(Vector3Int location)
     {
-        //if (mapGridLocation.x == 0 && mapGridLocation.y == 1 && mapGridLocation.z == 0)
-        //{
-        //    Debug.Log(mapGridLocation);
-        //    Debug.Log(Blocks[mapGridLocation.x, mapGridLocation.y - 1, mapGridLocation.z]);
-        //}
-
         //+X,-X,+Y,-Y,+Z,-Z
         Block[] neighbors = new Block[6];
 
         Vector3Int[] neighborCheck = new Vector3Int[6];
 
-        neighborCheck[0] = new Vector3Int(mapGridLocation.x + 1, mapGridLocation.y, mapGridLocation.z);
-        neighborCheck[1] = new Vector3Int(mapGridLocation.x - 1, mapGridLocation.y, mapGridLocation.z);
-        neighborCheck[2] = new Vector3Int(mapGridLocation.x, mapGridLocation.y + 1, mapGridLocation.z);
-        neighborCheck[3] = new Vector3Int(mapGridLocation.x, mapGridLocation.y - 1, mapGridLocation.z);
-        neighborCheck[4] = new Vector3Int(mapGridLocation.x, mapGridLocation.y, mapGridLocation.z + 1);
-        neighborCheck[5] = new Vector3Int(mapGridLocation.x, mapGridLocation.y, mapGridLocation.z - 1);
+        neighborCheck[0] = new Vector3Int(location.x + 1, location.y, location.z);
+        neighborCheck[1] = new Vector3Int(location.x - 1, location.y, location.z);
+        neighborCheck[2] = new Vector3Int(location.x, location.y + 1, location.z);
+        neighborCheck[3] = new Vector3Int(location.x, location.y - 1, location.z);
+        neighborCheck[4] = new Vector3Int(location.x, location.y, location.z + 1);
+        neighborCheck[5] = new Vector3Int(location.x, location.y, location.z - 1);
 
         for (int i = 0; i < neighborCheck.Length; i++)
         {

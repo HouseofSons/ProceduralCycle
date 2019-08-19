@@ -7,6 +7,8 @@ public class PlayerCamera : MonoBehaviour
     public static List<PlayerCamera> playerCameras = new List<PlayerCamera>();
     private Transform playerCameraTargetTransform;
 
+    public bool RotationInProgress { get; set; }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -37,6 +39,23 @@ public class PlayerCamera : MonoBehaviour
         {
             this.transform.position = playerCameraTargetTransform.position;
             this.transform.rotation = LevelManager.MapOrientation.rotation;
+
+            if(RotationInProgress)
+            {
+                RotationInProgress = false;
+            }
         }
+    }
+
+    public static bool CamerasTurning()
+    {
+        foreach(PlayerCamera pc in playerCameras)
+        {
+            if (pc.RotationInProgress)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

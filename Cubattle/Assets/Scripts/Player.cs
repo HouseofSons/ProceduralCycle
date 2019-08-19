@@ -124,4 +124,78 @@ public class Player : MonoBehaviour
                 return new Vector3(pos.x, pos.y, (LevelManager.GridSize - 1) * LevelManager.BlockSize);
         }
     }
+    
+    public static void MovePlayersTo3DPosition(Vector3 axis)
+    {
+        //Only considers rotations around the Y axis
+        foreach(Player p in Players)
+        {
+            switch (LevelManager.FacingCoordinate)
+            {
+                case 0:
+                    if (axis == Vector3.up)
+                    {
+                        p.transform.position = new Vector3(p.transform.position.z, p.transform.position.y, p.transform.position.z);
+                    }
+                    else if (axis == Vector3.down)
+                    {
+                        p.transform.position = new Vector3((LevelManager.GridSize - 1) * LevelManager.BlockSize - p.transform.position.z, p.transform.position.y, p.transform.position.z);
+                    }
+                    else
+                    {
+                        Debug.Log("Error when Moving Player: " + p);
+                    }
+
+                    break;
+                case 2:
+                    if (axis == Vector3.up)
+                    {
+                        p.transform.position = new Vector3(p.transform.position.x, p.transform.position.y, (LevelManager.GridSize - 1) * LevelManager.BlockSize - p.transform.position.x);
+                    }
+                    else if (axis == Vector3.down)
+                    {
+                        p.transform.position = new Vector3(p.transform.position.x, p.transform.position.y, p.transform.position.x);
+                    }
+                    else
+                    {
+                        Debug.Log("Error when Moving Player: " + p);
+                    }
+
+                    break;
+                case 3:
+                    if (axis == Vector3.up)
+                    {
+                        p.transform.position = new Vector3(p.transform.position.z, p.transform.position.y, p.transform.position.z);
+                    }
+                    else if (axis == Vector3.down)
+                    {
+                        p.transform.position = new Vector3((LevelManager.GridSize - 1) * LevelManager.BlockSize - p.transform.position.z, p.transform.position.y, p.transform.position.z);
+                    }
+                    else
+                    {
+                        Debug.Log("Error when Moving Player: " + p);
+                    }
+
+                    break;
+                case 5:
+                    if (axis == Vector3.up)
+                    {
+                        p.transform.position = new Vector3(p.transform.position.x, p.transform.position.y, (LevelManager.GridSize - 1) * LevelManager.BlockSize - p.transform.position.x);
+                    }
+                    else if (axis == Vector3.down)
+                    {
+                        p.transform.position = new Vector3(p.transform.position.x, p.transform.position.y, p.transform.position.x);
+                    }
+                    else
+                    {
+                        Debug.Log("Error when Moving Player: " + p);
+                    }
+
+                    break;
+                default:
+                    Debug.Log("Bad Coordinate");
+                    break;
+            }
+        }
+    }
 }

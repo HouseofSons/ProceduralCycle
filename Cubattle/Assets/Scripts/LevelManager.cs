@@ -34,8 +34,7 @@ public class LevelManager : MonoBehaviour
     {
         if(!GameHasStarted)
         {
-            //Collapse blocks to closest face
-            //Move Players to closest Block of closest Face
+            Block.CollapseAllBlocksToFace();
             Block.UpdateAllColliders();
             GameHasStarted = true;
         } else
@@ -44,7 +43,7 @@ public class LevelManager : MonoBehaviour
             if (testMapRotation)//TESTETTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTES
             {
                 testMapRotation = false;
-                RotateMapAroundAxis(Vector3.up);
+                StartCoroutine(RotateMapAroundAxis(Vector3.up));
             }
         }
     }
@@ -82,27 +81,34 @@ public class LevelManager : MonoBehaviour
         }
     }
 
-    //Rotates Cameras
-    public static void RotateMapAroundAxis(Vector3 axis)
+    public static IEnumerator RotateMapAroundAxis(Vector3 axis)
     {
         PlayerFreeze = true;
 
         MapOrientation.RotateAround(MapOrientation.position, axis, 90);
+        Player.MovePlayersTo3DPosition(axis);
         UpdateFacingCoordinate();
-
-        //Move Blocks to Original Grid positions
-        //Move Player to appropriate location
+        Block.MoveAllBlocksToSpawnLocation();
+        
 
         foreach (Player p in Player.Players)
         {
             p.transform.RotateAround(p.transform.position, axis, 90);
         }
 
-        //if (/*all rotations are finished*/) {
-        //Collapse blocks to closest face
-        Block.UpdateAllGridLocations();
+        foreach (PlayerCamera pc in PlayerCamera.playerCameras)
+        {
+            pc.RotationInProgress = true;
+        }
+
+        while (PlayerCamera.CamerasTurning())
+        {
+            yield return null;
+        }
+
+        Block.CollapseAllBlocksToFace(); //BUG HERE <---
         Block.UpdateAllColliders();
+
         PlayerFreeze = false;
-        //}
     }
 }
