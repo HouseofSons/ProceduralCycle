@@ -4,8 +4,11 @@ using UnityEngine;
 
 public class LevelManager : MonoBehaviour
 {
-    public static int BlockSize;
+    public int gridSize; //for Inspector
+    public int blockSize; //for Inspector
+
     public static int GridSize;
+    public static int BlockSize;
     public static Transform MapOrientation { get; private set; }
     public static int FacingCoordinate { get; private set; }
 
@@ -14,8 +17,8 @@ public class LevelManager : MonoBehaviour
 
     void Awake()
     {
-        GridSize = 64;
-        BlockSize = 4;
+        GridSize = gridSize;
+        BlockSize = blockSize;
         MapOrientation = this.gameObject.transform;
         _ = new MapGrid(GridSize, BlockSize);
     }

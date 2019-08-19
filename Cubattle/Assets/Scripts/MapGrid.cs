@@ -16,7 +16,7 @@ public class MapGrid
     public static bool InitializeGridLocation(Block b)
     {
         Vector3Int location = new Vector3Int(Mathf.RoundToInt(b.transform.position.x), Mathf.RoundToInt(b.transform.position.y), Mathf.RoundToInt(b.transform.position.z));
-
+        
         if (location.x % BlockSize == 0 && location.y % BlockSize == 0 && location.z % BlockSize == 0)
         {
             Vector3Int gridLocation = new Vector3Int(location.x / LevelManager.BlockSize, location.y / LevelManager.BlockSize, location.z / LevelManager.BlockSize);
