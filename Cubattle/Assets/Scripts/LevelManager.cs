@@ -106,7 +106,7 @@ public class LevelManager : MonoBehaviour
             yield return null;
         }
 
-        Block.CollapseAllBlocksToFace(); //BUG HERE <---
+        Block.CollapseAllBlocksToFace();
         Block.UpdateAllColliders();
 
         PlayerFreeze = false;

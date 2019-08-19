@@ -55,24 +55,30 @@ public class Block : MonoBehaviour
             {
                 for (int j = 0; j < MapGrid.Blocks.GetLength(2); j++)
                 {
-                    if (LevelManager.FacingCoordinate == 0 && MapGrid.Blocks[0, j, i] == null) {
-                        for (int k = 0; k < MapGrid.Blocks.GetLength(0); k++)
-                        {
+                    for (int k = 0; k < MapGrid.Blocks.GetLength(0); k++)
+                    {
+                        if (LevelManager.FacingCoordinate == 0 && MapGrid.Blocks[0, j, i] == null) {
+
                             if (MapGrid.Blocks[k, j, i] != null)
                             {
-                                
                                 MapGrid.UpdateGridLocation(MapGrid.Blocks[k, j, i], new Vector3(0, j * LevelManager.BlockSize, i * LevelManager.BlockSize));
                             }
+                        } else
+                        {
+                            break;
                         }
                     }
-                    if (LevelManager.FacingCoordinate == 3 && MapGrid.Blocks[MapGrid.Blocks.GetLength(0) - 1, j, i] == null)
+                    for (int k = MapGrid.Blocks.GetLength(0) - 1; k >= 0; k--)
                     {
-                        for (int k = 0; k < MapGrid.Blocks.GetLength(0); k++)
+                        if (LevelManager.FacingCoordinate == 3 && MapGrid.Blocks[MapGrid.Blocks.GetLength(0) - 1, j, i] == null)
                         {
                             if (MapGrid.Blocks[k, j, i] != null)
                             {
-                                MapGrid.UpdateGridLocation(MapGrid.Blocks[k, j, i], new Vector3(MapGrid.Blocks.GetLength(0) - 1, j * LevelManager.BlockSize, i * LevelManager.BlockSize));
+                                MapGrid.UpdateGridLocation(MapGrid.Blocks[k, j, i], new Vector3((MapGrid.Blocks.GetLength(0) - 1) * LevelManager.BlockSize, j * LevelManager.BlockSize, i * LevelManager.BlockSize));
                             }
+                        } else
+                        {
+                            break;
                         }
                     }
                 }
@@ -83,24 +89,30 @@ public class Block : MonoBehaviour
             {
                 for (int j = 0; j < MapGrid.Blocks.GetLength(1); j++)
                 {
-                    if (LevelManager.FacingCoordinate == 2 && MapGrid.Blocks[i, j, 0] == null)
+                    for (int k = 0; k < MapGrid.Blocks.GetLength(2); k++)
                     {
-                        for (int k = 0; k < MapGrid.Blocks.GetLength(2); k++)
+                        if (LevelManager.FacingCoordinate == 2 && MapGrid.Blocks[i, j, 0] == null)
                         {
                             if (MapGrid.Blocks[i, j, k] != null)
                             {
                                 MapGrid.UpdateGridLocation(MapGrid.Blocks[i, j, k], new Vector3(i * LevelManager.BlockSize, j * LevelManager.BlockSize, 0));
                             }
+                        } else
+                        {
+                            break;
                         }
                     }
-                    if (LevelManager.FacingCoordinate == 5 && MapGrid.Blocks[i, j, MapGrid.Blocks.GetLength(2) - 1] == null)
+                    for (int k = MapGrid.Blocks.GetLength(2) - 1; k >= 0; k--)
                     {
-                        for (int k = 0; k < MapGrid.Blocks.GetLength(2); k++)
+                        if (LevelManager.FacingCoordinate == 5 && MapGrid.Blocks[i, j, MapGrid.Blocks.GetLength(2) - 1] == null)
                         {
                             if (MapGrid.Blocks[i, j, k] != null)
                             {
-                                MapGrid.UpdateGridLocation(MapGrid.Blocks[i, j, k], new Vector3(i * LevelManager.BlockSize, j * LevelManager.BlockSize, MapGrid.Blocks.GetLength(2) - 1));
+                                MapGrid.UpdateGridLocation(MapGrid.Blocks[i, j, k], new Vector3(i * LevelManager.BlockSize, j * LevelManager.BlockSize, (MapGrid.Blocks.GetLength(2) - 1) * LevelManager.BlockSize));
                             }
+                        } else
+                        {
+                            break;
                         }
                     }
                 }

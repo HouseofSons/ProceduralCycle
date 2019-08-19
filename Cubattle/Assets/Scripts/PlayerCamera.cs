@@ -28,7 +28,7 @@ public class PlayerCamera : MonoBehaviour
 
     private void FollowPlayer()
     {
-        this.transform.position = Vector3.Lerp(this.transform.position, playerCameraTargetTransform.position, 6 * Time.deltaTime);
+        this.transform.position = Vector3.Lerp(this.transform.position, playerCameraTargetTransform.position, 5 * Time.deltaTime);
 
         //When Map Rotates
         if (Mathf.Abs(Quaternion.Dot(playerCameraTargetTransform.parent.transform.rotation, this.transform.rotation)) < 1)
