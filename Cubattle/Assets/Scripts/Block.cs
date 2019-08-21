@@ -39,7 +39,7 @@ public class Block : MonoBehaviour
         }
     }
 
-    public static void MoveAllBlocksToSpawnLocation()
+    public static void MoveBlocksToSpawnLocation()
     {
         foreach (Block b in Blocks)
         {
@@ -47,7 +47,7 @@ public class Block : MonoBehaviour
         }
     }
 
-    public static void CollapseAllBlocksToFace()
+    public static void CollapseBlocksToFace()
     {
         if (LevelManager.FacingCoordinate == 0 || LevelManager.FacingCoordinate == 3)
         {

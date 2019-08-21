@@ -28,23 +28,19 @@ public class PlayerCamera : MonoBehaviour
 
     private void FollowPlayer()
     {
-        this.transform.position = Vector3.Lerp(this.transform.position, playerCameraTargetTransform.position, 5 * Time.deltaTime);
-
-        //When Map Rotates
-        if (Mathf.Abs(Quaternion.Dot(playerCameraTargetTransform.parent.transform.rotation, this.transform.rotation)) < 1)
+        if (System.Math.Abs(Quaternion.Angle(LevelManager.MapOrientation.rotation, this.transform.rotation)) > Mathf.Epsilon)
         {
-            this.transform.LookAt(playerCameraTargetTransform.parent.transform.position);
+            this.transform.position = Vector3.Lerp(this.transform.position, playerCameraTargetTransform.position, 6 * Time.deltaTime);
         }
         else
         {
             this.transform.position = playerCameraTargetTransform.position;
-            this.transform.rotation = LevelManager.MapOrientation.rotation;
-
-            if(RotationInProgress)
+            if (RotationInProgress)
             {
                 RotationInProgress = false;
             }
         }
+        this.transform.LookAt(playerCameraTargetTransform.parent.transform.position);
     }
 
     public static bool CamerasTurning()

@@ -11,15 +11,21 @@ public class LevelManager : MonoBehaviour
     public static int BlockSize;
     public static Transform MapOrientation { get; private set; }
     public static int FacingCoordinate { get; private set; }
+    public static Vector3 MapCenter { get; private set; }
 
     public static bool PlayerFreeze { get; private set; }
-    public bool GameHasStarted { get; private set; }
+    public static bool GameHasStarted { get; private set; }
+    public static Vector3 MoveAxis { get; private set; }
 
     void Awake()
     {
         GridSize = gridSize;
         BlockSize = blockSize;
         MapOrientation = this.gameObject.transform;
+        MapCenter = new Vector3(
+            ((GridSize - 1) * BlockSize) / 2.0f,
+            ((GridSize - 1) * BlockSize) / 2.0f,
+            ((GridSize - 1) * BlockSize) / 2.0f);
         _ = new MapGrid(GridSize, BlockSize);
     }
 
@@ -37,7 +43,7 @@ public class LevelManager : MonoBehaviour
     {
         if(!GameHasStarted)
         {
-            Block.CollapseAllBlocksToFace();
+            Block.CollapseBlocksToFace();
             Block.UpdateAllColliders();
             GameHasStarted = true;
         } else
@@ -87,16 +93,17 @@ public class LevelManager : MonoBehaviour
     public static IEnumerator RotateMapAroundAxis(Vector3 axis)
     {
         PlayerFreeze = true;
+        MoveAxis = axis;
 
-        MapOrientation.RotateAround(MapOrientation.position, axis, 90);
-        Player.MovePlayersTo3DPosition(axis);
+        Block.MoveBlocksToSpawnLocation();
+
+        MapOrientation.Rotate(axis, 90);
         UpdateFacingCoordinate();
-        Block.MoveAllBlocksToSpawnLocation();
-        
 
         foreach (Player p in Player.Players)
         {
-            p.transform.RotateAround(p.transform.position, axis, 90);
+            p.transform.position = new Vector3(p.OccupiedBlock.transform.position.x,p.transform.position.y,p.OccupiedBlock.transform.position.z);
+            p.transform.Rotate(axis, 90);
         }
 
         foreach (PlayerCamera pc in PlayerCamera.playerCameras)
@@ -109,7 +116,9 @@ public class LevelManager : MonoBehaviour
             yield return null;
         }
 
-        Block.CollapseAllBlocksToFace();
+        Player.MovePlayersTo3DPosition(MoveAxis);
+
+        Block.CollapseBlocksToFace();
         Block.UpdateAllColliders();
 
         PlayerFreeze = false;

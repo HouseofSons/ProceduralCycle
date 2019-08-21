@@ -8,6 +8,7 @@ public class Player : MonoBehaviour
     public static List<Player> Players = new List<Player>();
     private CharacterController controller;
     public Transform PlayerTransform { get; private set; }
+    public Block OccupiedBlock { get; private set; }
 
     public PlayerCamera playerCamera;
 
@@ -101,6 +102,7 @@ public class Player : MonoBehaviour
                                                                 PlayerTransform.up).magnitude - Vector3.Scale(hit.point,
                                                                 PlayerTransform.up).magnitude) - 0.1f);
             }
+            OccupiedBlock = hit.transform.parent.transform.parent.GetComponent<Block>();
             return true;
         }
         return false;
