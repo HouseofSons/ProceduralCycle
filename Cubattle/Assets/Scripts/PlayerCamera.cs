@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerCamera : MonoBehaviour
 {
     public static List<PlayerCamera> playerCameras = new List<PlayerCamera>();
-    private Transform playerCameraTargetTransform;
+    private Transform playerTransform;
 
     public bool RotationInProgress { get; set; }
 
@@ -21,29 +21,29 @@ public class PlayerCamera : MonoBehaviour
         FollowPlayer();
     }
 
-    public void ConfigurePlayerCameraTarget(Transform t)
+    public void AssignPlayerTransform(Transform t)
     {
-        playerCameraTargetTransform = t;
+        playerTransform = t;
     }
 
     private void FollowPlayer()
     {
-        if (System.Math.Abs(Quaternion.Angle(LevelManager.MapOrientation.rotation, this.transform.rotation)) > Mathf.Epsilon)
+        if (System.Math.Abs(Quaternion.Angle(playerTransform.rotation, this.transform.rotation)) > Mathf.Epsilon)
         {
-            this.transform.position = Vector3.Lerp(this.transform.position, playerCameraTargetTransform.position, 5 * Time.deltaTime);
+            this.transform.position = Vector3.Lerp(this.transform.position, playerTransform.GetChild(0).transform.position, 5 * Time.deltaTime);
         }
         else
         {
-            this.transform.position = playerCameraTargetTransform.position;
+            this.transform.position = playerTransform.GetChild(0).transform.position;
             if (RotationInProgress)
             {
                 RotationInProgress = false;
             }
         }
-        this.transform.LookAt(playerCameraTargetTransform.parent.transform.position);
+        this.transform.LookAt(playerTransform.position);
     }
 
-    public static bool CamerasTurning()
+    public static bool AllCamerasTurning()
     {
         foreach(PlayerCamera pc in playerCameras)
         {

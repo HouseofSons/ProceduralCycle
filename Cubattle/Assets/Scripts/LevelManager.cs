@@ -9,118 +9,56 @@ public class LevelManager : MonoBehaviour
 
     public static int GridSize;
     public static int BlockSize;
-    public static Transform MapOrientation { get; private set; }
-    public static int FacingCoordinate { get; private set; }
-    public static Vector3 MapCenter { get; private set; }
 
-    public static bool PlayerFreeze { get; private set; }
     public static bool GameHasStarted { get; private set; }
-    public static Vector3 MoveAxis { get; private set; }
+    public static bool PausePlayerMovement { get; private set; }
+    //Coroutines
+    public bool Coroutine_RCAA; //Inspector Property for Testing
 
     void Awake()
     {
         GridSize = gridSize;
         BlockSize = blockSize;
-        MapOrientation = this.gameObject.transform;
-        MapCenter = new Vector3(
-            ((GridSize - 1) * BlockSize) / 2.0f,
-            ((GridSize - 1) * BlockSize) / 2.0f,
-            ((GridSize - 1) * BlockSize) / 2.0f);
-        _ = new MapGrid(GridSize, BlockSize);
+
+        MapGrid.GridBlocks = new Block[GridSize, GridSize, GridSize];
     }
 
     private void Start()
     {
-        PlayerFreeze = false;
         GameHasStarted = false;
-
-        UpdateFacingCoordinate();
+        PausePlayerMovement = false;
     }
-
-    public bool testMapRotation;//TESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTEST
 
     void Update()
     {
         if(!GameHasStarted)
         {
-            Block.CollapseBlocksToFace();
             Block.UpdateAllColliders();
             GameHasStarted = true;
         } else
-        {
-            //gamerunning
-            if (testMapRotation)//TESTETTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTES
+        {//game is running
+            if(Coroutine_RCAA)
             {
-                testMapRotation = false;
-                StartCoroutine(RotateMapAroundAxis(Vector3.up));
+                Coroutine_RCAA = false;
+                StartCoroutine(RotateCharactersAroundAxis(Vector3.up,90));
             }
         }
     }
 
-    private static void UpdateFacingCoordinate()
+    public static IEnumerator RotateCharactersAroundAxis(Vector3 axis, int degrees)
     {
-        if (Mathf.RoundToInt(MapOrientation.transform.forward.x) == 1)
-        {
-            FacingCoordinate = 0;
-        }
-        else if (Mathf.RoundToInt(MapOrientation.transform.forward.y) == 1)
-        {
-            FacingCoordinate = 1;
-        }
-        else if (Mathf.RoundToInt(MapOrientation.transform.forward.z) == 1)
-        {
-            FacingCoordinate = 2;
-        }
-        else if (Mathf.RoundToInt(MapOrientation.transform.forward.x) == -1)
-        {
-            FacingCoordinate = 3;
-        }
-        else if (Mathf.RoundToInt(MapOrientation.transform.forward.y) == -1)
-        {
-            FacingCoordinate = 4;
-        }
-        else if (Mathf.RoundToInt(MapOrientation.transform.forward.z) == -1)
-        {
-            FacingCoordinate = 5;
-        }
-        else
-        {
-            Debug.Log("LevelManager Askew");
-            FacingCoordinate = -1;
-        }
-    }
-
-    public static IEnumerator RotateMapAroundAxis(Vector3 axis)
-    {
-        PlayerFreeze = true;
-        MoveAxis = axis;
-
-        Block.MoveBlocksToSpawnLocation();
-
-        MapOrientation.Rotate(axis, 90);
-        UpdateFacingCoordinate();
-
+        PausePlayerMovement = true;
+        
         foreach (Player p in Player.Players)
         {
-            p.transform.position = new Vector3(p.OccupiedBlock.transform.position.x,p.transform.position.y,p.OccupiedBlock.transform.position.z);
-            p.transform.Rotate(axis, 90);
+            p.RotatePlayer(axis, degrees);
         }
 
-        foreach (PlayerCamera pc in PlayerCamera.playerCameras)
-        {
-            pc.RotationInProgress = true;
-        }
-
-        while (PlayerCamera.CamerasTurning())
+        while (PlayerCamera.AllCamerasTurning())
         {
             yield return null;
         }
 
-        Player.MovePlayersTo3DPosition(MoveAxis);
-
-        Block.CollapseBlocksToFace();
-        Block.UpdateAllColliders();
-
-        PlayerFreeze = false;
+        PausePlayerMovement = false;
     }
 }

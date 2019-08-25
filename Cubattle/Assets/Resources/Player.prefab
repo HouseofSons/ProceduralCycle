@@ -42,7 +42,7 @@ GameObject:
   - component: {fileID: 1214491453541948608}
   - component: {fileID: 1214491453541948609}
   - component: {fileID: 1214491453541948614}
-  m_Layer: 20
+  m_Layer: 8
   m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -99,7 +99,6 @@ MonoBehaviour:
   moveSpeed: 25
   fallSpeed: 75
   jumpSpeed: 25
-  jumpCountMax: 3
   groundRayLength: 0.2
 --- !u!54 &1214491453541948614
 Rigidbody:

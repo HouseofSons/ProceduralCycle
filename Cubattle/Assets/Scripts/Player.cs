@@ -4,11 +4,10 @@ using System.Collections.Generic;
 
 public class Player : MonoBehaviour
 {
-
     public static List<Player> Players = new List<Player>();
     private CharacterController controller;
     public Transform PlayerTransform { get; private set; }
-    public Block OccupiedBlock { get; private set; }
+    public Block LocalBlock { get; private set; }
 
     public PlayerCamera playerCamera;
 
@@ -18,11 +17,10 @@ public class Player : MonoBehaviour
     public float moveSpeed;
     public float fallSpeed;
     public float jumpSpeed;
-    public int jumpCountMax;
     public float groundRayLength;
-    private int jumpCount;
-    private int jumpFrameCount;
+
     private bool beenGrounded;
+    public int Direction { get; private set; }
 
     private void Awake()
     {
@@ -32,24 +30,23 @@ public class Player : MonoBehaviour
         PlayerTransform = this.gameObject.transform;
 
         playerCamera = (Instantiate(Resources.Load("PlayerCamera")) as GameObject).GetComponent<PlayerCamera>();
-        playerCamera.ConfigurePlayerCameraTarget(this.gameObject.transform.GetChild(0).transform);
+        playerCamera.AssignPlayerTransform(this.gameObject.transform);
     }
 
     void Update()
     {
-        if (!LevelManager.PlayerFreeze)
+        if (!LevelManager.PausePlayerMovement)
         {
             move = Input.GetAxisRaw("Horizontal") * PlayerTransform.right;
             move *= moveSpeed;
-            
-            if (IsGrounded() /*&& jumpFrameCount == 0*/)
+
+            if (IsGrounded())
             {
                 if (!beenGrounded)
                 {
                     beenGrounded = true;
                 }
                 gravity = Vector3.zero;
-                jumpCount = 0;
             }
             else
             {
@@ -57,26 +54,15 @@ public class Player : MonoBehaviour
                 gravity += -PlayerTransform.up * fallSpeed * Time.deltaTime;
             }
 
-            if (jumpFrameCount > 0)
-            {
-                jumpFrameCount++;
-                if (jumpFrameCount > 2)
-                {
-                    jumpFrameCount = 0;
-                }
-            }
-
-            if (Input.GetKeyDown(KeyCode.Space) /*&& jumpCount < jumpCountMax*/)
+            if (Input.GetKeyDown(KeyCode.Space))
             {
                 gravity = Vector3.zero;
                 gravity += PlayerTransform.up * jumpSpeed;
-                jumpCount++;
-                jumpFrameCount = 1;
             }
-           
+
             move += gravity;
             controller.Move(move * Time.deltaTime);
-            controller.transform.position = AlignPositionToFace(controller.transform.position);
+            UpdatePlayerLocalBlock();
         }
         else
         {
@@ -102,102 +88,51 @@ public class Player : MonoBehaviour
                                                                 PlayerTransform.up).magnitude - Vector3.Scale(hit.point,
                                                                 PlayerTransform.up).magnitude) - 0.1f);
             }
-            OccupiedBlock = hit.transform.parent.transform.parent.GetComponent<Block>();
             return true;
         }
         return false;
     }
-
-    private Vector3 AlignPositionToFace(Vector3 pos)
+    
+    private void UpdatePlayerLocalBlock()
     {
-        switch (LevelManager.FacingCoordinate)
+        Ray ray = new Ray
         {
-            case 0:
-                return new Vector3(0, pos.y, pos.z);
-            case 1:
-                return new Vector3(pos.x, 0, pos.z);
-            case 2:
-                return new Vector3(pos.x, pos.y, 0);
-            case 3:
-                return new Vector3((LevelManager.GridSize - 1) * LevelManager.BlockSize, pos.y, pos.z);
-            case 4:
-                return new Vector3(pos.x, (LevelManager.GridSize - 1) * LevelManager.BlockSize, pos.z);
-            default:
-                return new Vector3(pos.x, pos.y, (LevelManager.GridSize - 1) * LevelManager.BlockSize);
+            origin = this.gameObject.transform.position,
+            direction = -PlayerTransform.up
+        };
+        if (Physics.Raycast(ray, out RaycastHit hit, LevelManager.GridSize * LevelManager.BlockSize,~(1 << 8)))
+        {
+            if (hit.transform.parent.GetComponent<InsideBlock>())
+            {
+                LocalBlock = hit.transform.parent.GetComponent<InsideBlock>();
+            } else
+            {
+                LocalBlock = hit.transform.parent.GetComponent<OutsideBlock>();
+            }
+        }
+        else
+        {
+            //Potentially Move Player to Map Front
+            //UpdatePlayerLocation();
         }
     }
-    
-    public static void MovePlayersTo3DPosition(Vector3 axis)
+
+    public void RotatePlayer(Vector3 axis, int degrees)
     {
-        //Only considers rotations around the Y axis
-        foreach(Player p in Players)
+        this.transform.Rotate(axis, degrees);
+
+        if (Mathf.RoundToInt(PlayerTransform.forward.x) == 1) { Direction = 0; }
+        else if (Mathf.RoundToInt(PlayerTransform.forward.z) == 1) { Direction = 2; }
+        else if (Mathf.RoundToInt(PlayerTransform.forward.x) == -1) { Direction = 1; }
+        else /*(Mathf.RoundToInt(PlayerTransform.forward.z) == -1)*/ { Direction = 3; }
+
+        //Aligns character to center depth axis
+        if (Direction == 0 || Direction == 1)
         {
-            switch (LevelManager.FacingCoordinate)
-            {
-                case 0:
-                    if (axis == Vector3.up)
-                    {
-                        p.transform.position = new Vector3(p.transform.position.z, p.transform.position.y, p.transform.position.z);
-                    }
-                    else if (axis == Vector3.down)
-                    {
-                        p.transform.position = new Vector3((LevelManager.GridSize - 1) * LevelManager.BlockSize - p.transform.position.z, p.transform.position.y, p.transform.position.z);
-                    }
-                    else
-                    {
-                        Debug.Log("Error when Moving Player: " + p);
-                    }
-
-                    break;
-                case 2:
-                    if (axis == Vector3.up)
-                    {
-                        p.transform.position = new Vector3(p.transform.position.x, p.transform.position.y, (LevelManager.GridSize - 1) * LevelManager.BlockSize - p.transform.position.x);
-                    }
-                    else if (axis == Vector3.down)
-                    {
-                        p.transform.position = new Vector3(p.transform.position.x, p.transform.position.y, p.transform.position.x);
-                    }
-                    else
-                    {
-                        Debug.Log("Error when Moving Player: " + p);
-                    }
-
-                    break;
-                case 3:
-                    if (axis == Vector3.up)
-                    {
-                        p.transform.position = new Vector3(p.transform.position.z, p.transform.position.y, p.transform.position.z);
-                    }
-                    else if (axis == Vector3.down)
-                    {
-                        p.transform.position = new Vector3((LevelManager.GridSize - 1) * LevelManager.BlockSize - p.transform.position.z, p.transform.position.y, p.transform.position.z);
-                    }
-                    else
-                    {
-                        Debug.Log("Error when Moving Player: " + p);
-                    }
-
-                    break;
-                case 5:
-                    if (axis == Vector3.up)
-                    {
-                        p.transform.position = new Vector3(p.transform.position.x, p.transform.position.y, (LevelManager.GridSize - 1) * LevelManager.BlockSize - p.transform.position.x);
-                    }
-                    else if (axis == Vector3.down)
-                    {
-                        p.transform.position = new Vector3(p.transform.position.x, p.transform.position.y, p.transform.position.x);
-                    }
-                    else
-                    {
-                        Debug.Log("Error when Moving Player: " + p);
-                    }
-
-                    break;
-                default:
-                    Debug.Log("Bad Coordinate");
-                    break;
-            }
+            this.transform.position = new Vector3(LocalBlock.transform.position.x,this.transform.position.y, this.transform.position.z);
+        } else
+        {
+            this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, LocalBlock.transform.position.z);
         }
     }
 }
