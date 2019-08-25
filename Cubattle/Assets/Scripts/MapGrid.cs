@@ -51,4 +51,35 @@ public class MapGrid
         }
         return neighbors;
     }
+
+    public static void AddFaceBlocks()
+    {
+        for (int l = 0; l < 2; l++)
+        {
+            for (int i = 0; i < GridBlocks.GetLength(l == 0 ? 0 : 2); i++)
+            {
+                for (int j = 0; j < GridBlocks.GetLength(1); j++)
+                {
+                    List<Block> columnBlocks = new List<Block>();
+                    for (int k = 0; k < GridBlocks.GetLength(l == 0 ? 2 : 0); k++)
+                    {
+                      
+                    }
+                    CloneBlocks(columnBlocks, l, i, j);
+
+                    columnBlocks = new List<Block>();
+                    for (int k = GridBlocks.GetLength(l == 0 ? 2 : 0) - 1; k >=0 ; k--)
+                    {
+
+                    }
+                    CloneBlocks(columnBlocks, l + 2, i, j);
+                }
+            }
+        }
+    }
+
+    private static void CloneBlocks(List<Block> blocks, int direction, int uCoord, int vCoord)
+    {
+
+    }
 }

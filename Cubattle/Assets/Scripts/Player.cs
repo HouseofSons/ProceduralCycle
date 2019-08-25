@@ -102,13 +102,7 @@ public class Player : MonoBehaviour
         };
         if (Physics.Raycast(ray, out RaycastHit hit, LevelManager.GridSize * LevelManager.BlockSize,~(1 << 8)))
         {
-            if (hit.transform.parent.GetComponent<InsideBlock>())
-            {
-                LocalBlock = hit.transform.parent.GetComponent<InsideBlock>();
-            } else
-            {
-                LocalBlock = hit.transform.parent.GetComponent<OutsideBlock>();
-            }
+            LocalBlock = hit.transform.parent.GetComponent<InsideBlock>();
         }
         else
         {

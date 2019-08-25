@@ -9,6 +9,8 @@ public class Block : MonoBehaviour
     public static List<Block> Blocks = new List<Block>();
     public Vector3Int CurrentMapGridLocation { get; set; }
 
+    public Block[] FaceBlocks = new Block[4];
+
     protected virtual void Start()
     {
         Blocks.Add(this);
@@ -27,10 +29,7 @@ public class Block : MonoBehaviour
         for (int i = 0; i < sidesEnabled.Length; i++)
         {
             this.gameObject.transform.GetChild(i).GetComponent<MeshCollider>().enabled = !sidesEnabled[i];//inside
-            if (this.GetType() == typeof(InsideBlock))
-            {
-                this.gameObject.transform.GetChild(i + 6).GetComponent<MeshCollider>().enabled = !sidesEnabled[i];//outside
-            }
+            this.gameObject.transform.GetChild(i + 6).GetComponent<MeshCollider>().enabled = !sidesEnabled[i];//outside
             //Debug.Log(this.gameObject.name + " wall: " + this.gameObject.transform.GetChild(0).GetChild(i).name + " bool: " + false);
         }
     }
