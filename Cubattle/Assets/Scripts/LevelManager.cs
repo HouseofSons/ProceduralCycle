@@ -11,7 +11,6 @@ public class LevelManager : MonoBehaviour
     public static int BlockSize;
 
     public static bool GameHasStarted { get; private set; }
-    public static bool PausePlayerMovement { get; private set; }
 
     void Awake()
     {
@@ -24,7 +23,6 @@ public class LevelManager : MonoBehaviour
     private void Start()
     {
         GameHasStarted = false;
-        PausePlayerMovement = false;
         MapGrid.AddFaceBlocks();
     }
 

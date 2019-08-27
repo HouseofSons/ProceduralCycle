@@ -148,8 +148,8 @@ public class MapGrid : MonoBehaviour
                 InitializeGridLocation(edgeBlock);
                 GridBlocks[edge.x, edge.y, edge.z].FaceBlocks[direction] = GridBlocks[edge.x, edge.y, edge.z];
                 GridBlocks[edge.x, edge.y, edge.z].Cloned = true;
-                Destroy(GridBlocks[edge.x, edge.y, edge.z].transform.GetChild(12).gameObject);
-                Destroy(GridBlocks[edge.x, edge.y, edge.z].transform.GetChild(13).gameObject);
+                Destroy(GridBlocks[edge.x, edge.y, edge.z].transform.GetChild(7).gameObject);
+                Destroy(GridBlocks[edge.x, edge.y, edge.z].transform.GetChild(8).gameObject);
             }
 
             b.FaceBlocks[direction] = GridBlocks[edge.x, edge.y, edge.z];

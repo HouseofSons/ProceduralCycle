@@ -22,8 +22,10 @@ public class Player : MonoBehaviour
     private bool beenGrounded;
     public int Direction { get; private set; }
 
-    public bool RotatingCamera;
+    public bool RotatingCamera { get; set; }
     public bool RotatingCamera_Coroutine; //Is Public for Inspector Testing
+
+    public bool PausePlayerMovement { get; set; }
 
     private void Awake()
     {
@@ -38,7 +40,7 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-        if (!LevelManager.PausePlayerMovement)
+        if (!PausePlayerMovement && !RotatingCamera_Coroutine)
         {
             move = Input.GetAxisRaw("Horizontal") * PlayerTransform.right;
             move *= moveSpeed;
@@ -62,20 +64,21 @@ public class Player : MonoBehaviour
                 gravity = Vector3.zero;
                 gravity += PlayerTransform.up * jumpSpeed;
             }
+            controller.enabled = true;
 
             move += gravity;
             controller.Move(move * Time.deltaTime);
-            UpdatePlayerLocalBlock();
+
+            controller.enabled = false;
         }
         else
         {
             gravity = Vector3.zero;
-        }
-
-        if (RotatingCamera_Coroutine)
-        {
-            RotatingCamera_Coroutine = false;
-            StartCoroutine(RotatePlayer(Vector3.up, 90));
+            if (RotatingCamera_Coroutine)
+            {
+                RotatingCamera_Coroutine = false;
+                StartCoroutine(RotatePlayer(Vector3.up, 90));
+            }
         }
     }
 
@@ -86,7 +89,7 @@ public class Player : MonoBehaviour
             origin = this.gameObject.transform.position,
             direction = -PlayerTransform.up
         };
-        if (Physics.SphereCast(ray, controller.radius, out RaycastHit hit, groundRayLength))
+        if (Physics.SphereCast(ray, controller.radius, out RaycastHit hit, groundRayLength, ~(1 << 9)))
         {
             if (!beenGrounded)
             {
@@ -118,34 +121,16 @@ public class Player : MonoBehaviour
     public IEnumerator RotatePlayer(Vector3 axis, int degrees)
     {
         RotatingCamera = true;
-
-        if (Mathf.RoundToInt(PlayerTransform.forward.x) == 1) { Direction = 1; }
-        else if (Mathf.RoundToInt(PlayerTransform.forward.z) == 1) { Direction = 0; }
-        else if (Mathf.RoundToInt(PlayerTransform.forward.x) == -1) { Direction = 3; }
-        else /*(Mathf.RoundToInt(PlayerTransform.forward.z) == -1)*/ { Direction = 2; }
-
-        //Aligns character to center depth axis on Parented Map Block
-        if (Direction == 1 || Direction == 3)
-        {
-            this.transform.position = new Vector3(LocalBlock.transform.position.x, this.transform.position.y, this.transform.position.z);
-        } else
-        {
-            this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, LocalBlock.transform.position.z);
-        }
-
-        while(RotatingCamera)
-        {
-            yield return null;
-        }
-
-        this.transform.Rotate(axis, degrees);
-
-        if (Mathf.RoundToInt(PlayerTransform.forward.x) == 1) { Direction = 1; }
-        else if (Mathf.RoundToInt(PlayerTransform.forward.z) == 1) { Direction = 0; }
-        else if (Mathf.RoundToInt(PlayerTransform.forward.x) == -1) { Direction = 3; }
-        else /*(Mathf.RoundToInt(PlayerTransform.forward.z) == -1)*/ { Direction = 2; }
+        PausePlayerMovement = true;
 
         Vector3 faceBlockLocation;
+
+        UpdatePlayerLocalBlock();
+
+        if (Mathf.RoundToInt(PlayerTransform.forward.x) == 1) { Direction = 1; }
+        else if (Mathf.RoundToInt(PlayerTransform.forward.z) == 1) { Direction = 0; }
+        else if (Mathf.RoundToInt(PlayerTransform.forward.x) == -1) { Direction = 3; }
+        else /*(Mathf.RoundToInt(PlayerTransform.forward.z) == -1)*/ { Direction = 2; }
 
         if (this.LocalBlock.FaceBlocks[Direction] == null)
         {
@@ -155,7 +140,40 @@ public class Player : MonoBehaviour
         {
             faceBlockLocation = this.LocalBlock.FaceBlocks[Direction].transform.position;
         }
-        Debug.Log(faceBlockLocation);
+        
+        //Aligns character to InnerBlock
+        if (Direction == 1 || Direction == 3)
+        {
+            this.transform.position = new Vector3(faceBlockLocation.x, this.transform.position.y, this.transform.position.z);
+        }
+        else
+        {
+            this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, faceBlockLocation.z);
+        }
+
+        this.transform.Rotate(axis, degrees);
+
+        while (RotatingCamera)
+        {
+            yield return null;
+        }
+
+        UpdatePlayerLocalBlock();
+
+        if (Mathf.RoundToInt(PlayerTransform.forward.x) == 1) { Direction = 1; }
+        else if (Mathf.RoundToInt(PlayerTransform.forward.z) == 1) { Direction = 0; }
+        else if (Mathf.RoundToInt(PlayerTransform.forward.x) == -1) { Direction = 3; }
+        else /*(Mathf.RoundToInt(PlayerTransform.forward.z) == -1)*/ { Direction = 2; }
+
+        if (this.LocalBlock.FaceBlocks[Direction] == null)
+        {
+            faceBlockLocation = this.LocalBlock.transform.position;
+        }
+        else
+        {
+            faceBlockLocation = this.LocalBlock.FaceBlocks[Direction].transform.position;
+        }
+        
         //Aligns character to faceBlock
         if (Direction == 1 || Direction == 3)
         {
@@ -166,6 +184,6 @@ public class Player : MonoBehaviour
             this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, faceBlockLocation.z);
         }
 
-
+        PausePlayerMovement = false;
     }
 }

@@ -32,7 +32,6 @@ public class Block : MonoBehaviour
             for (int i = 0; i < sidesEnabled.Length; i++)
             {
                 this.gameObject.transform.GetChild(i).GetComponent<MeshCollider>().enabled = !sidesEnabled[i];//inside
-                this.gameObject.transform.GetChild(i + 6).GetComponent<MeshCollider>().enabled = !sidesEnabled[i];//outside
                 //Debug.Log(this.gameObject.name + " wall: " + this.gameObject.transform.GetChild(0).GetChild(i).name + " bool: " + false);
             }
         }
