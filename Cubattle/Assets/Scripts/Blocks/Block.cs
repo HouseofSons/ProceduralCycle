@@ -10,6 +10,7 @@ public class Block : MonoBehaviour
     public Vector3Int CurrentMapGridLocation { get; set; }
 
     public Block[] FaceBlocks = new Block[4];
+    public bool Cloned { get; set; }
 
     protected virtual void Start()
     {
@@ -24,13 +25,16 @@ public class Block : MonoBehaviour
 
     public void UpdateBlockColliders()
     {
-        bool[] sidesEnabled = MapGrid.GridLocationHasBlockNeighbors(this,CurrentMapGridLocation);
-
-        for (int i = 0; i < sidesEnabled.Length; i++)
+        if (this.GetType() == typeof(InsideBlock))
         {
-            this.gameObject.transform.GetChild(i).GetComponent<MeshCollider>().enabled = !sidesEnabled[i];//inside
-            this.gameObject.transform.GetChild(i + 6).GetComponent<MeshCollider>().enabled = !sidesEnabled[i];//outside
-            //Debug.Log(this.gameObject.name + " wall: " + this.gameObject.transform.GetChild(0).GetChild(i).name + " bool: " + false);
+            bool[] sidesEnabled = MapGrid.GridLocationHasBlockNeighbors(this, CurrentMapGridLocation);
+
+            for (int i = 0; i < sidesEnabled.Length; i++)
+            {
+                this.gameObject.transform.GetChild(i).GetComponent<MeshCollider>().enabled = !sidesEnabled[i];//inside
+                this.gameObject.transform.GetChild(i + 6).GetComponent<MeshCollider>().enabled = !sidesEnabled[i];//outside
+                //Debug.Log(this.gameObject.name + " wall: " + this.gameObject.transform.GetChild(0).GetChild(i).name + " bool: " + false);
+            }
         }
     }
 

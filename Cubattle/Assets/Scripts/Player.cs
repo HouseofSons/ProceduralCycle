@@ -22,6 +22,9 @@ public class Player : MonoBehaviour
     private bool beenGrounded;
     public int Direction { get; private set; }
 
+    public bool RotatingCamera;
+    public bool RotatingCamera_Coroutine; //Is Public for Inspector Testing
+
     private void Awake()
     {
         Players.Add(this);
@@ -30,7 +33,7 @@ public class Player : MonoBehaviour
         PlayerTransform = this.gameObject.transform;
 
         playerCamera = (Instantiate(Resources.Load("PlayerCamera")) as GameObject).GetComponent<PlayerCamera>();
-        playerCamera.AssignPlayerTransform(this.gameObject.transform);
+        playerCamera.AssignPlayer(this);
     }
 
     void Update()
@@ -68,6 +71,12 @@ public class Player : MonoBehaviour
         {
             gravity = Vector3.zero;
         }
+
+        if (RotatingCamera_Coroutine)
+        {
+            RotatingCamera_Coroutine = false;
+            StartCoroutine(RotatePlayer(Vector3.up, 90));
+        }
     }
 
     private bool IsGrounded()
@@ -104,29 +113,59 @@ public class Player : MonoBehaviour
         {
             LocalBlock = hit.transform.parent.GetComponent<InsideBlock>();
         }
-        else
-        {
-            //Potentially Move Player to Map Front
-            //UpdatePlayerLocation();
-        }
     }
 
-    public void RotatePlayer(Vector3 axis, int degrees)
+    public IEnumerator RotatePlayer(Vector3 axis, int degrees)
     {
-        this.transform.Rotate(axis, degrees);
+        RotatingCamera = true;
 
-        if (Mathf.RoundToInt(PlayerTransform.forward.x) == 1) { Direction = 0; }
-        else if (Mathf.RoundToInt(PlayerTransform.forward.z) == 1) { Direction = 2; }
-        else if (Mathf.RoundToInt(PlayerTransform.forward.x) == -1) { Direction = 1; }
-        else /*(Mathf.RoundToInt(PlayerTransform.forward.z) == -1)*/ { Direction = 3; }
+        if (Mathf.RoundToInt(PlayerTransform.forward.x) == 1) { Direction = 1; }
+        else if (Mathf.RoundToInt(PlayerTransform.forward.z) == 1) { Direction = 0; }
+        else if (Mathf.RoundToInt(PlayerTransform.forward.x) == -1) { Direction = 3; }
+        else /*(Mathf.RoundToInt(PlayerTransform.forward.z) == -1)*/ { Direction = 2; }
 
-        //Aligns character to center depth axis
-        if (Direction == 0 || Direction == 1)
+        //Aligns character to center depth axis on Parented Map Block
+        if (Direction == 1 || Direction == 3)
         {
-            this.transform.position = new Vector3(LocalBlock.transform.position.x,this.transform.position.y, this.transform.position.z);
+            this.transform.position = new Vector3(LocalBlock.transform.position.x, this.transform.position.y, this.transform.position.z);
         } else
         {
             this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, LocalBlock.transform.position.z);
         }
+
+        while(RotatingCamera)
+        {
+            yield return null;
+        }
+
+        this.transform.Rotate(axis, degrees);
+
+        if (Mathf.RoundToInt(PlayerTransform.forward.x) == 1) { Direction = 1; }
+        else if (Mathf.RoundToInt(PlayerTransform.forward.z) == 1) { Direction = 0; }
+        else if (Mathf.RoundToInt(PlayerTransform.forward.x) == -1) { Direction = 3; }
+        else /*(Mathf.RoundToInt(PlayerTransform.forward.z) == -1)*/ { Direction = 2; }
+
+        Vector3 faceBlockLocation;
+
+        if (this.LocalBlock.FaceBlocks[Direction] == null)
+        {
+            faceBlockLocation = this.LocalBlock.transform.position;
+        }
+        else
+        {
+            faceBlockLocation = this.LocalBlock.FaceBlocks[Direction].transform.position;
+        }
+        Debug.Log(faceBlockLocation);
+        //Aligns character to faceBlock
+        if (Direction == 1 || Direction == 3)
+        {
+            this.transform.position = new Vector3(faceBlockLocation.x, this.transform.position.y, this.transform.position.z);
+        }
+        else
+        {
+            this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, faceBlockLocation.z);
+        }
+
+
     }
 }

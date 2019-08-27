@@ -12,8 +12,6 @@ public class LevelManager : MonoBehaviour
 
     public static bool GameHasStarted { get; private set; }
     public static bool PausePlayerMovement { get; private set; }
-    //Coroutines
-    public bool Coroutine_RCAA; //Inspector Property for Testing
 
     void Awake()
     {
@@ -27,6 +25,7 @@ public class LevelManager : MonoBehaviour
     {
         GameHasStarted = false;
         PausePlayerMovement = false;
+        MapGrid.AddFaceBlocks();
     }
 
     void Update()
@@ -37,28 +36,7 @@ public class LevelManager : MonoBehaviour
             GameHasStarted = true;
         } else
         {//game is running
-            if(Coroutine_RCAA)
-            {
-                Coroutine_RCAA = false;
-                StartCoroutine(RotateCharactersAroundAxis(Vector3.up,90));
-            }
-        }
-    }
 
-    public static IEnumerator RotateCharactersAroundAxis(Vector3 axis, int degrees)
-    {
-        PausePlayerMovement = true;
-        
-        foreach (Player p in Player.Players)
-        {
-            p.RotatePlayer(axis, degrees);
         }
-
-        while (PlayerCamera.AllCamerasTurning())
-        {
-            yield return null;
-        }
-
-        PausePlayerMovement = false;
     }
 }
