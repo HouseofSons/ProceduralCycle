@@ -207,13 +207,13 @@ public class Player : MonoBehaviour
 
         Vector3 faceBlockLocation;
 
-        if (degrees == 90 || degrees == -270)
+        if (degrees == -90 || degrees == 270)
         {
             this.transform.position = new Vector3(-(currPos.z - center.z) + center.x,currPos.y,(currPos.x - center.x) + center.z);
-        } else if (degrees == 180 || degrees == -180)
+        } else if (degrees == -180 || degrees == 180)
         {
             this.transform.position = new Vector3(-(currPos.x - center.x) + center.x,currPos.y,-(currPos.z - center.z) + center.z);
-        } else if (degrees == 270 || degrees == -90)
+        } else if (degrees == -270 || degrees == 90)
         {
             this.transform.position = new Vector3(currPos.z - center.z + center.x,currPos.y,-(currPos.x - center.x) + center.z);
         } else

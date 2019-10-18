@@ -28,7 +28,7 @@ public class PlayerCamera : MonoBehaviour
     {
         if (System.Math.Abs(Quaternion.Angle(player.transform.rotation, this.transform.rotation)) > Mathf.Epsilon)
         {
-            this.transform.position = Vector3.Lerp(this.transform.position, player.transform.GetChild(0).transform.position, 5 * Time.deltaTime);
+            this.transform.position = Vector3.Lerp(this.transform.position, player.transform.GetChild(0).transform.position, 8 * Time.deltaTime);
         }
         else
         {
