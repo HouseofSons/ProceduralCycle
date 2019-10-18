@@ -12,10 +12,15 @@ public class LevelManager : MonoBehaviour
 
     public static bool GameHasStarted { get; private set; }
 
+    public bool RotateMap; //Is Public for Inspector Testing
+    public static Vector3 AxisPosition { get; set; }
+
     void Awake()
     {
         GridSize = gridSize;
         BlockSize = blockSize;
+        
+        AxisPosition = new Vector3(GridSize / 2 * BlockSize, GridSize / 2 * BlockSize, GridSize / 2 * BlockSize);//for testing, can be adjusted with level design
 
         MapGrid.GridBlocks = new Block[GridSize, GridSize, GridSize];
     }
@@ -34,7 +39,14 @@ public class LevelManager : MonoBehaviour
             GameHasStarted = true;
         } else
         {//game is running
-
+            if (RotateMap)
+            {
+                RotateMap = false;
+                foreach(Player p in Player.Players)
+                {
+                    p.RotatingMap_Coroutine = true;
+                }
+            }
         }
     }
 }

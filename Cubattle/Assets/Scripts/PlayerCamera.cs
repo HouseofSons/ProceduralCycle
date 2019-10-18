@@ -33,9 +33,13 @@ public class PlayerCamera : MonoBehaviour
         else
         {
             this.transform.position = player.transform.GetChild(0).transform.position;
-            if (player.RotatingCamera)
-            {//Ends Player.RotateCamera Coroutine
-                player.RotatingCamera = false;
+            if (player.RotatingPlayerInPlace)
+            {//Ends Player.RotatePlayer Coroutine
+                player.RotatingPlayerInPlace = false;
+            }
+            if (player.RotatingMap)
+            {//Ends Player.RotatingMap Coroutine
+                player.RotatingMap = false;
             }
         }
         this.transform.LookAt(player.transform.position);
