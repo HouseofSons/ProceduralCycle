@@ -183,7 +183,7 @@ public class Player : MonoBehaviour
         {
             faceBlockLocation = this.LocalBlock.FaceBlocks[Direction].transform.position;
         }
-        
+
         //Aligns character to faceBlock
         if (Direction == 1 || Direction == 3)
         {

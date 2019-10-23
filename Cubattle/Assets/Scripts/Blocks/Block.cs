@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-//Need to consider if Blocks will be moving during map turn
-
 public class Block : MonoBehaviour
 {
     public static List<Block> Blocks = new List<Block>();

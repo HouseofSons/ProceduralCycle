@@ -146,10 +146,10 @@ public class MapGrid : MonoBehaviour
                 InsideBlock edgeBlock = (Instantiate(Resources.Load("InsideBLock")) as GameObject).GetComponent<InsideBlock>();
                 edgeBlock.transform.position = new Vector3Int(edge.x * LevelManager.BlockSize, edge.y * LevelManager.BlockSize, edge.z * LevelManager.BlockSize);
                 InitializeGridLocation(edgeBlock);
-                GridBlocks[edge.x, edge.y, edge.z].FaceBlocks[direction] = GridBlocks[edge.x, edge.y, edge.z];
-                GridBlocks[edge.x, edge.y, edge.z].Cloned = true;
-                Destroy(GridBlocks[edge.x, edge.y, edge.z].transform.GetChild(7).gameObject);
-                Destroy(GridBlocks[edge.x, edge.y, edge.z].transform.GetChild(8).gameObject);
+                Destroy(edgeBlock.transform.GetChild(7).gameObject);
+                Destroy(edgeBlock.transform.GetChild(8).gameObject);
+                edgeBlock.FaceBlocks[direction] = edgeBlock;
+                edgeBlock.Cloned = true;
             }
 
             b.FaceBlocks[direction] = GridBlocks[edge.x, edge.y, edge.z];
