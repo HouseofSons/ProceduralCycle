@@ -28,14 +28,13 @@ public class LevelManager : MonoBehaviour
     private void Start()
     {
         GameHasStarted = false;
-        MapGrid.AddFaceBlocks();
+        MapGrid.AddFaceBlocks(); //Should only run for non-moving Blocks
     }
 
     void Update()
     {
         if(!GameHasStarted)
         {
-            Block.UpdateAllColliders();
             GameHasStarted = true;
         } else
         {//game is running

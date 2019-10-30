@@ -7,7 +7,7 @@ public class Player : MonoBehaviour
     public static List<Player> Players = new List<Player>();
     private CharacterController controller;
     public Transform PlayerTransform { get; private set; }
-    public Block LocalBlock { get; private set; }
+    public Block OccupyingBlock { get; private set; }
 
     public PlayerCamera playerCamera;
 
@@ -97,7 +97,7 @@ public class Player : MonoBehaviour
             origin = this.gameObject.transform.position,
             direction = -PlayerTransform.up
         };
-        if (Physics.SphereCast(ray, controller.radius, out RaycastHit hit, groundRayLength, ~(1 << 9)))
+        if (Physics.SphereCast(ray, controller.radius, out RaycastHit hit, groundRayLength/*, ~(1 << 9)*/))
         {
             if (!beenGrounded)
             {
@@ -113,7 +113,7 @@ public class Player : MonoBehaviour
         return false;
     }
     
-    private Block UpdatePlayerLocalBlock()
+    private Block UpdatePlayerOccupyingBlock()
     {
         Ray ray = new Ray
         {
@@ -122,8 +122,8 @@ public class Player : MonoBehaviour
         };
         if (Physics.Raycast(ray, out RaycastHit hit, LevelManager.GridSize * LevelManager.BlockSize,~(1 << 8)))
         {
-            LocalBlock = hit.transform.parent.GetComponent<InsideBlock>();
-            return LocalBlock;
+            OccupyingBlock = hit.transform.GetComponent<Block>();
+            return OccupyingBlock;
         }
         return null;
     }
@@ -135,20 +135,20 @@ public class Player : MonoBehaviour
 
         Vector3 faceBlockLocation;
 
-        UpdatePlayerLocalBlock();
+        UpdatePlayerOccupyingBlock();
 
         if (Mathf.RoundToInt(PlayerTransform.forward.x) == 1) { Direction = 1; }
         else if (Mathf.RoundToInt(PlayerTransform.forward.z) == 1) { Direction = 0; }
         else if (Mathf.RoundToInt(PlayerTransform.forward.x) == -1) { Direction = 3; }
         else /*(Mathf.RoundToInt(PlayerTransform.forward.z) == -1)*/ { Direction = 2; }
 
-        if (this.LocalBlock.FaceBlocks[Direction] == null)
+        if (this.OccupyingBlock.FaceBlocks[Direction] == null)
         {
-            faceBlockLocation = this.LocalBlock.transform.position;
+            faceBlockLocation = this.OccupyingBlock.transform.position;
         }
         else
         {
-            faceBlockLocation = this.LocalBlock.FaceBlocks[Direction].transform.position;
+            faceBlockLocation = this.OccupyingBlock.FaceBlocks[Direction].transform.position;
         }
         
         //Aligns character to InnerBlock
@@ -168,20 +168,20 @@ public class Player : MonoBehaviour
             yield return null;
         }
 
-        UpdatePlayerLocalBlock();
+        UpdatePlayerOccupyingBlock();
 
         if (Mathf.RoundToInt(PlayerTransform.forward.x) == 1) { Direction = 1; }
         else if (Mathf.RoundToInt(PlayerTransform.forward.z) == 1) { Direction = 0; }
         else if (Mathf.RoundToInt(PlayerTransform.forward.x) == -1) { Direction = 3; }
         else /*(Mathf.RoundToInt(PlayerTransform.forward.z) == -1)*/ { Direction = 2; }
 
-        if (this.LocalBlock.FaceBlocks[Direction] == null)
+        if (this.OccupyingBlock.FaceBlocks[Direction] == null)
         {
-            faceBlockLocation = this.LocalBlock.transform.position;
+            faceBlockLocation = this.OccupyingBlock.transform.position;
         }
         else
         {
-            faceBlockLocation = this.LocalBlock.FaceBlocks[Direction].transform.position;
+            faceBlockLocation = this.OccupyingBlock.FaceBlocks[Direction].transform.position;
         }
 
         //Aligns character to faceBlock
@@ -221,7 +221,7 @@ public class Player : MonoBehaviour
             Debug.Log("bad degrees entry of: " + degrees);
         }
 
-        if (UpdatePlayerLocalBlock() != null)
+        if (UpdatePlayerOccupyingBlock() != null)
         {
             landedOnBlock = true;
 
@@ -230,13 +230,13 @@ public class Player : MonoBehaviour
             else if (Mathf.RoundToInt(PlayerTransform.forward.x) == -1) { Direction = 3; }
             else /*(Mathf.RoundToInt(PlayerTransform.forward.z) == -1)*/ { Direction = 2; }
 
-            if (this.LocalBlock.FaceBlocks[Direction] == null)
+            if (this.OccupyingBlock.FaceBlocks[Direction] == null)
             {
-                faceBlockLocation = this.LocalBlock.transform.position;
+                faceBlockLocation = this.OccupyingBlock.transform.position;
             }
             else
             {
-                faceBlockLocation = this.LocalBlock.FaceBlocks[Direction].transform.position;
+                faceBlockLocation = this.OccupyingBlock.FaceBlocks[Direction].transform.position;
             }
 
             //Aligns character to InnerBlock
@@ -254,15 +254,15 @@ public class Player : MonoBehaviour
 
         if (landedOnBlock) {
 
-            UpdatePlayerLocalBlock();
+            UpdatePlayerOccupyingBlock();
 
-            if (this.LocalBlock.FaceBlocks[Direction] == null)
+            if (this.OccupyingBlock.FaceBlocks[Direction] == null)
             {
-                faceBlockLocation = this.LocalBlock.transform.position;
+                faceBlockLocation = this.OccupyingBlock.transform.position;
             }
             else
             {
-                faceBlockLocation = this.LocalBlock.FaceBlocks[Direction].transform.position;
+                faceBlockLocation = this.OccupyingBlock.FaceBlocks[Direction].transform.position;
             }
 
             //Aligns character to faceBlock
