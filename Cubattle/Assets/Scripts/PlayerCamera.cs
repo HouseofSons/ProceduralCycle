@@ -8,7 +8,7 @@ public class PlayerCamera : MonoBehaviour
     private Player player;
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         playerCameras.Add(this);
     }

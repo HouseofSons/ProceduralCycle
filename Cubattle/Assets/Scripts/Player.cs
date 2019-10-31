@@ -20,6 +20,7 @@ public class Player : MonoBehaviour
     public float groundRayLength;
 
     private bool beenGrounded;
+    private bool playerObstructed;
     public int Direction { get; private set; }
 
     public bool RotatingPlayerInPlace { get; set; }
@@ -45,6 +46,8 @@ public class Player : MonoBehaviour
     {
         if (!PausePlayerMovement && !RotatingPlayerInPlace_Coroutine && !RotatingMap_Coroutine)
         {
+            AlignObstructedPlayer();
+
             move = Input.GetAxisRaw("Horizontal") * PlayerTransform.right;
             move *= moveSpeed;
 
@@ -97,7 +100,7 @@ public class Player : MonoBehaviour
             origin = this.gameObject.transform.position,
             direction = -PlayerTransform.up
         };
-        if (Physics.SphereCast(ray, controller.radius, out RaycastHit hit, groundRayLength/*, ~(1 << 9)*/))
+        if (Physics.SphereCast(ray, controller.radius, out RaycastHit hit, groundRayLength))
         {
             if (!beenGrounded)
             {
@@ -128,20 +131,80 @@ public class Player : MonoBehaviour
         return null;
     }
 
+    private bool PlayerObstructed()
+    {
+        Ray ray = new Ray
+        {
+            origin = this.gameObject.transform.position,
+            direction = playerCamera.transform.position - this.transform.position
+        };
+        if (Physics.Raycast(ray, out RaycastHit hit, LevelManager.GridSize * LevelManager.BlockSize, ~(1 << 8)))
+        {
+            if (!hit.transform.GetComponent<Block>().Cloned)
+            {
+                playerObstructed = true;
+                return true;
+            }
+        }
+        playerObstructed = false;
+        return false;
+    }
+
+    private void AlignObstructedPlayer()
+    {
+        if (playerObstructed)
+        {
+            Ray ray = new Ray
+            {
+                origin = this.gameObject.transform.position,
+                direction = playerCamera.transform.position - this.transform.position
+            };
+            RaycastHit hit;
+            Physics.Raycast(ray, out hit, LevelManager.GridSize * LevelManager.BlockSize, ~(1 << 8));
+
+            if(hit.transform == null || hit.transform.GetComponent<Block>().Cloned)
+            {
+                if (Mathf.RoundToInt(PlayerTransform.forward.x) == 1) { Direction = 1; }
+                else if (Mathf.RoundToInt(PlayerTransform.forward.z) == 1) { Direction = 0; }
+                else if (Mathf.RoundToInt(PlayerTransform.forward.x) == -1) { Direction = 3; }
+                else /*(Mathf.RoundToInt(PlayerTransform.forward.z) == -1)*/ { Direction = 2; }
+
+                //Aligns character to proper Face
+                if (Direction == 1)
+                {
+                    this.transform.position = new Vector3(0, this.transform.position.y, this.transform.position.z);
+                }
+                else if (Direction == 3)
+                {
+                    this.transform.position = new Vector3((LevelManager.GridSize - 1) * LevelManager.BlockSize, this.transform.position.y, this.transform.position.z);
+                }
+                else if (Direction == 2)
+                {
+                    this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, (LevelManager.GridSize - 1) * LevelManager.BlockSize);
+                }
+                else
+                {
+                    this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, 0);
+                }
+                playerObstructed = false;
+            }
+        }
+    }
+
     public IEnumerator RotatePlayer(int degrees)
     {
         RotatingPlayerInPlace = true;
         PausePlayerMovement = true;
 
         Vector3 faceBlockLocation;
-
+        
         UpdatePlayerOccupyingBlock();
-
+        
         if (Mathf.RoundToInt(PlayerTransform.forward.x) == 1) { Direction = 1; }
         else if (Mathf.RoundToInt(PlayerTransform.forward.z) == 1) { Direction = 0; }
         else if (Mathf.RoundToInt(PlayerTransform.forward.x) == -1) { Direction = 3; }
         else /*(Mathf.RoundToInt(PlayerTransform.forward.z) == -1)*/ { Direction = 2; }
-
+        
         if (this.OccupyingBlock.FaceBlocks[Direction] == null)
         {
             faceBlockLocation = this.OccupyingBlock.transform.position;
@@ -150,15 +213,18 @@ public class Player : MonoBehaviour
         {
             faceBlockLocation = this.OccupyingBlock.FaceBlocks[Direction].transform.position;
         }
-        
-        //Aligns character to InnerBlock
-        if (Direction == 1 || Direction == 3)
+
+        if (!playerObstructed)
         {
-            this.transform.position = new Vector3(faceBlockLocation.x, this.transform.position.y, this.transform.position.z);
-        }
-        else
-        {
-            this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, faceBlockLocation.z);
+            //Aligns character to InnerBlock
+            if (Direction == 1 || Direction == 3)
+            {
+                this.transform.position = new Vector3(faceBlockLocation.x, this.transform.position.y, this.transform.position.z);
+            }
+            else
+            {
+                this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, faceBlockLocation.z);
+            }
         }
 
         this.transform.Rotate(Vector3.up, degrees);
@@ -184,14 +250,16 @@ public class Player : MonoBehaviour
             faceBlockLocation = this.OccupyingBlock.FaceBlocks[Direction].transform.position;
         }
 
-        //Aligns character to faceBlock
-        if (Direction == 1 || Direction == 3)
-        {
-            this.transform.position = new Vector3(faceBlockLocation.x, this.transform.position.y, this.transform.position.z);
-        }
-        else
-        {
-            this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, faceBlockLocation.z);
+        if (!PlayerObstructed()) {
+            //Aligns character to faceBlock
+            if (Direction == 1 || Direction == 3)
+            {
+                this.transform.position = new Vector3(faceBlockLocation.x, this.transform.position.y, this.transform.position.z);
+            }
+            else
+            {
+                this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, faceBlockLocation.z);
+            }
         }
 
         PausePlayerMovement = false;
