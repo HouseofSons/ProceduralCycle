@@ -112,6 +112,7 @@ public class MapGrid : MonoBehaviour
             if (GridBlocks[edge.x, edge.y, edge.z] == null)
             {
                 Block edgeBlock = (Instantiate( Resources.Load("Block")) as GameObject).GetComponent<Block>();
+                edgeBlock.gameObject.layer = 10;
                 edgeBlock.transform.position = new Vector3Int(edge.x * LevelManager.BlockSize, edge.y * LevelManager.BlockSize, edge.z * LevelManager.BlockSize);
                 InitializeGridLocation(edgeBlock);
                 Destroy(edgeBlock.transform.GetChild(0).gameObject);

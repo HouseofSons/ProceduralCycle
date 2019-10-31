@@ -20,7 +20,7 @@ public class Player : MonoBehaviour
     public float groundRayLength;
 
     private bool beenGrounded;
-    private bool playerObstructed;
+    public bool playerObstructed;
     public int Direction { get; private set; }
 
     public bool RotatingPlayerInPlace { get; set; }
@@ -136,9 +136,18 @@ public class Player : MonoBehaviour
         Ray ray = new Ray
         {
             origin = this.gameObject.transform.position,
-            direction = playerCamera.transform.position - this.transform.position
+            direction = -PlayerTransform.forward
         };
         if (Physics.Raycast(ray, out RaycastHit hit, LevelManager.GridSize * LevelManager.BlockSize, ~(1 << 8)))
+        {
+            if (!hit.transform.GetComponent<Block>().Cloned)
+            {
+                playerObstructed = true;
+                return true;
+            }
+        }
+        ray.direction = PlayerTransform.forward;
+        if (Physics.Raycast(ray, out hit, LevelManager.GridSize * LevelManager.BlockSize, ~(1 << 8)))
         {
             if (!hit.transform.GetComponent<Block>().Cloned)
             {
@@ -150,25 +159,46 @@ public class Player : MonoBehaviour
         return false;
     }
 
-    private void AlignObstructedPlayer()
+    private void AlignObstructedPlayer() //consider spherecast for smoother player movement
     {
         if (playerObstructed)
         {
-            Ray ray = new Ray
-            {
-                origin = this.gameObject.transform.position,
-                direction = playerCamera.transform.position - this.transform.position
-            };
-            RaycastHit hit;
-            Physics.Raycast(ray, out hit, LevelManager.GridSize * LevelManager.BlockSize, ~(1 << 8));
+            Ray ray;
 
-            if(hit.transform == null || hit.transform.GetComponent<Block>().Cloned)
+            if (Direction == 1)
             {
-                if (Mathf.RoundToInt(PlayerTransform.forward.x) == 1) { Direction = 1; }
-                else if (Mathf.RoundToInt(PlayerTransform.forward.z) == 1) { Direction = 0; }
-                else if (Mathf.RoundToInt(PlayerTransform.forward.x) == -1) { Direction = 3; }
-                else /*(Mathf.RoundToInt(PlayerTransform.forward.z) == -1)*/ { Direction = 2; }
-
+                ray = new Ray
+                {
+                    origin = new Vector3(-LevelManager.BlockSize, this.transform.position.y, this.transform.position.z),
+                    direction = PlayerTransform.forward
+                };
+            }
+            else if (Direction == 3)
+            {
+                ray = new Ray
+                {
+                    origin = new Vector3(LevelManager.GridSize * LevelManager.BlockSize, this.transform.position.y, this.transform.position.z),
+                    direction = PlayerTransform.forward
+                };
+            }
+            else if (Direction == 2)
+            {
+                ray = new Ray
+                {
+                    origin = new Vector3(this.transform.position.x, this.transform.position.y, LevelManager.GridSize * LevelManager.BlockSize),
+                    direction = PlayerTransform.forward
+                };
+            }
+            else
+            {
+                ray = new Ray
+                {
+                    origin = new Vector3(this.transform.position.x, this.transform.position.y, -LevelManager.BlockSize),
+                    direction = PlayerTransform.forward
+                };
+            }
+            if (!Physics.Raycast(ray, LevelManager.GridSize * LevelManager.BlockSize, ~((1 << 8) | (1 << 10))))
+            {
                 //Aligns character to proper Face
                 if (Direction == 1)
                 {

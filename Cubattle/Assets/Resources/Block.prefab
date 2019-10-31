@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 648627415707939149}
   - component: {fileID: 5458276486914717393}
   - component: {fileID: -4934821652811627646}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Block
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -152,7 +152,7 @@ GameObject:
   - component: {fileID: 955697919018333062}
   - component: {fileID: 4626157885922785076}
   - component: {fileID: 3353414768122087522}
-  m_Layer: 9
+  m_Layer: 0
   m_Name: BlockTexture
   m_TagString: Untagged
   m_Icon: {fileID: 0}
