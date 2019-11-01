@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-
+//Need to adjust Camera Target on Player to be dynamically distant depending on map size
 public class Player : MonoBehaviour
 {
     public static List<Player> Players = new List<Player>();
@@ -20,7 +20,7 @@ public class Player : MonoBehaviour
     public float groundRayLength;
 
     private bool beenGrounded;
-    public bool playerObstructed;
+    private bool playerObstructed;
     public int Direction { get; private set; }
 
     public bool RotatingPlayerInPlace { get; set; }
@@ -125,9 +125,10 @@ public class Player : MonoBehaviour
         };
         if (Physics.Raycast(ray, out RaycastHit hit, LevelManager.GridSize * LevelManager.BlockSize,~(1 << 8)))
         {
-            OccupyingBlock = hit.transform.GetComponent<Block>();
+            OccupyingBlock = hit.transform.parent.GetComponent<Block>();
             return OccupyingBlock;
         }
+        
         return null;
     }
 
@@ -140,7 +141,7 @@ public class Player : MonoBehaviour
         };
         if (Physics.Raycast(ray, out RaycastHit hit, LevelManager.GridSize * LevelManager.BlockSize, ~(1 << 8)))
         {
-            if (!hit.transform.GetComponent<Block>().Cloned)
+            if (!hit.transform.parent.GetComponent<Block>().Cloned)
             {
                 playerObstructed = true;
                 return true;
@@ -149,7 +150,7 @@ public class Player : MonoBehaviour
         ray.direction = PlayerTransform.forward;
         if (Physics.Raycast(ray, out hit, LevelManager.GridSize * LevelManager.BlockSize, ~(1 << 8)))
         {
-            if (!hit.transform.GetComponent<Block>().Cloned)
+            if (!hit.transform.parent.GetComponent<Block>().Cloned)
             {
                 playerObstructed = true;
                 return true;
@@ -159,7 +160,7 @@ public class Player : MonoBehaviour
         return false;
     }
 
-    private void AlignObstructedPlayer() //consider spherecast for smoother player movement
+    private void AlignObstructedPlayer()
     {
         if (playerObstructed)
         {
@@ -197,7 +198,7 @@ public class Player : MonoBehaviour
                     direction = PlayerTransform.forward
                 };
             }
-            if (!Physics.Raycast(ray, LevelManager.GridSize * LevelManager.BlockSize, ~((1 << 8) | (1 << 10))))
+            if (!Physics.SphereCast(ray,this.transform.localScale.x/2,LevelManager.GridSize * LevelManager.BlockSize, ~((1 << 8) | (1 << 10))))
             {
                 //Aligns character to proper Face
                 if (Direction == 1)
@@ -243,7 +244,7 @@ public class Player : MonoBehaviour
         {
             faceBlockLocation = this.OccupyingBlock.FaceBlocks[Direction].transform.position;
         }
-
+        
         if (!playerObstructed)
         {
             //Aligns character to InnerBlock
@@ -256,7 +257,7 @@ public class Player : MonoBehaviour
                 this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, faceBlockLocation.z);
             }
         }
-
+        
         this.transform.Rotate(Vector3.up, degrees);
 
         while (RotatingPlayerInPlace)
