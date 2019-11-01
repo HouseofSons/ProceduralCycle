@@ -14,9 +14,9 @@ TagManager:
   - 
   - 
   - Player
-  - InnerBlock
-  - EdgeBlock
-  - 
+  - InnerCollider
+  - EdgeCollider
+  - DepthCollider
   - 
   - 
   - 

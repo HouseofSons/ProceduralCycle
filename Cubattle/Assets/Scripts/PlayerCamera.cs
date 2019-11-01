@@ -37,10 +37,6 @@ public class PlayerCamera : MonoBehaviour
             {//Ends Player.RotatePlayer Coroutine
                 player.RotatingPlayerInPlace = false;
             }
-            if (player.RotatingMap)
-            {//Ends Player.RotatingMap Coroutine
-                player.RotatingMap = false;
-            }
         }
         this.transform.LookAt(player.transform.position);
     }

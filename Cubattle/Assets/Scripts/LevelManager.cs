@@ -12,7 +12,6 @@ public class LevelManager : MonoBehaviour
 
     public static bool GameHasStarted { get; private set; }
 
-    public bool RotateMap; //Is Public for Inspector Testing
     public static Vector3 AxisPosition { get; set; }
 
     void Awake()
@@ -38,14 +37,7 @@ public class LevelManager : MonoBehaviour
             GameHasStarted = true;
         } else
         {//game is running
-            if (RotateMap)
-            {
-                RotateMap = false;
-                foreach(Player p in Player.Players)
-                {
-                    p.RotatingMap_Coroutine = true;
-                }
-            }
+
         }
     }
 }

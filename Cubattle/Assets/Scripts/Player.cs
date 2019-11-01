@@ -26,9 +26,6 @@ public class Player : MonoBehaviour
     public bool RotatingPlayerInPlace { get; set; }
     public bool RotatingPlayerInPlace_Coroutine; //Is Public for Inspector Testing
 
-    public bool RotatingMap { get; set; }
-    public bool RotatingMap_Coroutine { get; set; }
-
     public bool PausePlayerMovement { get; set; }
 
     private void Awake()
@@ -44,7 +41,7 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-        if (!PausePlayerMovement && !RotatingPlayerInPlace_Coroutine && !RotatingMap_Coroutine)
+        if (!PausePlayerMovement && !RotatingPlayerInPlace_Coroutine)
         {
             AlignObstructedPlayer();
 
@@ -84,11 +81,6 @@ public class Player : MonoBehaviour
             {
                 RotatingPlayerInPlace_Coroutine = false;
                 StartCoroutine(RotatePlayer(90));
-            }
-            if (RotatingMap_Coroutine)
-            {
-                RotatingMap_Coroutine = false;
-                StartCoroutine(RotateMap(LevelManager.AxisPosition,90));
             }
         }
     }
@@ -291,94 +283,6 @@ public class Player : MonoBehaviour
             {
                 this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, faceBlockLocation.z);
             }
-        }
-
-        PausePlayerMovement = false;
-    }
-
-    public IEnumerator RotateMap(Vector3 center, int degrees)
-    {
-        RotatingMap = true;
-        PausePlayerMovement = true;
-
-        bool landedOnBlock = false;
-        Vector3 currPos = this.transform.position;
-
-        Vector3 faceBlockLocation;
-
-        if (degrees == -90 || degrees == 270)
-        {
-            this.transform.position = new Vector3(-(currPos.z - center.z) + center.x,currPos.y,(currPos.x - center.x) + center.z);
-        } else if (degrees == -180 || degrees == 180)
-        {
-            this.transform.position = new Vector3(-(currPos.x - center.x) + center.x,currPos.y,-(currPos.z - center.z) + center.z);
-        } else if (degrees == -270 || degrees == 90)
-        {
-            this.transform.position = new Vector3(currPos.z - center.z + center.x,currPos.y,-(currPos.x - center.x) + center.z);
-        } else
-        {
-            Debug.Log("bad degrees entry of: " + degrees);
-        }
-
-        if (UpdatePlayerOccupyingBlock() != null)
-        {
-            landedOnBlock = true;
-
-            if (Mathf.RoundToInt(PlayerTransform.forward.x) == 1) { Direction = 1; }
-            else if (Mathf.RoundToInt(PlayerTransform.forward.z) == 1) { Direction = 0; }
-            else if (Mathf.RoundToInt(PlayerTransform.forward.x) == -1) { Direction = 3; }
-            else /*(Mathf.RoundToInt(PlayerTransform.forward.z) == -1)*/ { Direction = 2; }
-
-            if (this.OccupyingBlock.FaceBlocks[Direction] == null)
-            {
-                faceBlockLocation = this.OccupyingBlock.transform.position;
-            }
-            else
-            {
-                faceBlockLocation = this.OccupyingBlock.FaceBlocks[Direction].transform.position;
-            }
-
-            //Aligns character to InnerBlock
-            if (Direction == 1 || Direction == 3)
-            {
-                this.transform.position = new Vector3(faceBlockLocation.x, this.transform.position.y, this.transform.position.z);
-            }
-            else
-            {
-                this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, faceBlockLocation.z);
-            }
-        } 
-
-        this.transform.Rotate(Vector3.up, degrees);
-
-        if (landedOnBlock) {
-
-            UpdatePlayerOccupyingBlock();
-
-            if (this.OccupyingBlock.FaceBlocks[Direction] == null)
-            {
-                faceBlockLocation = this.OccupyingBlock.transform.position;
-            }
-            else
-            {
-                faceBlockLocation = this.OccupyingBlock.FaceBlocks[Direction].transform.position;
-            }
-
-            //Aligns character to faceBlock
-            if (Direction == 1 || Direction == 3)
-            {
-                this.transform.position = new Vector3(faceBlockLocation.x, this.transform.position.y, this.transform.position.z);
-            }
-            else
-            {
-                this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, faceBlockLocation.z);
-            }
-
-        }
-
-        while (RotatingMap)
-        {
-            yield return null;
         }
 
         PausePlayerMovement = false;
