@@ -190,7 +190,7 @@ public class Player : MonoBehaviour
                     direction = PlayerTransform.forward
                 };
             }
-            if (!Physics.SphereCast(ray,this.transform.localScale.x/2,LevelManager.GridSize * LevelManager.BlockSize, ~((1 << 8) | (1 << 10))))
+            if (!Physics.SphereCast(ray,this.transform.localScale.x/2, LevelManager.GridSize * LevelManager.BlockSize, ~((1 << 8) | (1 << 10))))
             {
                 //Aligns character to proper Face
                 if (Direction == 1)

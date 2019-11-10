@@ -14,14 +14,6 @@ public class Wall
         Walls.Add(this);
         firstRoom = first;
         secondRoom = second;
-        door = FindDoor(this);
-    }
-
-    private Door FindDoor(Wall w)
-    {
-        foreach(Door d in Door.Doors)
-        {
-            if()
-        }
+        //door = FindDoor(this);
     }
 }
