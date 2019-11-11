@@ -16,10 +16,6 @@ public class Player : MonoBehaviour {
 	private static int totalExperiencePoints;
 	//used to determine enemy killed count
 	private static int enemyKillCount;
-	//used to establish max grapple charges
-	private static float maxGrappleCharges;
-	//used to count grapple charges
-	private static float grappleCharges;
 	//CoRoutine which moves player
 	private static Coroutine playerFollowPathCoRoutine;
 	//CoRoutine which moves player to spawn
@@ -35,8 +31,6 @@ public class Player : MonoBehaviour {
 		enemyKillCount = 0;
 		totalExperiencePoints = 0;
 		level = 1;
-		grappleCharges = 3.0f;
-		maxGrappleCharges = 3.0f;
 		playerMovingDirection = Vector3.zero;
 		disablePlayerCollisions = false;
 	}
@@ -97,14 +91,8 @@ public class Player : MonoBehaviour {
 
 	public static void EnemyKilled(int experiencePoints) {
 
-		float unitGrappleCharge = 0.5f;
-
 		UpdateExperiencePoints (experiencePoints);
 		enemyKillCount += 1;
-		if (grappleCharges + unitGrappleCharge < maxGrappleCharges) {
-			grappleCharges += unitGrappleCharge;
-		}
-		UI.UpdateGrappleText (Mathf.FloorToInt(grappleCharges),Mathf.FloorToInt(maxGrappleCharges));
 	}
 
 	public static void UpdateExperiencePoints (int experiencePoints) {
@@ -164,18 +152,6 @@ public class Player : MonoBehaviour {
 
 	public static Vector3 PlayerMovingDirection {
 		get{return playerMovingDirection;}
-	}
-	
-	public static float MaxGrappleCharges {
-		
-		get{return maxGrappleCharges;}
-		set{maxGrappleCharges = value;}
-	}
-	
-	public static float GrappleCharges {
-
-		get{return grappleCharges;}
-		set{grappleCharges = value;}
 	}
 	//Determines where player will spawn
 	public Vector3 SpawnPoint {

@@ -29,19 +29,10 @@ public class GameManager : MonoBehaviour {
 	private static bool changeLevel;
 	private static bool enableEnemyMovement;
 	private static bool moveCamera;
-	private static bool grapplingHookReady;
-	private static bool grappleShot;
-	private static bool grappleShotComplete;
-	private static bool grappleNotCaught;
-	private static bool grappleNotCaughtComplete;
-	private static bool grappleCaught;
-	private static bool grappleCaughtComplete;
 	private static bool enterDoor;
 	
 	//used to attach visual arrow over player when aiming
 	private static GameObject aimArrow;
-	//Grappling Hooks are awesome!
-	private static GameObject grapplingHook;
 
 	void Start () {
 
@@ -55,13 +46,6 @@ public class GameManager : MonoBehaviour {
 		changeLevel = false;
 		enableEnemyMovement = false;
 		moveCamera = false;
-		grapplingHookReady = false;
-		grappleShot = false;
-		grappleShotComplete = false;
-		grappleNotCaughtComplete = false;
-		grappleNotCaught = false;
-		grappleCaught = false;
-		grappleCaughtComplete = false;
 		enterDoor = false;
 
 		speed = speedInput;
@@ -71,9 +55,6 @@ public class GameManager : MonoBehaviour {
 
 		aimArrow = currentPlayer.transform.Find ("AimArrow").gameObject;
 		aimArrow.gameObject.GetComponent<SpriteRenderer> ().enabled = false;
-
-		grapplingHook = currentPlayer.transform.Find ("GrapplingHook").gameObject;
-		grapplingHook.gameObject.GetComponent<MeshRenderer> ().enabled = false;
 	}
 
 	void Update() {
@@ -95,36 +76,6 @@ public class GameManager : MonoBehaviour {
 		if (stageNumber == 2 && !aimArrowState) {
 			//Player has been released from original level spawn
 			enableEnemyMovement = true;
-			grapplingHookReady = true;
-			stageNumber = 3;
-		}
-		if (stageNumber == 3 && grappleNotCaught) {
-			//Player shot Grappling Hook and missed and is reeling in
-			grappleNotCaught = false;
-			stageNumber = 4;
-		}
-		if (stageNumber == 4 && grappleNotCaughtComplete) {
-			//Grappling Hook has been reeled in
-			grappleNotCaughtComplete = false;
-			grapplingHookReady = true;
-			stageNumber = 3;
-		}
-		if (stageNumber == 3 && grappleCaught) {	
-			//Player shot Grappling Hook and it caught
-			grappleCaught = false;
-			StopCoroutine(Player.PlayerFollowPathCoRoutine);
-			stageNumber = 5;
-		}
-		if (stageNumber == 5 && grappleCaughtComplete) {
-			//Player stuck at Grapple Position
-			grappleCaughtComplete = false;
-			grapplingHookReady = false;
-			aimArrowState = true;
-			stageNumber = 6;
-		}
-		if (stageNumber == 6 && !aimArrowState) {
-			//Player released from Grapple position
-			grapplingHookReady = true;
 			stageNumber = 3;
 		}
 		if (stageNumber == 3 && enterDoor) {
@@ -134,7 +85,6 @@ public class GameManager : MonoBehaviour {
 			moveToSpawnState = true;
 			moveCamera = true;
 			enableEnemyMovement = false;
-			grapplingHookReady = false;
 			stageNumber = 1;
 		}
 	
@@ -143,13 +93,6 @@ public class GameManager : MonoBehaviour {
 		//		changeLevel
 		//		enableEnemyMovement
 		//		moveCamera
-		//		grapplingHookReady
-		//		grappleShot
-		//		grappleShotComplete
-		//		grappleNotCaught
-		//		grappleNotCaughtComplete
-		//		grappleCaught
-		//		grappleCaughtComplete
 		//		enterDoor
 	}
 	
@@ -187,41 +130,6 @@ public class GameManager : MonoBehaviour {
 		set {moveCamera = value;}
 	}
 	
-	public static bool GrapplingHookReady {
-		get {return grapplingHookReady;}
-		set {grapplingHookReady = value;}
-	}
-	
-	public static bool GrappleShot {
-		get {return grappleShot;}
-		set {grappleShot = value;}
-	}
-	
-	public static bool GrappleShotComplete {
-		get {return grappleShotComplete;}
-		set {grappleShotComplete = value;}
-	}
-	
-	public static bool GrappleNotCaught {
-		get {return grappleNotCaught;}
-		set {grappleNotCaught = value;}
-	}
-	
-	public static bool GrappleNotCaughtComplete {
-		get {return grappleNotCaughtComplete;}
-		set {grappleNotCaughtComplete = value;}
-	}
-	
-	public static bool GrappleCaught {
-		get {return grappleCaught;}
-		set {grappleCaught = value;}
-	}
-
-	public static bool GrappleCaughtComplete {
-		get {return grappleCaughtComplete;}
-		set {grappleCaughtComplete = value;}
-	}
-	
 	public static bool EnterDoor {
 		get {return enterDoor;}
 		set {enterDoor = value;}
@@ -256,10 +164,6 @@ public class GameManager : MonoBehaviour {
 	public static GameObject AimArrow() {
 		return aimArrow;
 	}
-	
-	public static GameObject GrapplingHook() {
-		return grapplingHook;
-	}
 
 	private static void InitializePlayerInLevel(string player,string level, string spawn) {
 
@@ -275,7 +179,7 @@ public class GameManager : MonoBehaviour {
 				if (currentPlayer != null) {
 					currentPlayer.GetComponent<Player>().SpawnPoint = currentSpawn.transform.position;
 				}
-				Section.InitializeSectionsOfCurrentLevel();;
+				Section.InitializeSectionsOfCurrentLevel();
 			}
 		}
 	}
