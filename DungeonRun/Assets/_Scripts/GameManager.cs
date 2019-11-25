@@ -34,7 +34,12 @@ public class GameManager : MonoBehaviour {
 	//used to attach visual arrow over player when aiming
 	private static GameObject aimArrow;
 
-	void Start () {
+    //used to attach visual arrow over player when aiming
+    private static LineRenderer pathLine;
+    //used to attach visual arrow over player when aiming
+    private static LineRenderer pathChosenLine;
+
+    void Start () {
 
 		gameManager = this.gameObject;
         gameCamera = GameObject.Find("MainCamera");
@@ -57,7 +62,21 @@ public class GameManager : MonoBehaviour {
 
 		aimArrow = currentPlayer.transform.Find ("AimArrow").gameObject;
 		aimArrow.gameObject.GetComponent<SpriteRenderer> ().enabled = false;
-	}
+
+        pathLine = (Instantiate(Resources.Load("Line")) as GameObject).GetComponent<LineRenderer>();
+        pathLine.material = new Material(Shader.Find("Sprites/Default"));
+        pathLine.positionCount = 4;
+        pathLine.numCapVertices = 90;
+        pathLine.numCornerVertices = 90;
+        pathLine.enabled = false;
+
+        pathChosenLine = (Instantiate(Resources.Load("Line")) as GameObject).GetComponent<LineRenderer>();
+        pathChosenLine.material = new Material(Shader.Find("Sprites/Default"));
+        pathChosenLine.positionCount = 4;
+        pathChosenLine.numCapVertices = 90;
+        pathChosenLine.numCornerVertices = 90;
+        pathChosenLine.enabled = false;
+    }
 
 	void Update() {
 
@@ -68,16 +87,17 @@ public class GameManager : MonoBehaviour {
 		if (stageNumber == 0) {
 			//Game Started and Camera is in position
 			moveToSpawnState = true;
-			stageNumber = 1;
+            stageNumber = 1;
 		}
 		if (stageNumber == 1 && !moveToSpawnState) {
 			//Player is in position
 			aimArrowState = true;
-			stageNumber = 2;
+            stageNumber = 2;
 		}
 		if (stageNumber == 2 && playerMovingState) {
 			//Player has been released from original level spawn
 			enableEnemyMovement = true;
+            pathChosenLine.enabled = true;
 			stageNumber = 3;
 		}
 		if (stageNumber == 3 && enterDoor) {
@@ -171,7 +191,17 @@ public class GameManager : MonoBehaviour {
 		return aimArrow;
 	}
 
-	private static void InitializePlayerInLevel(string player,string level, string spawn) {
+    public static LineRenderer PathLine()
+    {
+        return pathLine;
+    }
+
+    public static LineRenderer PathChosenLine()
+    {
+        return pathChosenLine;
+    }
+
+    private static void InitializePlayerInLevel(string player,string level, string spawn) {
 
 		currentLevel = Instantiate (Resources.Load (level)) as GameObject;
 

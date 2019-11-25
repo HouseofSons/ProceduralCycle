@@ -17,17 +17,23 @@ public class Player : MonoBehaviour {
 	private static int totalExperiencePoints;
 	//used to determine enemy killed count
 	private static int enemyKillCount;
+
 	//CoRoutine which moves player
 	private static Coroutine playerFollowPathCoRoutine;
 	//CoRoutine which moves player to spawn
 	private static Coroutine moveToSpawnCoRoutine;
+
 	//Direction Player is moving
 	private static Vector3 playerMovingDirection;
-
+    //Disables Collisions when traveling between levels
 	private static bool disablePlayerCollisions;
-    public static List<Vector3> WallCollisionPoints;
 
-	void Awake () {
+    //Wall points calculated by Players position and direction
+    public static List<Vector3> WallCollisionPoints;
+    //Wall points calculated by Players chosen path
+    public static List<Vector3> PathPoints;
+
+    void Awake () {
 		playerPathDistanceMax = 1000;
 		playerPathDistance = 0;
 		enemyKillCount = 0;
@@ -35,7 +41,7 @@ public class Player : MonoBehaviour {
 		level = 1;
 		playerMovingDirection = Vector3.zero;
 		disablePlayerCollisions = false;
-	}
+    }
 
 	void Start () {
 		UI.InitializeUI ();
@@ -45,6 +51,8 @@ public class Player : MonoBehaviour {
 
 		if (GameManager.MoveToSpawnState) {
 			GameManager.MoveToSpawnState = false;
+            GameManager.PathLine().enabled = false;
+            GameManager.PathChosenLine().enabled = false;
 			if (moveToSpawnCoRoutine != null) {
 				StopCoroutine(moveToSpawnCoRoutine);
 			}
@@ -53,17 +61,27 @@ public class Player : MonoBehaviour {
 
 		if (GameManager.AimArrowState) {
             UpdateWallCollisions();
-            PlotGuidePath();
+            UpdateGuidePath();
+
+            if (Input.GetMouseButton(0))
+            {
+                GameManager.PathLine().enabled = true;
+                GameManager.PathChosenLine().enabled = false;
+            }
+
             if (Input.GetMouseButtonUp(0)) {
                 if (!EventSystem.current.IsPointerOverGameObject()) {
                     GameManager.PlayerMovingState = true;
+                    GameManager.PathLine().enabled = false;
+                    GameManager.PathChosenLine().enabled = true;
                     playerMovingDirection = GameManager.AimArrow().transform.up;
+                    PathPoints = WallCollisionPoints;
                     if (playerFollowPathCoRoutine != null)
                     {
                         StopCoroutine(playerFollowPathCoRoutine);
                     }
-                    playerFollowPathCoRoutine = StartCoroutine (PlayerFollowPath (GameManager.Speed, GameManager.AimArrow().transform.up));
-                    //PlotPath();
+                    playerFollowPathCoRoutine = StartCoroutine (PlayerFollowPath ());
+                    UpdateChosenPath();
                 }
 			}
 		}
@@ -72,24 +90,11 @@ public class Player : MonoBehaviour {
 	void OnTriggerEnter(Collider col) {
 
 		if(!disablePlayerCollisions) {
-			if (col.gameObject.name.StartsWith ("Door")) {
-				disablePlayerCollisions = true;
-				StopCoroutine (playerFollowPathCoRoutine);//stops player movement if Door Hit
-				GameManager.DoorHit (col.transform.name);
-			} else if (col.gameObject.layer == 9) {
-                //TO BE REMOVED WITH NEW LOGIC!!!
-				RaycastHit hit;
-				Ray ray = new Ray (new Ray (this.transform.position, new Vector3 (-playerMovingDirection.x, -playerMovingDirection.y, -playerMovingDirection.z)).GetPoint (2.0f),
-				                   playerMovingDirection.normalized);
-				Vector3 normal = Vector3.zero;
-				LayerMask layerMask = 1 << LayerMask.NameToLayer ("Wall");
-                if (Physics.SphereCast (ray, 1.0f, out hit, 2.0f, layerMask)) {
-					normal = hit.normal;
-				}
-				playerMovingDirection = Vector3.Reflect (playerMovingDirection, normal);
-				StopCoroutine (playerFollowPathCoRoutine);
-				playerFollowPathCoRoutine = StartCoroutine (PlayerFollowPath (GameManager.Speed, playerMovingDirection));
-			}
+            if (col.gameObject.name.StartsWith("Door")) {
+                disablePlayerCollisions = true;
+                StopCoroutine(playerFollowPathCoRoutine);//stops player movement if Door Hit
+                GameManager.DoorHit(col.transform.name);
+            }
 		}
 	}
 
@@ -173,34 +178,33 @@ public class Player : MonoBehaviour {
 		UI.UpdateEnergyText(Mathf.FloorToInt(Player.Energy));
 	}
 	//Moves Player across Level
-	private IEnumerator PlayerFollowPath(float speed,Vector3 aimedDirection) {
+	private IEnumerator PlayerFollowPath() {
 
-		Ray rayAimed = new Ray (this.gameObject.transform.position,aimedDirection);
-		Vector3 start = this.gameObject.transform.position;
+        int index = 0;
+        Vector3 prevPosition = this.transform.position;
+        Vector3 nextPosition = PathPoints[index];
 
-		while (playerPathDistanceMax > playerPathDistance) {
+        while (playerPathDistanceMax > playerPathDistance) {
 
 			while (GameManager.IsPaused) { //for game pause
 				yield return null;
 			}
+            //checks if player has passed nextPosition
+            if(Mathf.Abs(Vector3.Distance(this.transform.position,prevPosition)) >= Mathf.Abs(Vector3.Distance(nextPosition, prevPosition))-0.1)
+            {
+                this.transform.position = nextPosition;
+                prevPosition = nextPosition;
+                index++;
+                nextPosition = PathPoints[index];
+            }
 
-			playerPathDistance += Vector3.Distance (start, this.gameObject.transform.position);
+            this.transform.position = Vector3.MoveTowards(this.transform.position, nextPosition,GameManager.Speed);
+
 			UI.UpdateEnergyText(Mathf.FloorToInt(Player.Energy));
-			start = this.gameObject.transform.position;
-
-			this.transform.position = new Vector3(
-                rayAimed.GetPoint(speed).x,
-				this.transform.position.y,
-				rayAimed.GetPoint(speed).z);
-			rayAimed.origin = this.transform.position;
 			yield return null;
 		}
 		GameManager.GameOver ();
 		yield return null;
-	}
-	//Adjust XZ plane speed based player Y change
-	private float SpeedDrag(float speed, float yDelta) {
-		return speed * (speed / (Mathf.Sqrt (Mathf.Pow (speed, 2) + Mathf.Pow (yDelta, 2))));
 	}
 	//Moves Player to Spawn Location
 	private IEnumerator MoveToSpawn() {
@@ -294,9 +298,22 @@ public class Player : MonoBehaviour {
         WallCollisionPoints = collisionPoints;
     }
     //Plots path following arrow
-    private void PlotGuidePath()
+    private void UpdateGuidePath()
     {
-
+        GameManager.PathLine().widthMultiplier = 0.1f;
+        GameManager.PathLine().SetPosition(0, this.transform.position);
+        GameManager.PathLine().SetPosition(1, WallCollisionPoints[0]);
+        GameManager.PathLine().SetPosition(2, WallCollisionPoints[1]);
+        GameManager.PathLine().SetPosition(3, WallCollisionPoints[2]);
+    }
+    //Plots path following arrow
+    private void UpdateChosenPath()
+    {
+        GameManager.PathChosenLine().widthMultiplier = 0.1f;
+        GameManager.PathChosenLine().SetPosition(0, this.transform.position);
+        GameManager.PathChosenLine().SetPosition(1, PathPoints[0]);
+        GameManager.PathChosenLine().SetPosition(2, PathPoints[1]);
+        GameManager.PathChosenLine().SetPosition(3, PathPoints[2]);
     }
 }
 
