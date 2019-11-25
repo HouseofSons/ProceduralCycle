@@ -273,20 +273,20 @@ public class Player : MonoBehaviour {
             collisionPoints[l] =
                 new Vector3(
 
-                    Mathf.FloorToInt(collisionPoints[l].x / floorWidth) % 2 == 0 ?
+                    collisionPoints[l].x >= 0 ?
                     (
-                        collisionPoints[l].x >= 0 ? collisionPoints[l].x % floorWidth : floorWidth + (collisionPoints[l].x % floorWidth)
+                        Mathf.FloorToInt(collisionPoints[l].x / floorWidth) % 2 == 0 ? collisionPoints[l].x % floorWidth : floorWidth - (collisionPoints[l].x % floorWidth)
                     ) :
                     (
-                        collisionPoints[l].x >= 0 ? floorWidth - (collisionPoints[l].x % floorWidth) : -(collisionPoints[l].x % floorWidth)
+                        Mathf.CeilToInt(collisionPoints[l].x / floorWidth) % 2 == 0 ? - (collisionPoints[l].x % floorWidth) : floorWidth + (collisionPoints[l].x % floorWidth)
                     ),
                     collisionPoints[l].y,
-                    Mathf.FloorToInt(collisionPoints[l].z / floorHeight) % 2 == 0 ?
+                    collisionPoints[l].z >= 0 ?
                     (
-                        collisionPoints[l].z >= 0 ? collisionPoints[l].z % floorHeight : floorHeight + (collisionPoints[l].z % floorHeight)
+                        Mathf.FloorToInt(collisionPoints[l].z / floorHeight) % 2 == 0 ? collisionPoints[l].z % floorHeight : floorHeight - (collisionPoints[l].z % floorHeight)
                     ) :
                     (
-                        collisionPoints[l].z >= 0 ? floorHeight - (collisionPoints[l].z % floorHeight) : -(collisionPoints[l].z % floorHeight)
+                        Mathf.CeilToInt(collisionPoints[l].z / floorHeight) % 2 == 0 ? -(collisionPoints[l].z % floorHeight) : floorHeight + (collisionPoints[l].z % floorHeight)
                     )
                 );
         }
