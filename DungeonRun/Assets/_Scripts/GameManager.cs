@@ -19,17 +19,17 @@ public class GameManager : MonoBehaviour {
 	private static GameObject currentPlayer;
 	private static GameObject currentLevel;
 	private static GameObject currentSpawn;
-	private static GameObject currentSection;
 	private static GameObject gameCamera;
 	private static GameObject gameManager;
 
 	//State triggers
 	private static bool moveToSpawnState;
 	private static bool aimArrowState;
-	private static bool changeLevel;
+    private static bool playerMovingState;
+    private static bool changeLevel;
 	private static bool enableEnemyMovement;
-	private static bool moveCamera;
-	private static bool enterDoor;
+    private static bool moveCamera;
+    private static bool enterDoor;
 	
 	//used to attach visual arrow over player when aiming
 	private static GameObject aimArrow;
@@ -37,15 +37,17 @@ public class GameManager : MonoBehaviour {
 	void Start () {
 
 		gameManager = this.gameObject;
+        gameCamera = GameObject.Find("MainCamera");
 
 		stageNumber = 0;
 		isPaused = false;
 
 		moveToSpawnState = false;
 		aimArrowState = false;
-		changeLevel = false;
+        playerMovingState = false;
+        changeLevel = false;
 		enableEnemyMovement = false;
-		moveCamera = false;
+        moveCamera = false;
 		enterDoor = false;
 
 		speed = speedInput;
@@ -73,7 +75,7 @@ public class GameManager : MonoBehaviour {
 			aimArrowState = true;
 			stageNumber = 2;
 		}
-		if (stageNumber == 2 && !aimArrowState) {
+		if (stageNumber == 2 && playerMovingState) {
 			//Player has been released from original level spawn
 			enableEnemyMovement = true;
 			stageNumber = 3;
@@ -83,13 +85,15 @@ public class GameManager : MonoBehaviour {
 			enterDoor = false;
 			changeLevel = true;
 			moveToSpawnState = true;
-			moveCamera = true;
-			enableEnemyMovement = false;
+            aimArrowState = false;
+            playerMovingState = false;
+            enableEnemyMovement = false;
 			stageNumber = 1;
 		}
 	
 		//		moveToSpawnState
 		//		aimArrowState
+        //      playerMovingState
 		//		changeLevel
 		//		enableEnemyMovement
 		//		moveCamera
@@ -113,9 +117,15 @@ public class GameManager : MonoBehaviour {
 	public static bool AimArrowState {
 		get {return aimArrowState;}
 		set {aimArrowState = value;}
-	}
-	
-	public static bool ChangeLevel {
+    }
+
+    public static bool PlayerMovingState
+    {
+        get { return playerMovingState; }
+        set { playerMovingState = value; }
+    }
+
+    public static bool ChangeLevel {
 		get {return changeLevel;}
 		set {changeLevel = value;}
 	}
@@ -123,14 +133,15 @@ public class GameManager : MonoBehaviour {
 	public static bool EnableEnemyMovement {
 		get {return enableEnemyMovement;}
 		set {enableEnemyMovement = value;}
-	}
-	
-	public static bool MoveCamera {
-		get {return moveCamera;}
-		set {moveCamera = value;}
-	}
-	
-	public static bool EnterDoor {
+    }
+
+    public static bool MoveCamera
+    {
+        get { return moveCamera; }
+        set { moveCamera = value; }
+    }
+
+    public static bool EnterDoor {
 		get {return enterDoor;}
 		set {enterDoor = value;}
 	}
@@ -142,11 +153,6 @@ public class GameManager : MonoBehaviour {
 
 	public static GameObject GetCurrentLevel() {
 		return currentLevel;
-	}
-	
-	public static GameObject CurrentSection {
-		get{return currentSection;}
-		set{currentSection = value;}
 	}
 	
 	public static GameObject GetCurrentSpawn() {
@@ -179,7 +185,6 @@ public class GameManager : MonoBehaviour {
 				if (currentPlayer != null) {
 					currentPlayer.GetComponent<Player>().SpawnPoint = currentSpawn.transform.position;
 				}
-				Section.InitializeSectionsOfCurrentLevel();
 			}
 		}
 	}
@@ -187,7 +192,6 @@ public class GameManager : MonoBehaviour {
 	private void InitializeCameraInLevel() {
 
 		if (currentLevel != null) {
-			gameCamera = Instantiate (Resources.Load ("Camera")) as GameObject;
 			gameCamera.gameObject.transform.position = currentLevel.transform.Find ("CameraPosition").gameObject.transform.position;
 		}
 	}
@@ -210,21 +214,6 @@ public class GameManager : MonoBehaviour {
 		} else {
 			return currentPlayer.transform.position;
 		}
-	}
-	//Determines players Y position
-	public static float YPositionPlayer(Vector3 pos) {
-		
-		float yPos = pos.y;
-		RaycastHit hit;
-		if (Physics.Raycast (new Vector3(pos.x,pos.y+1.0f,pos.z), Vector3.down, out hit, 1000.0f, 1 << LayerMask.NameToLayer ("Floor"))) {
-			yPos = hit.point.y+1.0f;
-			if (!hit.transform.gameObject.name.StartsWith("Ramp")) {
-				currentSection = hit.transform.parent.gameObject;//used to determine which floor player is on
-			} else {
-				Section.LoadSections(hit.transform.gameObject);//used to identify all sections touched by ramp
-			}
-		}
-		return yPos;
 	}
 	//Shows Game Over Canvas
 	public static void GameOver() {

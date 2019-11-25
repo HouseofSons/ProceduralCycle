@@ -30,7 +30,6 @@ public class Enemy : MonoBehaviour {
 	void OnTriggerEnter(Collider col) {
 		if (col.gameObject == GameManager.GetCurrentPlayer()) {
 			Attacked(1); //Need to add more Logic Here
-			StartCoroutine(MainCamera.CameraJitter());
 		}
 	}
 
@@ -68,26 +67,24 @@ public class Enemy : MonoBehaviour {
 		Ray rayAimed = new Ray(this.transform.position,NewEnemyPosition (this.transform.position) - this.transform.position);
 		RaycastHit hit;
 		Vector3 nextPosition = rayAimed.GetPoint (4.0f);
-		float ypos = this.transform.position.y;
 
 		LayerMask layerMask = 1<<LayerMask.NameToLayer("Wall") | 1<<LayerMask.NameToLayer("InnerWall");
 
-		while (1==1) {
+		while (true) {
 			while (!Physics.Raycast (rayAimed, out hit,4.1f,layerMask)) {
-				while (Vector3.Distance(this.transform.position,new Vector3(nextPosition.x,YPositionEnemy(),nextPosition.z))>0.5f) {
+				while (Vector3.Distance(this.transform.position,new Vector3(nextPosition.x,this.transform.position.y,nextPosition.z))>0.5f) {
 					while (GameManager.IsPaused) { //for game pause
 						yield return null;
 					}
 					this.transform.position = Vector3.Lerp(this.transform.position,nextPosition,0.02f);
-					this.transform.position = new Vector3(this.transform.position.x,YPositionEnemy(),this.transform.position.z);
+					this.transform.position = new Vector3(this.transform.position.x, this.transform.position.y, this.transform.position.z);
 					yield return null;
 				}
 				while (GameManager.IsPaused) { //for game pause
 					yield return null;
 				}
-				ypos = YPositionEnemy();
 				this.transform.position = nextPosition;
-				this.transform.position = new Vector3(nextPosition.x,ypos,nextPosition.z);
+				this.transform.position = new Vector3(nextPosition.x, this.transform.position.y, nextPosition.z);
 				rayAimed.origin = this.transform.position;
 				rayAimed.direction = NewEnemyPosition (this.transform.position) - this.transform.position;
 				nextPosition = rayAimed.GetPoint (4.0f);
@@ -111,19 +108,6 @@ public class Enemy : MonoBehaviour {
 			return new Vector3(position.x-2.0f,position.y,position.z);
 		}
 		return position;
-	}
-	//Determines enemy Y position
-	private float YPositionEnemy() {
-		
-		Vector3 pos = this.gameObject.transform.position;
-		float enemyYScale = this.gameObject.transform.localScale.y;
-		float yPos = pos.y;
-		RaycastHit hit;
-		if (Physics.Raycast (new Vector3(pos.x,pos.y+enemyYScale/*1.0f*/,pos.z), Vector3.down, out hit, 10.0f, 1 << LayerMask.NameToLayer ("Floor"))) {
-
-			yPos = hit.point.y+enemyYScale/*1.0f*/;
-		}
-		return yPos;
 	}
 
 	public void Attacked(int damage) {

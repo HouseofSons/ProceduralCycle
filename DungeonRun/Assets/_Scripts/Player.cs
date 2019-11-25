@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Player : MonoBehaviour {
 	
@@ -24,6 +25,7 @@ public class Player : MonoBehaviour {
 	private static Vector3 playerMovingDirection;
 
 	private static bool disablePlayerCollisions;
+    public static List<Vector3> WallCollisionPoints;
 
 	void Awake () {
 		playerPathDistanceMax = 1000;
@@ -50,13 +52,19 @@ public class Player : MonoBehaviour {
 		} 
 
 		if (GameManager.AimArrowState) {
-
-			if (Input.GetMouseButtonUp(0)) {
-				if (!EventSystem.current.IsPointerOverGameObject()) {
-					GameManager.AimArrowState = false;
-					playerMovingDirection = GameManager.AimArrow().transform.up;
-					playerFollowPathCoRoutine = StartCoroutine (PlayerFollowPath (GameManager.Speed, GameManager.AimArrow().transform.up));
-				}
+            UpdateWallCollisions();
+            PlotGuidePath();
+            if (Input.GetMouseButtonUp(0)) {
+                if (!EventSystem.current.IsPointerOverGameObject()) {
+                    GameManager.PlayerMovingState = true;
+                    playerMovingDirection = GameManager.AimArrow().transform.up;
+                    if (playerFollowPathCoRoutine != null)
+                    {
+                        StopCoroutine(playerFollowPathCoRoutine);
+                    }
+                    playerFollowPathCoRoutine = StartCoroutine (PlayerFollowPath (GameManager.Speed, GameManager.AimArrow().transform.up));
+                    //PlotPath();
+                }
 			}
 		}
 	}
@@ -68,17 +76,17 @@ public class Player : MonoBehaviour {
 				disablePlayerCollisions = true;
 				StopCoroutine (playerFollowPathCoRoutine);//stops player movement if Door Hit
 				GameManager.DoorHit (col.transform.name);
-			} else if (col.gameObject.layer == 9 || col.gameObject.layer == 13) {
+			} else if (col.gameObject.layer == 9) {
+                //TO BE REMOVED WITH NEW LOGIC!!!
 				RaycastHit hit;
-				Ray ray = new Ray (new Ray (this.transform.position, new Vector3 (-playerMovingDirection.x, -playerMovingDirection.y, -playerMovingDirection.z)).GetPoint (1.0f),
+				Ray ray = new Ray (new Ray (this.transform.position, new Vector3 (-playerMovingDirection.x, -playerMovingDirection.y, -playerMovingDirection.z)).GetPoint (2.0f),
 				                   playerMovingDirection.normalized);
 				Vector3 normal = Vector3.zero;
-				LayerMask layerMask = 1 << LayerMask.NameToLayer ("Wall") | 1 << LayerMask.NameToLayer ("InnerWall");
-				if (Physics.SphereCast (ray, 1.0f, out hit, 2.0f, layerMask)) {
+				LayerMask layerMask = 1 << LayerMask.NameToLayer ("Wall");
+                if (Physics.SphereCast (ray, 1.0f, out hit, 2.0f, layerMask)) {
 					normal = hit.normal;
 				}
 				playerMovingDirection = Vector3.Reflect (playerMovingDirection, normal);
-				MainCamera.PlayerWillHitWall = false;//used to avoid stutters in CameraLeadPlayer method
 				StopCoroutine (playerFollowPathCoRoutine);
 				playerFollowPathCoRoutine = StartCoroutine (PlayerFollowPath (GameManager.Speed, playerMovingDirection));
 			}
@@ -169,9 +177,6 @@ public class Player : MonoBehaviour {
 
 		Ray rayAimed = new Ray (this.gameObject.transform.position,aimedDirection);
 		Vector3 start = this.gameObject.transform.position;
-		float yPosition = this.gameObject.transform.position.y;
-		float yPositionPrev = this.gameObject.transform.position.y;
-		float drag = 1.0f;
 
 		while (playerPathDistanceMax > playerPathDistance) {
 
@@ -179,19 +184,14 @@ public class Player : MonoBehaviour {
 				yield return null;
 			}
 
-			yPosition = GameManager.YPositionPlayer(this.gameObject.transform.position);
-
 			playerPathDistance += Vector3.Distance (start, this.gameObject.transform.position);
 			UI.UpdateEnergyText(Mathf.FloorToInt(Player.Energy));
 			start = this.gameObject.transform.position;
 
-			drag = SpeedDrag(speed,Mathf.Abs(yPosition-yPositionPrev));
-
 			this.transform.position = new Vector3(
-				rayAimed.GetPoint(drag).x,
-				yPosition,
-				rayAimed.GetPoint(drag).z);
-			yPositionPrev = yPosition;
+                rayAimed.GetPoint(speed).x,
+				this.transform.position.y,
+				rayAimed.GetPoint(speed).z);
 			rayAimed.origin = this.transform.position;
 			yield return null;
 		}
@@ -224,6 +224,80 @@ public class Player : MonoBehaviour {
 		disablePlayerCollisions = false;
 		yield return null;
 	}
+    //Returns all Wall collisions in order
+    private void UpdateWallCollisions()
+    {
+        List<Vector3> collisionPoints = new List<Vector3>();
+
+        int floorWidth = 10;
+        int floorHeight = 10;
+
+        float distance = playerPathDistanceMax - playerPathDistance;
+        Vector3 forward = new Vector3(GameManager.AimArrow().transform.up.x + this.transform.position.x, this.transform.position.y, GameManager.AimArrow().transform.up.z + this.transform.position.z);
+        //y = (rise/run)x + c
+        //ax + by + c = 0
+        float rise = forward.z - this.transform.position.z;
+        float run = forward.x - this.transform.position.x;
+        float c = this.transform.position.z - (System.Math.Abs(run) < Mathf.Epsilon ? 0 : ((rise / run) * this.transform.position.x));
+        float slope = System.Math.Abs(run) < Mathf.Epsilon ? 0 : rise / run;
+
+        int x, z, i, j;
+
+        if (rise > 0)
+        {
+            if (run > 0) { x = floorWidth; z = floorHeight; i = floorWidth; j = floorHeight; }
+            else { x = -floorWidth; z = floorHeight; i = 0; j = floorHeight; }
+        }
+        else
+        {
+            if (run > 0) { x = floorWidth; z = -floorHeight; i = floorWidth; j = 0; }
+            else { x = -floorWidth; z = -floorHeight; i = 0; j = 0; }
+        }
+
+        if (System.Math.Abs(rise) > Mathf.Epsilon && System.Math.Abs(run) > Mathf.Epsilon)
+        {
+            for (int k = i; Mathf.Abs(k) < distance; k += x)
+            {
+                collisionPoints.Add(new Vector3(k, this.transform.position.y, slope * k + c));
+            }
+            for (int k = j; Mathf.Abs(k) < distance; k += z)
+            {
+                collisionPoints.Add(new Vector3((k - c) / slope, this.transform.position.y, k));
+            }
+        }
+        //orders list of positions by distance from player
+        collisionPoints.Sort((v1, v2) => (v1 - this.transform.position).sqrMagnitude.CompareTo((v2 - this.transform.position).sqrMagnitude));
+
+        for (int l = 0; l < collisionPoints.Count; l++)
+        {
+            collisionPoints[l] =
+                new Vector3(
+
+                    Mathf.FloorToInt(collisionPoints[l].x / floorWidth) % 2 == 0 ?
+                    (
+                        collisionPoints[l].x >= 0 ? collisionPoints[l].x % floorWidth : floorWidth + (collisionPoints[l].x % floorWidth)
+                    ) :
+                    (
+                        collisionPoints[l].x >= 0 ? floorWidth - (collisionPoints[l].x % floorWidth) : -(collisionPoints[l].x % floorWidth)
+                    ),
+                    collisionPoints[l].y,
+                    Mathf.FloorToInt(collisionPoints[l].z / floorHeight) % 2 == 0 ?
+                    (
+                        collisionPoints[l].z >= 0 ? collisionPoints[l].z % floorHeight : floorHeight + (collisionPoints[l].z % floorHeight)
+                    ) :
+                    (
+                        collisionPoints[l].z >= 0 ? floorHeight - (collisionPoints[l].z % floorHeight) : -(collisionPoints[l].z % floorHeight)
+                    )
+                );
+        }
+
+        WallCollisionPoints = collisionPoints;
+    }
+    //Plots path following arrow
+    private void PlotGuidePath()
+    {
+
+    }
 }
 
 
