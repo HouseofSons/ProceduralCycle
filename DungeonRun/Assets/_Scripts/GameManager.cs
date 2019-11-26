@@ -30,9 +30,9 @@ public class GameManager : MonoBehaviour {
 	private static bool enableEnemyMovement;
     private static bool moveCamera;
     private static bool enterDoor;
-	
-	//used to attach visual arrow over player when aiming
-	private static GameObject aimArrow;
+
+    //used to attach visual arrow over player when aiming
+    private static GameObject aimArrow;
 
     //used to attach visual arrow over player when aiming
     private static LineRenderer pathLine;
@@ -55,7 +55,7 @@ public class GameManager : MonoBehaviour {
         moveCamera = false;
 		enterDoor = false;
 
-		speed = speedInput;
+        speed = speedInput;
 
 		InitializePlayerInLevel(playerName,levelName,spawnName);
 		InitializeCameraInLevel();
@@ -68,6 +68,7 @@ public class GameManager : MonoBehaviour {
         pathLine.positionCount = 4;
         pathLine.numCapVertices = 90;
         pathLine.numCornerVertices = 90;
+        pathLine.widthMultiplier = 0.06f;
         pathLine.enabled = false;
 
         pathChosenLine = (Instantiate(Resources.Load("Line")) as GameObject).GetComponent<LineRenderer>();
@@ -75,6 +76,7 @@ public class GameManager : MonoBehaviour {
         pathChosenLine.positionCount = 4;
         pathChosenLine.numCapVertices = 90;
         pathChosenLine.numCornerVertices = 90;
+        pathChosenLine.widthMultiplier = 0.06f;
         pathChosenLine.enabled = false;
     }
 
@@ -110,17 +112,16 @@ public class GameManager : MonoBehaviour {
             enableEnemyMovement = false;
 			stageNumber = 1;
 		}
-	
-		//		moveToSpawnState
-		//		aimArrowState
+        //		moveToSpawnState
+        //		aimArrowState
         //      playerMovingState
-		//		changeLevel
-		//		enableEnemyMovement
-		//		moveCamera
-		//		enterDoor
-	}
-	
-	public static int StageNumber {
+        //		changeLevel
+        //		enableEnemyMovement
+        //		moveCamera
+        //		enterDoor
+    }
+
+    public static int StageNumber {
 		get {return stageNumber;}
 	}
 
@@ -164,9 +165,9 @@ public class GameManager : MonoBehaviour {
     public static bool EnterDoor {
 		get {return enterDoor;}
 		set {enterDoor = value;}
-	}
-	
-	public static float Speed {
+    }
+
+    public static float Speed {
 		get {return speed;}
 		set {speed = value;}
 	}

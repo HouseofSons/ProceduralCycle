@@ -34,7 +34,7 @@ public class Player : MonoBehaviour {
     public static List<Vector3> PathPoints;
 
     void Awake () {
-		playerPathDistanceMax = 1000;
+		playerPathDistanceMax = 100;
 		playerPathDistance = 0;
 		enemyKillCount = 0;
 		totalExperiencePoints = 0;
@@ -183,8 +183,9 @@ public class Player : MonoBehaviour {
         int index = 0;
         Vector3 prevPosition = this.transform.position;
         Vector3 nextPosition = PathPoints[index];
+        Vector3 lastOccupiedPosition = this.transform.position;
 
-        while (playerPathDistanceMax > playerPathDistance) {
+        while (PathPoints.Count > index) {
 
 			while (GameManager.IsPaused) { //for game pause
 				yield return null;
@@ -195,12 +196,18 @@ public class Player : MonoBehaviour {
                 this.transform.position = nextPosition;
                 prevPosition = nextPosition;
                 index++;
-                nextPosition = PathPoints[index];
+                if (PathPoints.Count > index) {
+                    nextPosition = PathPoints[index];
+                }
+            }
+            if (PathPoints.Count > index)
+            {
+                this.transform.position = Vector3.MoveTowards(this.transform.position, nextPosition, GameManager.Speed);
+                playerPathDistance += Mathf.Abs(Vector3.Distance(this.transform.position, lastOccupiedPosition));
+                lastOccupiedPosition = this.transform.position;
+                UI.UpdateEnergyText(Mathf.FloorToInt(Player.Energy));
             }
 
-            this.transform.position = Vector3.MoveTowards(this.transform.position, nextPosition,GameManager.Speed);
-
-			UI.UpdateEnergyText(Mathf.FloorToInt(Player.Energy));
 			yield return null;
 		}
 		GameManager.GameOver ();
@@ -233,7 +240,7 @@ public class Player : MonoBehaviour {
     {
         List<Vector3> collisionPoints = new List<Vector3>();
 
-        int floorWidth = 10;
+        int floorWidth = 15;
         int floorHeight = 10;
 
         float distance = playerPathDistanceMax - playerPathDistance;
@@ -260,11 +267,12 @@ public class Player : MonoBehaviour {
 
         if (System.Math.Abs(rise) > Mathf.Epsilon && System.Math.Abs(run) > Mathf.Epsilon)
         {
-            for (int k = i; Mathf.Abs(k) < distance; k += x)
+
+            for (int k = i; Mathf.Abs(k) <= distance * Mathf.Abs(Mathf.Abs(forward.x)-Mathf.Abs(this.transform.position.x)); k += x)
             {
                 collisionPoints.Add(new Vector3(k, this.transform.position.y, slope * k + c));
             }
-            for (int k = j; Mathf.Abs(k) < distance; k += z)
+            for (int k = j; Mathf.Abs(k) <= distance * Mathf.Abs(Mathf.Abs(forward.z) - Mathf.Abs(this.transform.position.z)); k += z)
             {
                 collisionPoints.Add(new Vector3((k - c) / slope, this.transform.position.y, k));
             }
@@ -300,20 +308,28 @@ public class Player : MonoBehaviour {
     //Plots path following arrow
     private void UpdateGuidePath()
     {
-        GameManager.PathLine().widthMultiplier = 0.1f;
+        GameManager.PathLine().positionCount = WallCollisionPoints.Count;
         GameManager.PathLine().SetPosition(0, this.transform.position);
-        GameManager.PathLine().SetPosition(1, WallCollisionPoints[0]);
-        GameManager.PathLine().SetPosition(2, WallCollisionPoints[1]);
-        GameManager.PathLine().SetPosition(3, WallCollisionPoints[2]);
+        if (WallCollisionPoints.Count > 2)
+        {
+            for (int i = 1; i < WallCollisionPoints.Count; i++)
+            {
+                GameManager.PathLine().SetPosition(i, WallCollisionPoints[i - 1]);
+            }
+        }
     }
     //Plots path following arrow
     private void UpdateChosenPath()
     {
-        GameManager.PathChosenLine().widthMultiplier = 0.1f;
+        GameManager.PathChosenLine().positionCount = PathPoints.Count+1;
         GameManager.PathChosenLine().SetPosition(0, this.transform.position);
-        GameManager.PathChosenLine().SetPosition(1, PathPoints[0]);
-        GameManager.PathChosenLine().SetPosition(2, PathPoints[1]);
-        GameManager.PathChosenLine().SetPosition(3, PathPoints[2]);
+        if (PathPoints.Count > 2)
+        {
+            for (int i = 1; i <= PathPoints.Count; i++)
+            {
+                GameManager.PathChosenLine().SetPosition(i, PathPoints[i - 1]);
+            }
+        }
     }
 }
 
