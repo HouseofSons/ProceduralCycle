@@ -63,10 +63,11 @@ public class Player : MonoBehaviour {
             UpdateWallCollisions();
             UpdateGuidePath();
 
-            if (Input.GetMouseButton(0))
-            {
-                GameManager.PathLine().enabled = true;
-                GameManager.PathChosenLine().enabled = false;
+            if (Input.GetMouseButton(0)) {
+                if (!EventSystem.current.IsPointerOverGameObject()) {
+                    GameManager.PathLine().enabled = true;
+                    GameManager.PathChosenLine().enabled = false;
+                }
             }
 
             if (Input.GetMouseButtonUp(0)) {
@@ -306,27 +307,21 @@ public class Player : MonoBehaviour {
         WallCollisionPoints = collisionPoints;
     }
     //Plots path following arrow
-    private void UpdateGuidePath()
-    {
-        GameManager.PathLine().positionCount = WallCollisionPoints.Count;
-        GameManager.PathLine().SetPosition(0, this.transform.position);
-        if (WallCollisionPoints.Count > 2)
-        {
-            for (int i = 1; i < WallCollisionPoints.Count; i++)
-            {
+    private void UpdateGuidePath() {
+        if (WallCollisionPoints.Count > 1) {
+            GameManager.PathLine().positionCount = WallCollisionPoints.Count;
+            GameManager.PathLine().SetPosition(0, this.transform.position);
+            for (int i = 1; i < WallCollisionPoints.Count; i++) {
                 GameManager.PathLine().SetPosition(i, WallCollisionPoints[i - 1]);
             }
         }
     }
     //Plots path following arrow
-    private void UpdateChosenPath()
-    {
-        GameManager.PathChosenLine().positionCount = PathPoints.Count+1;
-        GameManager.PathChosenLine().SetPosition(0, this.transform.position);
-        if (PathPoints.Count > 2)
-        {
-            for (int i = 1; i <= PathPoints.Count; i++)
-            {
+    private void UpdateChosenPath() {
+        if (PathPoints.Count > 1) {
+            GameManager.PathChosenLine().positionCount = PathPoints.Count + 1;
+            GameManager.PathChosenLine().SetPosition(0, this.transform.position);
+            for (int i = 1; i <= PathPoints.Count; i++) {
                 GameManager.PathChosenLine().SetPosition(i, PathPoints[i - 1]);
             }
         }
