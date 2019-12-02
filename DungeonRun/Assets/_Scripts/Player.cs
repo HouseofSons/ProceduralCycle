@@ -50,7 +50,6 @@ public class Player : MonoBehaviour {
 	void Update () {
 
 		if (GameManager.MoveToSpawnState) {
-			GameManager.MoveToSpawnState = false;
             GameManager.PathLine().enabled = false;
             GameManager.PathChosenLine().enabled = false;
 			if (moveToSpawnCoRoutine != null) {
@@ -102,7 +101,6 @@ public class Player : MonoBehaviour {
 	}
 
 	public static void EnemyKilled(int experiencePoints) {
-
 		UpdateExperiencePoints (experiencePoints);
 		enemyKillCount += 1;
 	}
@@ -214,7 +212,6 @@ public class Player : MonoBehaviour {
 	}
 	//Moves Player to Spawn Location
 	private IEnumerator MoveToSpawn() {
-		float smoothing = 0.5f;
 		Vector3 spawn = GameManager.GetCurrentSpawn ().transform.position;
 		//For Level Changing
 		playerMovingDirection = new Vector3(spawn.x,this.transform.position.y,spawn.z) - this.transform.position;
@@ -223,8 +220,7 @@ public class Player : MonoBehaviour {
 			while (GameManager.IsPaused) { //for game pause
 				yield return null;
 			}
-			this.gameObject.transform.position = Vector3.Lerp(this.gameObject.transform.position,spawnPoint,Time.deltaTime * smoothing);
-			smoothing+=0.5f;
+			this.gameObject.transform.position = Vector3.Lerp(this.gameObject.transform.position,spawnPoint,Time.deltaTime * 3);
 			yield return null;
 		}
 		while (GameManager.IsPaused) { //for game pause
@@ -232,7 +228,8 @@ public class Player : MonoBehaviour {
 		}
 		this.gameObject.transform.position = spawnPoint;
 		disablePlayerCollisions = false;
-		yield return null;
+        GameManager.MoveToSpawnState = false;
+        yield return null;
 	}
     //Returns all Wall collisions in order
     private void UpdateWallCollisions()
@@ -244,6 +241,7 @@ public class Player : MonoBehaviour {
 
         float distance = playerPathDistanceMax - playerPathDistance;
         Vector3 forward = new Vector3(GameManager.AimArrow().transform.up.x + this.transform.position.x, this.transform.position.y, GameManager.AimArrow().transform.up.z + this.transform.position.z);
+
         //y = (rise/run)x + c
         //ax + by + c = 0
         float rise = forward.z - this.transform.position.z;
@@ -307,9 +305,9 @@ public class Player : MonoBehaviour {
     //Plots path following arrow
     private void UpdateGuidePath() {
         if (WallCollisionPoints.Count > 1) {
-            GameManager.PathLine().positionCount = WallCollisionPoints.Count;
+            GameManager.PathLine().positionCount = WallCollisionPoints.Count - 1;
             GameManager.PathLine().SetPosition(0, this.transform.position);
-            for (int i = 1; i < WallCollisionPoints.Count; i++) {
+            for (int i = 1; i < GameManager.PathLine().positionCount; i++) {
                 GameManager.PathLine().SetPosition(i, WallCollisionPoints[i - 1]);
             }
         }
@@ -317,9 +315,9 @@ public class Player : MonoBehaviour {
     //Plots path following arrow
     private void UpdateChosenPath() {
         if (PathPoints.Count > 1) {
-            GameManager.PathChosenLine().positionCount = PathPoints.Count;
+            GameManager.PathChosenLine().positionCount = PathPoints.Count - 1;
             GameManager.PathChosenLine().SetPosition(0, this.transform.position);
-            for (int i = 1; i < PathPoints.Count; i++) {
+            for (int i = 1; i < GameManager.PathChosenLine().positionCount; i++) {
                 GameManager.PathChosenLine().SetPosition(i, PathPoints[i - 1]);
             }
         }

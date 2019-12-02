@@ -28,8 +28,8 @@ public class GameManager : MonoBehaviour {
     private static bool playerMovingState;
     private static bool changeLevel;
 	private static bool enableEnemyMovement;
-    private static bool moveCamera;
     private static bool enterDoor;
+    private static bool moveCamera;
 
     //used to attach visual arrow over player when aiming
     private static GameObject aimArrow;
@@ -52,8 +52,8 @@ public class GameManager : MonoBehaviour {
         playerMovingState = false;
         changeLevel = false;
 		enableEnemyMovement = false;
-        moveCamera = false;
 		enterDoor = false;
+        moveCamera = false;
 
         speed = speedInput;
 
@@ -82,7 +82,7 @@ public class GameManager : MonoBehaviour {
 
 	void Update() {
 
-		if (!isPaused) {
+        if (!isPaused) {
 			currentPlayer.transform.LookAt(MouseLocation ());
 		}
 
@@ -92,7 +92,7 @@ public class GameManager : MonoBehaviour {
             stageNumber = 1;
 		}
 		if (stageNumber == 1 && !moveToSpawnState) {
-			//Player is in position
+            //Player is in position
 			aimArrowState = true;
             stageNumber = 2;
 		}
@@ -110,14 +110,14 @@ public class GameManager : MonoBehaviour {
             aimArrowState = false;
             playerMovingState = false;
             enableEnemyMovement = false;
-			stageNumber = 1;
+            moveCamera = true;
+            stageNumber = 1;
 		}
         //		moveToSpawnState
         //		aimArrowState
         //      playerMovingState
         //		changeLevel
         //		enableEnemyMovement
-        //		moveCamera
         //		enterDoor
     }
 
@@ -156,15 +156,14 @@ public class GameManager : MonoBehaviour {
 		set {enableEnemyMovement = value;}
     }
 
-    public static bool MoveCamera
-    {
-        get { return moveCamera; }
-        set { moveCamera = value; }
-    }
-
     public static bool EnterDoor {
 		get {return enterDoor;}
 		set {enterDoor = value;}
+    }
+
+    public static bool MoveCamera {
+        get { return moveCamera; }
+        set { moveCamera = value; }
     }
 
     public static float Speed {
@@ -224,14 +223,15 @@ public class GameManager : MonoBehaviour {
 
 		if (currentLevel != null) {
 			gameCamera.gameObject.transform.position = currentLevel.transform.Find ("CameraPosition").gameObject.transform.position;
-		}
+            gameCamera.transform.parent = currentLevel.transform;
+        }
 	}
 
 	public static void DoorHit(string doorName) {
 		string levelName = "Level" + doorName.Substring (4, 3);
 		string spawnName = "Spawn" + doorName.Substring (8, 2);
 		InitializePlayerInLevel(currentPlayer.name,levelName,spawnName);
-		Player.LevelStatsReset (1000);
+		Player.LevelStatsReset (100);
 		enterDoor = true;
 	}
 

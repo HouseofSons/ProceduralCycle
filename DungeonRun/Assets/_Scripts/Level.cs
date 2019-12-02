@@ -16,9 +16,6 @@ public class Level : MonoBehaviour {
 			GameManager.ChangeLevel = false;
 			NewLevelEnemyCheck();
 			Enemy.UpdateEnemiesDifficultyColor();
-			if (GameManager.GetCurrentLevel() != this.gameObject) {
-				StartCoroutine(DeMaterialize());
-			}
 		}
 	}
 
@@ -28,14 +25,6 @@ public class Level : MonoBehaviour {
 
 	public static void RemoveEnemy (GameObject enemy) {
 		levelEnemies.Remove (enemy);
-	}
-
-	private IEnumerator DeMaterialize() {
-		while (GameManager.IsPaused) { //for game pause
-			yield return null;
-		}
-		GameObject.Destroy (this.gameObject);
-		yield return null;
 	}
 	
 	private void NewLevelEnemyCheck() {
