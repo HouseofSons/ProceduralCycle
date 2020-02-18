@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class MainCamera : MonoBehaviour
@@ -29,19 +28,19 @@ public class MainCamera : MonoBehaviour
     {
         CameraMoving = true;
         Vector3 newCameraPosition = GameManager.GetCurrentLevel().transform.Find("CameraPosition").gameObject.transform.position;
-        while (Vector3.Distance(this.transform.position, newCameraPosition) > 0.1f) {
+        while (Vector3.Distance(transform.position, newCameraPosition) > 0.1f) {
             while (GameManager.IsPaused)
             { //for game pause
                 yield return null;
             }
-            this.transform.position = Vector3.MoveTowards(this.transform.position, newCameraPosition, 0.3f);
+            transform.position = Vector3.MoveTowards(transform.position, newCameraPosition, 0.3f);
             yield return null;
         }
         while (GameManager.IsPaused)
         { //for game pause
             yield return null;
         }
-        this.transform.position = newCameraPosition;
+        transform.position = newCameraPosition;
         CameraMoving = false;
     }
 }

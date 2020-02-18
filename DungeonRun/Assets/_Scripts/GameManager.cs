@@ -1,35 +1,21 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 public class GameManager : MonoBehaviour {
 
-	private static int stageNumber;
-	private static bool isPaused;
-
-	//used for development purposes
-	public string playerName;
+    //used for development purposes
+    public string playerName;
 	public string levelName;
 	public string spawnName;
 
 	//used to determine speed of player
 	public float speedInput;
-	private static float speed;
 
-	//used to establish current player level and spawn
-	private static GameObject currentPlayer;
+    //used to establish current player level and spawn
+    private static GameObject currentPlayer;
 	private static GameObject currentLevel;
 	private static GameObject currentSpawn;
 	private static GameObject gameCamera;
 	private static GameObject gameManager;
-
-	//State triggers
-	private static bool moveToSpawnState;
-	private static bool aimArrowState;
-    private static bool playerMovingState;
-    private static bool changeLevel;
-	private static bool enableEnemyMovement;
-    private static bool enterDoor;
-    private static bool moveCamera;
 
     //used to attach visual arrow over player when aiming
     private static GameObject aimArrow;
@@ -41,21 +27,20 @@ public class GameManager : MonoBehaviour {
 
     void Start () {
 
-		gameManager = this.gameObject;
+		gameManager = gameObject;
         gameCamera = GameObject.Find("MainCamera");
 
-		stageNumber = 0;
-		isPaused = false;
+		StageNumber = 0;
+		IsPaused = false;
 
-		moveToSpawnState = false;
-		aimArrowState = false;
-        playerMovingState = false;
-        changeLevel = false;
-		enableEnemyMovement = false;
-		enterDoor = false;
-        moveCamera = false;
+		MoveToSpawnState = false;
+		AimArrowState = false;
+        PlayerMovingState = false;
+		EnableEnemyMovement = false;
+		EnterDoor = false;
+        MoveCamera = false;
 
-        speed = speedInput;
+        Speed = speedInput;
 
 		InitializePlayerInLevel(playerName,levelName,spawnName);
 		InitializeCameraInLevel();
@@ -82,96 +67,54 @@ public class GameManager : MonoBehaviour {
 
 	void Update() {
 
-        if (!isPaused) {
+        if (!IsPaused) {
 			currentPlayer.transform.LookAt(MouseLocation ());
 		}
 
-		if (stageNumber == 0) {
+		if (StageNumber == 0) {
 			//Game Started and Camera is in position
-			moveToSpawnState = true;
-            stageNumber = 1;
+			MoveToSpawnState = true;
+            StageNumber = 1;
 		}
-		if (stageNumber == 1 && !moveToSpawnState) {
+		if (StageNumber == 1 && !MoveToSpawnState) {
             //Player is in position
-			aimArrowState = true;
-            stageNumber = 2;
+			AimArrowState = true;
+            StageNumber = 2;
 		}
-		if (stageNumber == 2 && playerMovingState) {
+		if (StageNumber == 2 && PlayerMovingState) {
 			//Player has been released from original level spawn
-			enableEnemyMovement = true;
+			EnableEnemyMovement = true;
             pathChosenLine.enabled = true;
-			stageNumber = 3;
+			StageNumber = 3;
 		}
-		if (stageNumber == 3 && enterDoor) {
+		if (StageNumber == 3 && EnterDoor) {
 			//player switch level
-			enterDoor = false;
-			changeLevel = true;
-			moveToSpawnState = true;
-            aimArrowState = false;
-            playerMovingState = false;
-            enableEnemyMovement = false;
-            moveCamera = true;
-            stageNumber = 1;
+			EnterDoor = false;
+			MoveToSpawnState = true;
+            AimArrowState = false;
+            PlayerMovingState = false;
+            EnableEnemyMovement = false;
+            MoveCamera = true;
+            StageNumber = 1;
 		}
         //		moveToSpawnState
         //		aimArrowState
         //      playerMovingState
-        //		changeLevel
         //		enableEnemyMovement
         //		enterDoor
     }
 
-    public static int StageNumber {
-		get {return stageNumber;}
-	}
+    public static int StageNumber { get; private set; }
+    public static bool IsPaused { get; set; }
+    public static bool MoveToSpawnState { get; set; }
+    public static bool AimArrowState { get; set; }
+    public static bool PlayerMovingState { get; set; }
+    public static bool EnableEnemyMovement { get; set; }
+    public static bool EnterDoor { get; set; }
+    public static bool MoveCamera { get; set; }
+    public static float Speed { get; set; }
 
-	public static bool IsPaused {
-		get {return isPaused;}
-		set {isPaused = value;}
-	}
-
-	public static bool MoveToSpawnState {
-		get {return moveToSpawnState;}
-		set {moveToSpawnState = value;}
-	}
-	
-	public static bool AimArrowState {
-		get {return aimArrowState;}
-		set {aimArrowState = value;}
-    }
-
-    public static bool PlayerMovingState
-    {
-        get { return playerMovingState; }
-        set { playerMovingState = value; }
-    }
-
-    public static bool ChangeLevel {
-		get {return changeLevel;}
-		set {changeLevel = value;}
-	}
-	
-	public static bool EnableEnemyMovement {
-		get {return enableEnemyMovement;}
-		set {enableEnemyMovement = value;}
-    }
-
-    public static bool EnterDoor {
-		get {return enterDoor;}
-		set {enterDoor = value;}
-    }
-
-    public static bool MoveCamera {
-        get { return moveCamera; }
-        set { moveCamera = value; }
-    }
-
-    public static float Speed {
-		get {return speed;}
-		set {speed = value;}
-	}
-
-	public static GameObject GetCurrentLevel() {
+    public static GameObject GetCurrentLevel() {
 		return currentLevel;
 	}
 	
@@ -232,20 +175,22 @@ public class GameManager : MonoBehaviour {
 		string spawnName = "Spawn" + doorName.Substring (8, 2);
 		InitializePlayerInLevel(currentPlayer.name,levelName,spawnName);
 		Player.LevelStatsReset (100);
-		enterDoor = true;
+		EnterDoor = true;
 	}
 
 	public static Vector3 MouseLocation () {
 
 		Plane plane=new Plane(Vector3.up, new Vector3(0,currentPlayer.transform.position.y,0));
 		Ray ray=gameCamera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
-		float distance;
-		if (plane.Raycast (ray, out distance)) {
-			return ray.GetPoint (distance);
-		} else {
-			return currentPlayer.transform.position;
-		}
-	}
+        if (plane.Raycast(ray, out float distance))
+        {
+            return ray.GetPoint(distance);
+        }
+        else
+        {
+            return currentPlayer.transform.position;
+        }
+    }
 	//Shows Game Over Canvas
 	public static void GameOver() {
 		gameManager.GetComponent<InGameOptions> ().ShowGameOverMenu ();

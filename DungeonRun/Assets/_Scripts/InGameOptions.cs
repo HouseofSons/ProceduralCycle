@@ -1,6 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
-using System.Collections;
 
 public class InGameOptions : MonoBehaviour {
 
@@ -36,5 +34,10 @@ public class InGameOptions : MonoBehaviour {
 		GameManager.IsPaused = true;
 		GameOverMenu.SetActive (true);
 		OptionsButton.SetActive (false);
+	}
+
+	public void RestartLevel()
+	{
+		SceneLoader.ReloadScene();
 	}
 }
