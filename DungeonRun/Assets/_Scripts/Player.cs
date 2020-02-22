@@ -8,6 +8,9 @@ public class Player : MonoBehaviour {
 	//used to determine current spawn location
 	private Vector3 spawnPoint;
 
+    //Partition Player is Occupying
+    public Partition OccupiedPartition { get; set; } //<--Needs to be assigned when game starts and Updated Accordingly
+
     //CoRoutine which moves player to spawn
     private static Coroutine moveToSpawnCoRoutine;
 
@@ -46,7 +49,15 @@ public class Player : MonoBehaviour {
 		} 
 
 		if (GameManager.AimArrowState) {
-            UpdateWallCollisions();
+            WallCollisionPoints.Clear();
+            UpdateWallCollisions(
+                transform.position,
+                new Vector3(
+                    GameManager.AimArrow().transform.up.x + transform.position.x,
+                    transform.position.y,
+                    GameManager.AimArrow().transform.up.z + transform.position.z),
+                PlayerPathDistanceMax - PlayerPathDistance,
+                OccupiedPartition);
             UpdateGuidePath();
 
             if (Input.GetMouseButton(0)) {
@@ -176,56 +187,71 @@ public class Player : MonoBehaviour {
         yield return null;
 	}
     //Returns all Wall collisions in order
-    private void UpdateWallCollisions()
+    private void UpdateWallCollisions(Vector3 pos,Vector3 dir,float dist,Partition currentPartition)
     {
         List<Vector3> collisionPoints = new List<Vector3>();
+        Vector3 originalPoint;
 
-        int floorWidth = 15;
-        int floorHeight = 10;
-
-        float distance = PlayerPathDistanceMax - PlayerPathDistance;
-        Vector3 forward = new Vector3(
-            GameManager.AimArrow().transform.up.x + transform.position.x,
-            transform.position.y,
-            GameManager.AimArrow().transform.up.z + transform.position.z);
+        Vector3 position = pos;
+        int floorWidth = currentPartition.Width;
+        int floorHeight = currentPartition.Depth;
+        float distance = dist;
+        Vector3 direction = dir;
 
         //y = (rise/run)x + c
         //ax + by + c = 0
-        float rise = forward.z - transform.position.z;
-        float run = forward.x - transform.position.x;
-        float c = transform.position.z - (System.Math.Abs(run) < Mathf.Epsilon ? 0 : ((rise / run) * transform.position.x));
+        float rise = direction.z - position.z;
+        float run = direction.x - position.x;
+        float c = position.z - (System.Math.Abs(run) < Mathf.Epsilon ? 0 : ((rise / run) * position.x));
         float slope = System.Math.Abs(run) < Mathf.Epsilon ? 0 : rise / run;
 
         int x, z, i, j;
 
         if (rise > 0)
         {
-            if (run > 0) { x = floorWidth; z = floorHeight; i = floorWidth; j = floorHeight; }
-            else { x = -floorWidth; z = floorHeight; i = 0; j = floorHeight; }
+            if (run > 0) {
+                x = floorWidth;
+                z = floorHeight;
+                i = floorWidth + Mathf.RoundToInt(currentPartition.Origin.x);
+                j = floorHeight + Mathf.RoundToInt(currentPartition.Origin.z); }
+            else {
+                x = -floorWidth;
+                z = floorHeight;
+                i = Mathf.RoundToInt(currentPartition.Origin.x);
+                j = floorHeight + Mathf.RoundToInt(currentPartition.Origin.z); }
         }
         else
         {
-            if (run > 0) { x = floorWidth; z = -floorHeight; i = floorWidth; j = 0; }
-            else { x = -floorWidth; z = -floorHeight; i = 0; j = 0; }
+            if (run > 0) {
+                x = floorWidth;
+                z = -floorHeight;
+                i = floorWidth + Mathf.RoundToInt(currentPartition.Origin.x);
+                j = Mathf.RoundToInt(currentPartition.Origin.z); }
+            else {
+                x = -floorWidth;
+                z = -floorHeight;
+                i = Mathf.RoundToInt(currentPartition.Origin.x);
+                j = Mathf.RoundToInt(currentPartition.Origin.z); }
         }
 
-        if (System.Math.Abs(rise) > Mathf.Epsilon && System.Math.Abs(run) > Mathf.Epsilon)
+        if (System.Math.Abs(rise) > Mathf.Epsilon && System.Math.Abs(run) > Mathf.Epsilon)//flat slopes
         {
-
-            for (int k = i; Mathf.Abs(k) <= distance * Mathf.Abs(Mathf.Abs(forward.x)-Mathf.Abs(transform.position.x)) + floorWidth; k += x)
+            for (int k = i; Mathf.Abs(k) <= distance * Mathf.Abs(Mathf.Abs(direction.x) - Mathf.Abs(position.x)) + floorWidth; k += x)
             {
-                collisionPoints.Add(new Vector3(k, transform.position.y, slope * k + c));
+                collisionPoints.Add(new Vector3(k, position.y, slope * k + c));
             }
-            for (int k = j; Mathf.Abs(k) <= distance * Mathf.Abs(Mathf.Abs(forward.z) - Mathf.Abs(transform.position.z)) + floorHeight; k += z)
+            for (int k = j; Mathf.Abs(k) <= distance * Mathf.Abs(Mathf.Abs(direction.z) - Mathf.Abs(position.z)) + floorHeight; k += z)
             {
-                collisionPoints.Add(new Vector3((k - c) / slope, transform.position.y, k));
+                collisionPoints.Add(new Vector3((k - c) / slope, position.y, k));
             }
         }
         //orders list of positions by distance from player
-        collisionPoints.Sort((v1, v2) => (v1 - transform.position).sqrMagnitude.CompareTo((v2 - transform.position).sqrMagnitude));
+        collisionPoints.Sort((v1, v2) => (v1 - position).sqrMagnitude.CompareTo((v2 - position).sqrMagnitude));
 
         for (int l = 0; l < collisionPoints.Count; l++)
         {
+            originalPoint = collisionPoints[l];
+
             collisionPoints[l] =
                 new Vector3(
 
@@ -237,25 +263,39 @@ public class Player : MonoBehaviour {
                     ) :
                     (
                         Mathf.CeilToInt(collisionPoints[l].x / floorWidth) % 2 == 0 ?
-                        - (collisionPoints[l].x % floorWidth) :
-                        floorWidth + (collisionPoints[l].x % floorWidth)
+                            - (collisionPoints[l].x % floorWidth) :
+                            floorWidth + (collisionPoints[l].x % floorWidth)
                     ),
                     collisionPoints[l].y,
                     collisionPoints[l].z >= 0 ?
                     (
                         Mathf.FloorToInt(collisionPoints[l].z / floorHeight) % 2 == 0 ?
-                        collisionPoints[l].z % floorHeight :
-                        floorHeight - (collisionPoints[l].z % floorHeight)
+                            collisionPoints[l].z % floorHeight :
+                            floorHeight - (collisionPoints[l].z % floorHeight)
                     ) :
                     (
                         Mathf.CeilToInt(collisionPoints[l].z / floorHeight) % 2 == 0 ?
-                        -(collisionPoints[l].z % floorHeight) :
-                        floorHeight + (collisionPoints[l].z % floorHeight)
+                            -(collisionPoints[l].z % floorHeight) :
+                            floorHeight + (collisionPoints[l].z % floorHeight)
                     )
                 );
-        }
 
-        WallCollisionPoints = collisionPoints;
+            WallCollisionPoints.Add(collisionPoints[l]);
+
+            if (currentPartition.PartRoom.PartitionOverlap(collisionPoints[l], currentPartition, out Partition enterPartition))
+            {
+                float remainingDistance = distance - Mathf.Abs(Vector3.Distance(position, originalPoint));//Expensive
+
+                if (remainingDistance > 0) {
+                    UpdateWallCollisions(
+                        collisionPoints[l],
+                        WallCollisionPoints[WallCollisionPoints.Count - 1] - WallCollisionPoints[WallCollisionPoints.Count - 2],
+                        remainingDistance,
+                        enterPartition);
+                }
+                break;
+            }
+        }
     }
     //Plots path following arrow
     private void UpdateGuidePath() {

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Door : MonoBehaviour
 {
-    public List<Spawn> SpawnPoints { get; set; }
+    public List<Spawn> SpawnPoints { private set; get; }
 
     void Start()
     {
@@ -12,5 +12,14 @@ public class Door : MonoBehaviour
         {
             SpawnPoints.Add(s);
         }
+    }
+
+    public Spawn Destination(Vector3 location)
+    {
+        if(Vector3.SqrMagnitude(location - SpawnPoints[0].SpawnPoint) < Vector3.SqrMagnitude(location - SpawnPoints[1].SpawnPoint))
+        {
+            return SpawnPoints[1];
+        }
+        return SpawnPoints[0];
     }
 }

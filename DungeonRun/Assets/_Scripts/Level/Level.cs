@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class Level : MonoBehaviour
 {
-    public List<Room> Rooms { get; set; }
-    public List<Door> Doors { get; set; }
+    public List<Room> Rooms { private set; get; }
+    public List<Door> Doors { private set; get; }
 
     void Start()
     {
