@@ -11,23 +11,22 @@ public class GameManager : MonoBehaviour {
 	public float speedInput;
 
     //used to establish current player level and spawn
-    private static GameObject currentPlayer;
-	private static GameObject currentLevel;
-	private static GameObject currentSpawn;
+    private static Player currentPlayer;
+	private static Level currentLevel;
+	private static Spawn currentSpawn;
 	private static GameObject gameCamera;
 	private static GameObject gameManager;
 
     //used to attach visual arrow over player when aiming
     private static GameObject aimArrow;
-
-    //used to attach visual arrow over player when aiming
+    //used to attach visual line from player when aiming
     private static LineRenderer pathLine;
-    //used to attach visual arrow over player when aiming
+    //used to attach visual line from player after path is chosen
     private static LineRenderer pathChosenLine;
 
     void Start () {
 
-		gameManager = gameObject;
+		gameManager = this.gameObject;
         gameCamera = GameObject.Find("MainCamera");
 
 		StageNumber = 0;
@@ -42,8 +41,8 @@ public class GameManager : MonoBehaviour {
 
         Speed = speedInput;
 
-		InitializePlayerInLevel(playerName,levelName,spawnName);
-		InitializeCameraInLevel();
+		InitializePlayerInLevel(playerName,levelName);
+		InitializeCameraInLevel();  
 
 		aimArrow = currentPlayer.transform.Find ("AimArrow").gameObject;
 		aimArrow.gameObject.GetComponent<SpriteRenderer> ().enabled = false;
@@ -114,15 +113,15 @@ public class GameManager : MonoBehaviour {
     public static bool MoveCamera { get; set; }
     public static float Speed { get; set; }
 
-    public static GameObject GetCurrentLevel() {
+    public static Level GetCurrentLevel() {
 		return currentLevel;
 	}
 	
-	public static GameObject GetCurrentSpawn() {
+	public static Spawn GetCurrentSpawn() {
 		return currentSpawn;
 	}
 	
-	public static GameObject GetCurrentPlayer() {
+	public static Player GetCurrentPlayer() {
 		return currentPlayer;
 	}
 
@@ -144,16 +143,17 @@ public class GameManager : MonoBehaviour {
         return pathChosenLine;
     }
 
-    private static void InitializePlayerInLevel(string player,string level, string spawn) {
-
-		currentLevel = Instantiate (Resources.Load (level)) as GameObject;
-
+    private static void InitializePlayerInLevel(string player,string level) {
+		
+		currentLevel = Instantiate (Resources.Load (level)) as Level;
+		
 		if (currentLevel != null) {
-			currentSpawn = currentLevel.transform.Find (spawn).gameObject;
-
+			//Assigns to Spawn under the Level Object(There should be only one here)
+			currentSpawn = currentLevel.transform.GetComponent<Spawn>();
+			
 			if (currentSpawn != null) {
 				if (currentPlayer == null) { //for level switching
-					currentPlayer = Instantiate(Resources.Load(player)) as GameObject;
+					currentPlayer = Instantiate(Resources.Load(player)) as Player;
 				}
 				if (currentPlayer != null) {
 					currentPlayer.GetComponent<Player>().SpawnPoint = currentSpawn.transform.position;
@@ -165,16 +165,15 @@ public class GameManager : MonoBehaviour {
 	private void InitializeCameraInLevel() {
 
 		if (currentLevel != null) {
-			gameCamera.gameObject.transform.position = currentLevel.transform.Find ("CameraPosition").gameObject.transform.position;
+			gameCamera.transform.position = currentLevel.transform.position;
             gameCamera.transform.parent = currentLevel.transform;
         }
 	}
 
 	public static void DoorHit(string doorName) {
 		string levelName = "Level" + doorName.Substring (4, 3);
-		string spawnName = "Spawn" + doorName.Substring (8, 2);
-		InitializePlayerInLevel(currentPlayer.name,levelName,spawnName);
-		Player.LevelStatsReset (100);
+		InitializePlayerInLevel(currentPlayer.name,levelName);
+        Player.LevelStatsReset(100);
 		EnterDoor = true;
 	}
 

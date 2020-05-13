@@ -35,8 +35,7 @@ public class Player : MonoBehaviour {
 
 	void Start () {
         WallCollisionPoints = new List<Vector3>();
-
-        UI.InitializeUI (); //<--Maybe we consider a better location for this?
+        UI.InitializeUIWithPlayerInfo ();
 	}
 
 	void Update () {

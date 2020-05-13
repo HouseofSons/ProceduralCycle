@@ -14,7 +14,7 @@ public class UI : MonoBehaviour {
 		levelText = GameObject.Find ("LevelValue");
 	}
 	
-	public static void InitializeUI() {
+	public static void InitializeUIWithPlayerInfo() {
 		energyText.GetComponent<Text> ().text = Player.Energy.ToString();
 		experienceText.GetComponent<Text> ().text = Player.TotalExperiencePoints.ToString();
 		levelText.GetComponent<Text> ().text = Player.Level.ToString();
