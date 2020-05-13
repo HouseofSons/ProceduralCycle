@@ -142,18 +142,23 @@ public class GameManager : MonoBehaviour {
         currentPlayer = Instantiate(Resources.Load(player)) as GameObject;
         currentLevel = Instantiate(Resources.Load(level)) as GameObject;
         currentPlayer.GetComponent<Player>().LatestSpawn =
-                currentLevel.transform.Find("InitialSpawn").GetComponent<Spawn>();
-	}
+            currentLevel.transform.Find("InitialSpawn").GetComponent<Spawn>();
+        currentPlayer.GetComponent<Player>().OccupiedPartition =
+            currentPlayer.GetComponent<Player>().LatestSpawn.SpawnPartition.GetComponent<Partition>();
+    }
 
 	public static void DoorHit(Door door) {
-        currentPlayer.GetComponent<Player>().LatestSpawn = door.Destination(currentPlayer.transform.position);
+        currentPlayer.GetComponent<Player>().LatestSpawn =
+                door.Destination(currentPlayer.transform.position);
+        currentPlayer.GetComponent<Player>().OccupiedPartition =
+            currentPlayer.GetComponent<Player>().LatestSpawn.SpawnPartition.GetComponent<Partition>();
         Player.LevelStatsReset(100);
 		EnterDoor = true;
 	}
 
 	private void InitializeCameraInLevel()
 	{
-		gameCamera.transform.position = currentLevel.transform.position;
+        gameCamera.transform.position = new Vector3(25, 20, -17);
         gameCamera.transform.parent = currentLevel.transform;
 	}
 

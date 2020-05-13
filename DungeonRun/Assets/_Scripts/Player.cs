@@ -188,12 +188,12 @@ public class Player : MonoBehaviour {
         List<Vector3> collisionPoints = new List<Vector3>();
         Vector3 originalPoint;
         
-        Vector3 position = pos;
+        Vector3 position = pos; 
         int floorWidth = currentPartition.Width;
         int floorHeight = currentPartition.Depth;
         float distance = dist;
         Vector3 direction = dir;
-        
+
         //y = (rise/run)x + c
         //ax + by + c = 0
         float rise = direction.z - position.z;
