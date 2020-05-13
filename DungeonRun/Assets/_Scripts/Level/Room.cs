@@ -1,11 +1,15 @@
-﻿using System.Collections;
+﻿//This script is attached to a Room Game Object
+//The Room Game Object on Start up will catalogue references to it's Parition Child Objects
+    //In addition it will calculate all Connections between each Partition Child Objects
+    //Partitions allow perfect path finding logic for the Player
+    //Connections are used in Player Path finding
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Room : MonoBehaviour
 {
     public List<Partition> Partitions { private get; set; }
-    public List<Overlap> Overlaps { private get; set; }
+    public List<Connection> Connections { private get; set; }
 
     void Start()
     {
@@ -13,10 +17,10 @@ public class Room : MonoBehaviour
         {
             Partitions.Add(p);
         }
-        FindOverlaps();
+        FindConnections();
     }
-
-    private void FindOverlaps()
+    //Method creates connections between partition Child Objects
+    private void FindConnections()
     {
         for (int i = 0; i < Partitions.Count - 1; i++)
         {
@@ -27,7 +31,7 @@ public class Room : MonoBehaviour
                     if ((Partitions[i].Wedge >= Partitions[j].Wedge && Partitions[i].Wedge <= Partitions[j].Eedge) ||
                         (Partitions[i].Eedge >= Partitions[j].Wedge && Partitions[i].Eedge <= Partitions[j].Eedge))
                     {
-                        Overlaps.Add(new Overlap(
+                        Connections.Add(new Connection(
                             Partitions[i],
                             Partitions[j],
                             Partitions[i].Nedge,
@@ -41,7 +45,7 @@ public class Room : MonoBehaviour
                     if ((Partitions[i].Sedge >= Partitions[j].Sedge && Partitions[i].Sedge <= Partitions[j].Nedge) ||
                         (Partitions[i].Nedge >= Partitions[j].Sedge && Partitions[i].Nedge <= Partitions[j].Nedge))
                     {
-                        Overlaps.Add(new Overlap(
+                        Connections.Add(new Connection(
                             Partitions[i],
                             Partitions[j],
                             Partitions[i].Wedge,
@@ -53,12 +57,12 @@ public class Room : MonoBehaviour
             }
         }
     }
-
-    public bool PartitionOverlap(Vector3 position, Partition currentPartition, out Partition enterPartition)
+    //Method used by Player Script to determine if a player's path edge collision is a connection to a new Partition
+    public bool PartitionConnection(Vector3 position, Partition currentPartition, out Partition enterPartition)
     {
-        foreach(Overlap o in Overlaps)
+        foreach(Connection o in Connections)
         {
-            if (position.x == o.NeighborEdge)
+            if (Mathf.RoundToInt(position.x) == o.NeighborEdge)
             {
                 if (position.z <= o.MaxRange && position.z >= o.MinRange)
                 {
@@ -73,7 +77,7 @@ public class Room : MonoBehaviour
                     }
                 }
             }
-            if (position.z == o.NeighborEdge)
+            if (Mathf.RoundToInt(position.z) == o.NeighborEdge)
             {
                 if (position.z <= o.MaxRange && position.z >= o.MinRange)
                 {
@@ -94,8 +98,8 @@ public class Room : MonoBehaviour
         return false;
     }
 }
-
-public class Overlap
+//Class which holds all needed Connection information
+public class Connection
 {
     public Partition Partition0 { private set; get; }
     public Partition Partition1 { private set; get; }
@@ -104,7 +108,7 @@ public class Overlap
     public int MinRange { private set; get; }
     public int MaxRange { private set; get; }
 
-    public Overlap(Partition p0, Partition p1, int edge, bool vert, int min, int max)
+    public Connection(Partition p0, Partition p1, int edge, bool vert, int min, int max)
     {
         Partition0 = p0;
         Partition1 = p1;

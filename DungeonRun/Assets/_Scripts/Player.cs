@@ -34,11 +34,13 @@ public class Player : MonoBehaviour {
     }
 
 	void Start () {
-		UI.InitializeUI ();
+        WallCollisionPoints = new List<Vector3>();
+
+        UI.InitializeUI (); //<--Maybe we consider a better location for this?
 	}
 
 	void Update () {
-
+        
 		if (GameManager.MoveToSpawnState) {
             GameManager.PathLine().enabled = false;
             GameManager.PathChosenLine().enabled = false;
@@ -46,9 +48,9 @@ public class Player : MonoBehaviour {
 				StopCoroutine(moveToSpawnCoRoutine);
 			}
 			moveToSpawnCoRoutine = StartCoroutine (MoveToSpawn());
-		} 
-
-		if (GameManager.AimArrowState) {
+        }
+        
+        if (GameManager.AimArrowState) {
             WallCollisionPoints.Clear();
             UpdateWallCollisions(
                 transform.position,
@@ -59,12 +61,11 @@ public class Player : MonoBehaviour {
                 PlayerPathDistanceMax - PlayerPathDistance,
                 OccupiedPartition);
             UpdateGuidePath();
-
             if (Input.GetMouseButton(0)) {
                 GameManager.PathLine().enabled = true;
                 GameManager.PathChosenLine().enabled = false;
             }
-
+            
             if (Input.GetMouseButtonUp(0)) {
                 if (!EventSystem.current.IsPointerOverGameObject()) {
                     GameManager.PlayerMovingState = true;
@@ -189,15 +190,16 @@ public class Player : MonoBehaviour {
     //Returns all Wall collisions in order
     private void UpdateWallCollisions(Vector3 pos,Vector3 dir,float dist,Partition currentPartition)
     {
+        
         List<Vector3> collisionPoints = new List<Vector3>();
         Vector3 originalPoint;
-
+        
         Vector3 position = pos;
         int floorWidth = currentPartition.Width;
         int floorHeight = currentPartition.Depth;
         float distance = dist;
         Vector3 direction = dir;
-
+        
         //y = (rise/run)x + c
         //ax + by + c = 0
         float rise = direction.z - position.z;
@@ -206,7 +208,7 @@ public class Player : MonoBehaviour {
         float slope = System.Math.Abs(run) < Mathf.Epsilon ? 0 : rise / run;
 
         int x, z, i, j;
-
+        
         if (rise > 0)
         {
             if (run > 0) {
@@ -233,7 +235,7 @@ public class Player : MonoBehaviour {
                 i = Mathf.RoundToInt(currentPartition.Origin.x);
                 j = Mathf.RoundToInt(currentPartition.Origin.z); }
         }
-
+        
         if (System.Math.Abs(rise) > Mathf.Epsilon && System.Math.Abs(run) > Mathf.Epsilon)//flat slopes
         {
             for (int k = i; Mathf.Abs(k) <= distance * Mathf.Abs(Mathf.Abs(direction.x) - Mathf.Abs(position.x)) + floorWidth; k += x)
@@ -247,7 +249,7 @@ public class Player : MonoBehaviour {
         }
         //orders list of positions by distance from player
         collisionPoints.Sort((v1, v2) => (v1 - position).sqrMagnitude.CompareTo((v2 - position).sqrMagnitude));
-
+        
         for (int l = 0; l < collisionPoints.Count; l++)
         {
             originalPoint = collisionPoints[l];
@@ -282,7 +284,7 @@ public class Player : MonoBehaviour {
 
             WallCollisionPoints.Add(collisionPoints[l]);
 
-            if (currentPartition.PartRoom.PartitionOverlap(collisionPoints[l], currentPartition, out Partition enterPartition))
+            if (currentPartition.PartRoom.PartitionConnection(collisionPoints[l], currentPartition, out Partition enterPartition))
             {
                 float remainingDistance = distance - Mathf.Abs(Vector3.Distance(position, originalPoint));//Expensive
 
