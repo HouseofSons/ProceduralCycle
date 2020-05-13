@@ -1,5 +1,5 @@
 ﻿//This script is attached to a Level Game Object
-//The Level Game Object on Start up will catalogue references to it's Room and Door Child Objects
+//On Start up will catalogue references to it's Room and Door Child Objects
 //The Level Game Objects can be created manually but can also be procedurally generated
 using System.Collections.Generic;
 using UnityEngine;

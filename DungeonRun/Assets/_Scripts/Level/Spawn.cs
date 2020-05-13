@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿//This script is attached to a Spawn Game Object
 using UnityEngine;
 
 public class Spawn : MonoBehaviour
@@ -8,6 +7,6 @@ public class Spawn : MonoBehaviour
 
     private void Start()
     {
-        SpawnPoint = this.transform.position;
+        SpawnPoint = transform.position;
     }
 }

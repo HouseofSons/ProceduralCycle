@@ -1,5 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿//This script is attached to a Partition Game Object
+//On Start up will catalogue all parameters for Path Finding from the Partition Game Object
+    //These parameters are used for Player Path Finding
 using UnityEngine;
 
 public class Partition : MonoBehaviour

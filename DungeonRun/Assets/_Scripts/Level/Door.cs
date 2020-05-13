@@ -1,5 +1,5 @@
 ﻿//This script is attached to a Door Game Object
-//The Door Game Object on Start up will catalogue references to it's Spawn Child Objects
+//On Start up will catalogue references to it's Spawn Child Objects
 using System.Collections.Generic;
 using UnityEngine;
 

@@ -1,8 +1,7 @@
 ﻿//This script is attached to a Room Game Object
-//The Room Game Object on Start up will catalogue references to it's Parition Child Objects
-    //In addition it will calculate all Connections between each Partition Child Objects
-    //Partitions allow perfect path finding logic for the Player
-    //Connections are used in Player Path finding
+//On Start will catalogue references to it's Parition Child Objects
+    //In addition it will calculate all Connections between each Partition Child Object
+    //Connections are used in Player Path finding between Partitions
 using System.Collections.Generic;
 using UnityEngine;
 
