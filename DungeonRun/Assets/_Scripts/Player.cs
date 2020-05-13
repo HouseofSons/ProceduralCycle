@@ -6,10 +6,10 @@ using System.Collections.Generic;
 public class Player : MonoBehaviour {
 	
 	//used to determine current spawn location
-	private Vector3 spawnPoint;
+	private Spawn latestSpawn;
 
     //Partition Player is Occupying
-    public Partition OccupiedPartition { get; set; } //<--Needs to be assigned when game starts and Updated Accordingly
+    public Partition OccupiedPartition { get; set; }
 
     //CoRoutine which moves player to spawn
     private static Coroutine moveToSpawnCoRoutine;
@@ -28,7 +28,6 @@ public class Player : MonoBehaviour {
 		PlayerPathDistanceMax = 100;
 		PlayerPathDistance = 0;
 		TotalExperiencePoints = 0;
-		Level = 1;
 		playerMovingDirection = Vector3.zero;
 		disablePlayerCollisions = false;
     }
@@ -89,7 +88,7 @@ public class Player : MonoBehaviour {
             if (col.gameObject.name.StartsWith("Door")) {
                 disablePlayerCollisions = true;
                 StopCoroutine(PlayerFollowPathCoRoutine);//stops player movement if Door Hit
-                GameManager.DoorHit(col.transform.name);
+                GameManager.DoorHit(col.transform.GetComponent<Door>());
             }
 		}
 	}
@@ -98,9 +97,7 @@ public class Player : MonoBehaviour {
 
     public static void UpdateExperiencePoints (int experiencePoints) {
 		TotalExperiencePoints += experiencePoints;
-
 		UI.UpdateExperienceText (TotalExperiencePoints);
-		UI.UpdateLevelText (Level);
 	}
 
     public static float PlayerPathDistanceMax { get; set; }
@@ -113,15 +110,13 @@ public class Player : MonoBehaviour {
 
     public static int TotalExperiencePoints { get; set; }
 
-    public static int Level { get; set; }
-
     public static Vector3 PlayerMovingDirection {
 		get{return playerMovingDirection;}
 	}
 	//Determines where player will spawn
-	public Vector3 SpawnPoint {
-		get {return spawnPoint;}
-		set {spawnPoint = value;}
+	public Spawn LatestSpawn {
+		get {return latestSpawn; }
+		set { latestSpawn = value;}
 	}
 	//Resets Path lengths for Player
 	public static void LevelStatsReset(float distanceMax) {
@@ -167,21 +162,21 @@ public class Player : MonoBehaviour {
 	}
 	//Moves Player to Spawn Location
 	private IEnumerator MoveToSpawn() {
-		Vector3 spawn = GameManager.GetCurrentSpawn ().transform.position;
+		Vector3 spawn = latestSpawn.transform.position;
 		//For Level Changing
 		playerMovingDirection = new Vector3(spawn.x,transform.position.y,spawn.z) - transform.position;
 
-		while (Vector3.Distance(gameObject.transform.position,spawnPoint) > 0.1f) {
+		while (Vector3.Distance(gameObject.transform.position,spawn) > 0.1f) {
 			while (GameManager.IsPaused) { //for game pause
 				yield return null;
 			}
-			gameObject.transform.position = Vector3.Lerp(gameObject.transform.position,spawnPoint,Time.deltaTime * 3);
+			gameObject.transform.position = Vector3.Lerp(gameObject.transform.position, spawn, Time.deltaTime * 3);
 			yield return null;
 		}
 		while (GameManager.IsPaused) { //for game pause
 			yield return null;
 		}
-		gameObject.transform.position = spawnPoint;
+		gameObject.transform.position = spawn;
 		disablePlayerCollisions = false;
         GameManager.MoveToSpawnState = false;
         yield return null;

@@ -17,7 +17,6 @@ public class UI : MonoBehaviour {
 	public static void InitializeUIWithPlayerInfo() {
 		energyText.GetComponent<Text> ().text = Player.Energy.ToString();
 		experienceText.GetComponent<Text> ().text = Player.TotalExperiencePoints.ToString();
-		levelText.GetComponent<Text> ().text = Player.Level.ToString();
 	}
 
 	public static void UpdateEnergyText(int energy) {

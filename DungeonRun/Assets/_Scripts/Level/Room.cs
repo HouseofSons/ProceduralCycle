@@ -12,10 +12,14 @@ public class Room : MonoBehaviour
 
     void Start()
     {
+        Partitions = new List<Partition>();
+        Connections = new List<Connection>();
+
         foreach (Partition p in transform.GetComponentsInChildren<Partition>())
         {
             Partitions.Add(p);
         }
+
         FindConnections();
     }
     //Method creates connections between partition Child Objects

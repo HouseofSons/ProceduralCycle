@@ -5,15 +5,13 @@ public class GameManager : MonoBehaviour {
     //used for development purposes
     public string playerName;
 	public string levelName;
-	public string spawnName;
 
 	//used to determine speed of player
 	public float speedInput;
 
     //used to establish current player level and spawn
-    private static Player currentPlayer;
-	private static Level currentLevel;
-	private static Spawn currentSpawn;
+    private static GameObject currentPlayer;
+	private static GameObject currentLevel;
 	private static GameObject gameCamera;
 	private static GameObject gameManager;
 
@@ -42,20 +40,20 @@ public class GameManager : MonoBehaviour {
         Speed = speedInput;
 
 		InitializePlayerInLevel(playerName,levelName);
-		InitializeCameraInLevel();  
-
-		aimArrow = currentPlayer.transform.Find ("AimArrow").gameObject;
-		aimArrow.gameObject.GetComponent<SpriteRenderer> ().enabled = false;
-
-        pathLine = (Instantiate(Resources.Load("Line")) as GameObject).GetComponent<LineRenderer>();
+        InitializeCameraInLevel();
+		
+		aimArrow = currentPlayer.transform.Find("AimArrow").gameObject;
+		aimArrow.gameObject.GetComponent<SpriteRenderer>().enabled = false;
+		
+		pathLine = (Instantiate(Resources.Load("Line")) as GameObject).GetComponent<LineRenderer>();
         pathLine.material = new Material(Shader.Find("Sprites/Default"));
         pathLine.positionCount = 4;
         pathLine.numCapVertices = 90;
         pathLine.numCornerVertices = 90;
         pathLine.widthMultiplier = 0.06f;
         pathLine.enabled = false;
-
-        pathChosenLine = (Instantiate(Resources.Load("Line")) as GameObject).GetComponent<LineRenderer>();
+		
+		pathChosenLine = (Instantiate(Resources.Load("Line")) as GameObject).GetComponent<LineRenderer>();
         pathChosenLine.material = new Material(Shader.Find("Sprites/Default"));
         pathChosenLine.positionCount = 4;
         pathChosenLine.numCapVertices = 90;
@@ -114,15 +112,11 @@ public class GameManager : MonoBehaviour {
     public static float Speed { get; set; }
 
     public static Level GetCurrentLevel() {
-		return currentLevel;
-	}
-	
-	public static Spawn GetCurrentSpawn() {
-		return currentSpawn;
+		return currentLevel.GetComponent<Level>();
 	}
 	
 	public static Player GetCurrentPlayer() {
-		return currentPlayer;
+		return currentPlayer.GetComponent<Player>();
 	}
 
 	public static GameObject GetCamera() {
@@ -143,38 +137,24 @@ public class GameManager : MonoBehaviour {
         return pathChosenLine;
     }
 
-    private static void InitializePlayerInLevel(string player,string level) {
-		
-		currentLevel = Instantiate (Resources.Load (level)) as Level;
-		
-		if (currentLevel != null) {
-			//Assigns to Spawn under the Level Object(There should be only one here)
-			currentSpawn = currentLevel.transform.GetComponent<Spawn>();
-			
-			if (currentSpawn != null) {
-				if (currentPlayer == null) { //for level switching
-					currentPlayer = Instantiate(Resources.Load(player)) as Player;
-				}
-				if (currentPlayer != null) {
-					currentPlayer.GetComponent<Player>().SpawnPoint = currentSpawn.transform.position;
-				}
-			}
-		}
+    private static void InitializePlayerInLevel(string player,string level)
+    { 
+        currentPlayer = Instantiate(Resources.Load(player)) as GameObject;
+        currentLevel = Instantiate(Resources.Load(level)) as GameObject;
+        currentPlayer.GetComponent<Player>().LatestSpawn =
+                currentLevel.transform.Find("InitialSpawn").GetComponent<Spawn>();
 	}
 
-	private void InitializeCameraInLevel() {
-
-		if (currentLevel != null) {
-			gameCamera.transform.position = currentLevel.transform.position;
-            gameCamera.transform.parent = currentLevel.transform;
-        }
-	}
-
-	public static void DoorHit(string doorName) {
-		string levelName = "Level" + doorName.Substring (4, 3);
-		InitializePlayerInLevel(currentPlayer.name,levelName);
+	public static void DoorHit(Door door) {
+        currentPlayer.GetComponent<Player>().LatestSpawn = door.Destination(currentPlayer.transform.position);
         Player.LevelStatsReset(100);
 		EnterDoor = true;
+	}
+
+	private void InitializeCameraInLevel()
+	{
+		gameCamera.transform.position = currentLevel.transform.position;
+        gameCamera.transform.parent = currentLevel.transform;
 	}
 
 	public static Vector3 MouseLocation () {

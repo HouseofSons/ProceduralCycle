@@ -4,10 +4,11 @@ using UnityEngine;
 
 public class Spawn : MonoBehaviour
 {
-    public Vector3 SpawnPoint { private set; get; }
+    //This is currently manually assigned
+    public GameObject SpawnPartition;//will not be needed with Procedural generation
 
     private void Start()
     {
-        SpawnPoint = transform.position;
+        
     }
 }

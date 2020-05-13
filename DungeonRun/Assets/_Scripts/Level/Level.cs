@@ -11,6 +11,9 @@ public class Level : MonoBehaviour
 
     void Start()
     {
+        Rooms = new List<Room>();
+        Doors = new List<Door>();
+
         foreach (Room r in transform.GetComponentsInChildren<Room>())
         {
             Rooms.Add(r);

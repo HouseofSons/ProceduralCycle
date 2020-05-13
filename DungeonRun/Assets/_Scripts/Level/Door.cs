@@ -9,6 +9,8 @@ public class Door : MonoBehaviour
 
     void Start()
     {
+        SpawnPoints = new List<Spawn>();
+
         foreach (Spawn s in transform.GetComponentsInChildren<Spawn>())
         {
             SpawnPoints.Add(s);
@@ -18,7 +20,7 @@ public class Door : MonoBehaviour
     //Returns which Spawn location the Player should move towards given which side of the Door the Player is on
     public Spawn Destination(Vector3 location)
     {
-        if(Vector3.SqrMagnitude(location - SpawnPoints[0].SpawnPoint) < Vector3.SqrMagnitude(location - SpawnPoints[1].SpawnPoint))
+        if(Vector3.SqrMagnitude(location - SpawnPoints[0].transform.position) < Vector3.SqrMagnitude(location - SpawnPoints[1].transform.position))
         {
             return SpawnPoints[1];
         }
