@@ -158,7 +158,7 @@ public class GameManager : MonoBehaviour {
 
 	private void InitializeCameraInLevel()
 	{
-        gameCamera.transform.position = new Vector3(25, 20, -17);
+        gameCamera.transform.position = new Vector3(0, 20, 0);
         gameCamera.transform.parent = currentLevel.transform;
 	}
 

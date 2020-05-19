@@ -48,18 +48,20 @@ public class Player : MonoBehaviour {
 			moveToSpawnCoRoutine = StartCoroutine (MoveToSpawn());
         }
         
-        if (GameManager.AimArrowState) {
-            WallCollisionPoints.Clear();
-            UpdateWallCollisions(
-                transform.position,
-                new Vector3(
-                    GameManager.AimArrow().transform.up.x + transform.position.x,
-                    transform.position.y,
-                    GameManager.AimArrow().transform.up.z + transform.position.z),
-                PlayerPathDistanceMax - PlayerPathDistance,
-                OccupiedPartition);
-            UpdateGuidePath();
-            if (Input.GetMouseButton(0)) {
+        if (GameManager.AimArrowState)
+        {
+            if (Input.GetMouseButton(0))
+            {
+                UpdateWallCollisions(
+                    transform.position,
+                    new Vector3(
+                        GameManager.AimArrow().transform.up.x + transform.position.x,
+                        transform.position.y,
+                        GameManager.AimArrow().transform.up.z + transform.position.z),
+                    PlayerPathDistanceMax - PlayerPathDistance,
+                    OccupiedPartition,
+                    true);
+                UpdateGuidePath();
                 GameManager.PathLine().enabled = true;
                 GameManager.PathChosenLine().enabled = false;
             }
@@ -182,15 +184,21 @@ public class Player : MonoBehaviour {
         yield return null;
 	}
     //Returns all Wall collisions in order
-    private void UpdateWallCollisions(Vector3 pos,Vector3 dir,float dist,Partition currentPartition)
-    {
-        
+    private void UpdateWallCollisions(Vector3 pos,Vector3 dir,float dist,Partition currentPartition,bool firstCall) {
+
+        if(firstCall)
+        {
+            WallCollisionPoints.Clear();
+        }
+
         List<Vector3> collisionPoints = new List<Vector3>();
         Vector3 originalPoint;
         
         Vector3 position = pos; 
-        int floorWidth = currentPartition.Width;
-        int floorHeight = currentPartition.Depth;
+        int floorWidth = currentPartition.Width * 10; //10 default from planes
+        int floorDepth = currentPartition.Depth * 10; //10 default from planes
+        int widthAdd;
+        int depthAdd;
         float distance = dist;
         Vector3 direction = dir;
 
@@ -207,25 +215,25 @@ public class Player : MonoBehaviour {
         {
             if (run > 0) {
                 x = floorWidth;
-                z = floorHeight;
+                z = floorDepth;
                 i = floorWidth + Mathf.RoundToInt(currentPartition.Origin.x);
-                j = floorHeight + Mathf.RoundToInt(currentPartition.Origin.z); }
+                j = floorDepth + Mathf.RoundToInt(currentPartition.Origin.z); }
             else {
                 x = -floorWidth;
-                z = floorHeight;
+                z = floorDepth;
                 i = Mathf.RoundToInt(currentPartition.Origin.x);
-                j = floorHeight + Mathf.RoundToInt(currentPartition.Origin.z); }
+                j = floorDepth + Mathf.RoundToInt(currentPartition.Origin.z); }
         }
         else
         {
             if (run > 0) {
                 x = floorWidth;
-                z = -floorHeight;
+                z = -floorDepth;
                 i = floorWidth + Mathf.RoundToInt(currentPartition.Origin.x);
                 j = Mathf.RoundToInt(currentPartition.Origin.z); }
             else {
                 x = -floorWidth;
-                z = -floorHeight;
+                z = -floorDepth;
                 i = Mathf.RoundToInt(currentPartition.Origin.x);
                 j = Mathf.RoundToInt(currentPartition.Origin.z); }
         }
@@ -236,7 +244,7 @@ public class Player : MonoBehaviour {
             {
                 collisionPoints.Add(new Vector3(k, position.y, slope * k + c));
             }
-            for (int k = j; Mathf.Abs(k) <= distance * Mathf.Abs(Mathf.Abs(direction.z) - Mathf.Abs(position.z)) + floorHeight; k += z)
+            for (int k = j; Mathf.Abs(k) <= distance * Mathf.Abs(Mathf.Abs(direction.z) - Mathf.Abs(position.z)) + floorDepth; k += z)
             {
                 collisionPoints.Add(new Vector3((k - c) / slope, position.y, k));
             }
@@ -265,18 +273,37 @@ public class Player : MonoBehaviour {
                     collisionPoints[l].y,
                     collisionPoints[l].z >= 0 ?
                     (
-                        Mathf.FloorToInt(collisionPoints[l].z / floorHeight) % 2 == 0 ?
-                            collisionPoints[l].z % floorHeight :
-                            floorHeight - (collisionPoints[l].z % floorHeight)
+                        Mathf.FloorToInt(collisionPoints[l].z / floorDepth) % 2 == 0 ?
+                            collisionPoints[l].z % floorDepth :
+                            floorDepth - (collisionPoints[l].z % floorDepth)
                     ) :
                     (
-                        Mathf.CeilToInt(collisionPoints[l].z / floorHeight) % 2 == 0 ?
-                            -(collisionPoints[l].z % floorHeight) :
-                            floorHeight + (collisionPoints[l].z % floorHeight)
+                        Mathf.CeilToInt(collisionPoints[l].z / floorDepth) % 2 == 0 ?
+                            -(collisionPoints[l].z % floorDepth) :
+                            floorDepth + (collisionPoints[l].z % floorDepth)
                     )
                 );
+            if(Mathf.RoundToInt(floorWidth / 2.0f) > currentPartition.transform.position.x)
+            {
+                widthAdd = - (Mathf.RoundToInt(floorWidth / 2.0f) - Mathf.RoundToInt(currentPartition.transform.position.x));
+            } else
+            {
+                widthAdd = Mathf.RoundToInt(currentPartition.transform.position.x) - Mathf.RoundToInt(floorWidth / 2.0f);
+            }
 
-            WallCollisionPoints.Add(collisionPoints[l]);
+            if (Mathf.RoundToInt(floorDepth / 2.0f) > Mathf.RoundToInt(currentPartition.transform.position.z))
+            {
+                depthAdd = - (Mathf.RoundToInt(floorDepth / 2.0f) - Mathf.RoundToInt(currentPartition.transform.position.z));
+            }
+            else
+            {
+                depthAdd = Mathf.RoundToInt(currentPartition.transform.position.z) - Mathf.RoundToInt(floorDepth / 2.0f);
+            }
+
+            WallCollisionPoints.Add(new Vector3(
+                collisionPoints[l].x + widthAdd,
+                collisionPoints[l].y,
+                collisionPoints[l].z + depthAdd));
 
             if (currentPartition.PartRoom.PartitionConnection(collisionPoints[l], currentPartition, out Partition enterPartition))
             {
@@ -287,7 +314,8 @@ public class Player : MonoBehaviour {
                         collisionPoints[l],
                         WallCollisionPoints[WallCollisionPoints.Count - 1] - WallCollisionPoints[WallCollisionPoints.Count - 2],
                         remainingDistance,
-                        enterPartition);
+                        enterPartition,
+                        false);
                 }
                 break;
             }
