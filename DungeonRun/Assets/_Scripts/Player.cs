@@ -197,7 +197,6 @@ public class Player : MonoBehaviour {
         Vector3 position = pos; 
         int floorWidth = currentPartition.Width * 10; //plane default is 10
         int floorDepth = currentPartition.Depth * 10; //plane default is 10
-        int scratchX, scratchZ;
         float distance = dist;
         Vector3 direction = dir;
 
@@ -250,60 +249,12 @@ public class Player : MonoBehaviour {
         }
         //orders list of positions by distance from player
         collisionPoints.Sort((v1, v2) => (v1 - position).sqrMagnitude.CompareTo((v2 - position).sqrMagnitude));
-        
+
         for (int l = 0; l < collisionPoints.Count; l++)
         {
             originalPoint = collisionPoints[l];
 
-            scratchX = Mathf.FloorToInt(Mathf.Abs(collisionPoints[l].x) / floorWidth);
-
-            if(originalPoint.x > currentPartition.Origin.x)
-            {
-                if(scratchX % 2 == 0)
-                {
-                    scratchX = Mathf.RoundToInt(currentPartition.Origin.x) + Mathf.RoundToInt(floorWidth / 2.0f);
-                } else
-                {
-                    scratchX = Mathf.RoundToInt(currentPartition.Origin.x) - Mathf.RoundToInt(floorWidth / 2.0f);
-                }
-            } else
-            {
-                if (scratchX % 2 == 0)
-                {
-                    scratchX = Mathf.RoundToInt(currentPartition.Origin.x) - Mathf.RoundToInt(floorWidth / 2.0f);
-                }
-                else
-                {
-                    scratchX = Mathf.RoundToInt(currentPartition.Origin.x) + Mathf.RoundToInt(floorWidth / 2.0f);
-                }
-            }
-
-            scratchZ = Mathf.FloorToInt(Mathf.Abs(collisionPoints[l].z) / floorDepth);
-
-            if (originalPoint.z > currentPartition.Origin.z)
-            {
-                if (scratchZ % 2 == 0)
-                {
-                    scratchZ = Mathf.RoundToInt(currentPartition.Origin.z) + Mathf.RoundToInt(floorDepth / 2.0f);
-                }
-                else
-                {
-                    scratchZ = Mathf.RoundToInt(currentPartition.Origin.z) - Mathf.RoundToInt(floorDepth / 2.0f);
-                }
-            }
-            else
-            {
-                if (scratchZ % 2 == 0)
-                {
-                    scratchZ = Mathf.RoundToInt(currentPartition.Origin.z) - Mathf.RoundToInt(floorDepth / 2.0f);
-                }
-                else
-                {
-                    scratchZ = Mathf.RoundToInt(currentPartition.Origin.z) + Mathf.RoundToInt(floorDepth / 2.0f);
-                }
-            }
-
-            WallCollisionPoints.Add(new Vector3(scratchX,collisionPoints[l].y,scratchZ));
+            WallCollisionPoints.Add(TranslateCollision(collisionPoints[l], currentPartition));
 
             if (currentPartition.PartRoom.PartitionConnection(collisionPoints[l], currentPartition, out Partition enterPartition))
             {
@@ -320,6 +271,113 @@ public class Player : MonoBehaviour {
                 break;
             }
         }
+    }
+    //Translates Collision point inside a Partition
+    private Vector3 TranslateCollision(Vector3 collision, Partition p)
+    {
+        float xLength, zLength;
+        float xResidual, zResidual;
+        float xNew, zNew;
+        int xPartWidths, zPartDepths;
+
+        int floorWidth = p.Width * 10; //plane default is 10
+        int floorDepth = p.Depth * 10; //plane default is 10
+
+        int xPartEdgeRight = Mathf.RoundToInt(p.Origin.x + (floorWidth / 2.0f));
+        int xPartEdgeLeft = Mathf.RoundToInt(p.Origin.x - (floorWidth / 2.0f));
+        int zPartEdgeBack = Mathf.RoundToInt(p.Origin.z + (floorDepth / 2.0f));
+        int zPartEdgeFront = Mathf.RoundToInt(p.Origin.z - (floorDepth / 2.0f));
+
+        if (collision.x > p.Origin.x)
+        {
+            if (xPartEdgeRight > collision.x)
+            {
+                xNew = collision.x;
+            }
+            else
+            {
+                xLength = collision.x - xPartEdgeRight;
+                xPartWidths = Mathf.RoundToInt(Mathf.FloorToInt(xLength) / floorWidth);
+                xResidual = xLength - (xPartWidths * floorWidth);
+
+                if (xPartWidths % 2 == 0)
+                {
+                    xNew = xPartEdgeRight - xResidual;
+                }
+                else
+                {
+                    xNew = xPartEdgeLeft + xResidual;
+                }
+            }
+        }
+        else
+        {
+            if (xPartEdgeLeft < collision.x)
+            {
+                xNew = collision.x;
+            }
+            else
+            {
+                xLength = xPartEdgeLeft - collision.x;
+                xPartWidths = Mathf.RoundToInt(Mathf.FloorToInt(xLength) / floorWidth);
+                xResidual = xLength - (xPartWidths * floorWidth);
+
+                if (xPartWidths % 2 == 0)
+                {
+                    xNew = xPartEdgeLeft + xResidual;
+                }
+                else
+                {
+                    xNew = xPartEdgeRight - xResidual;
+                }
+            }
+        }
+
+        if (collision.z > p.Origin.z)
+        {
+            if (zPartEdgeBack > collision.z)
+            {
+                zNew = collision.z;
+            }
+            else
+            {
+                zLength = collision.z - zPartEdgeBack;
+                zPartDepths = Mathf.RoundToInt(Mathf.FloorToInt(zLength) / floorDepth);
+                zResidual = zLength - (zPartDepths * floorDepth);
+
+                if (zPartDepths % 2 == 0)
+                {
+                    zNew = zPartEdgeBack - zResidual;
+                }
+                else
+                {
+                    zNew = zPartEdgeFront + zResidual;
+                }
+            }
+        }
+        else
+        {
+            if (zPartEdgeFront < collision.z)
+            {
+                zNew = collision.z;
+            }
+            else
+            {
+                zLength = zPartEdgeFront - collision.z;
+                zPartDepths = Mathf.RoundToInt(Mathf.FloorToInt(zLength) / floorDepth);
+                zResidual = zLength - (zPartDepths * floorDepth);
+
+                if (zPartDepths % 2 == 0)
+                {
+                    zNew = zPartEdgeFront + zResidual;
+                }
+                else
+                {
+                    zNew = zPartEdgeBack - zResidual;
+                }
+            }
+        }
+        return new Vector3(xNew, collision.y, zNew);
     }
     //Plots path following arrow
     private void UpdateGuidePath() {
