@@ -1,7 +1,8 @@
-﻿using UnityEngine;
+﻿//IMPORTANT: Script is set in the Execution Order to run last
+using UnityEngine;
 
-public class GameManager : MonoBehaviour {
-
+public class GameManager : MonoBehaviour
+{
     //used for development purposes
     public string playerName;
 	public string levelName;
@@ -23,8 +24,7 @@ public class GameManager : MonoBehaviour {
     private static LineRenderer pathChosenLine;
 
     void Start () {
-
-		gameManager = this.gameObject;
+        gameManager = this.gameObject;
         gameCamera = GameObject.Find("MainCamera");
 
 		StageNumber = 0;
@@ -62,7 +62,7 @@ public class GameManager : MonoBehaviour {
         pathChosenLine.enabled = false;
     }
 
-	void Update() {
+    void Update() {
 
         if (!IsPaused) {
 			currentPlayer.transform.LookAt(MouseLocation ());
