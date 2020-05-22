@@ -249,7 +249,7 @@ public class Player : MonoBehaviour {
         //orders list of positions by distance from player
         collisionPoints.Sort((v1, v2) => (v1 - position).sqrMagnitude.CompareTo((v2 - position).sqrMagnitude));
 
-        for (int l = 0; l < collisionPoints.Count; l++)
+        for (int l = firstCall ? 0 : 1; l < collisionPoints.Count; l++)
         {
             originalPoint = collisionPoints[l];
             newPoint = TranslateCollision(collisionPoints[l], currentPartition);
@@ -257,8 +257,9 @@ public class Player : MonoBehaviour {
 
             if (currentPartition.GetConnection(newPoint, out Partition enterPartition))
             {
+                Debug.Log(newPoint);
                 float remainingDistance = distance - Mathf.Abs(Vector3.Distance(position, originalPoint));//Expensive
-
+                
                 if (remainingDistance > 0) {
                     UpdateWallCollisions(
                         newPoint,
