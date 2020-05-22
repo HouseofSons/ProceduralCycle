@@ -193,6 +193,7 @@ public class Player : MonoBehaviour {
 
         List<Vector3> collisionPoints = new List<Vector3>();
         Vector3 originalPoint;
+        Vector3 newPoint;
         
         Vector3 position = pos;
         float distance = dist;
@@ -251,17 +252,19 @@ public class Player : MonoBehaviour {
         for (int l = 0; l < collisionPoints.Count; l++)
         {
             originalPoint = collisionPoints[l];
+            newPoint = TranslateCollision(collisionPoints[l], currentPartition);
+            WallCollisionPoints.Add(newPoint);
 
-            WallCollisionPoints.Add(TranslateCollision(collisionPoints[l], currentPartition));
-
-            if (currentPartition.GetConnection(WallCollisionPoints[l], out Partition enterPartition))
+            if (currentPartition.GetConnection(newPoint, out Partition enterPartition))
             {
                 float remainingDistance = distance - Mathf.Abs(Vector3.Distance(position, originalPoint));//Expensive
 
                 if (remainingDistance > 0) {
                     UpdateWallCollisions(
-                        collisionPoints[l],
-                        Vector3.Normalize(WallCollisionPoints[WallCollisionPoints.Count - 1] - WallCollisionPoints[WallCollisionPoints.Count - 2]),
+                        newPoint,
+                        WallCollisionPoints.Count > 1 ? 
+                            Vector3.Normalize(WallCollisionPoints[WallCollisionPoints.Count - 1] - WallCollisionPoints[WallCollisionPoints.Count - 2]) :
+                            Vector3.Normalize(WallCollisionPoints[WallCollisionPoints.Count - 1] - position),
                         remainingDistance,
                         enterPartition,
                         false);

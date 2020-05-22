@@ -36,13 +36,13 @@ public class Room : MonoBehaviour
                         Partitions[i].Connections.Add(new Connection(
                             Partitions[j],
                             Partitions[i].Nedge == Partitions[j].Sedge ? Partitions[i].Nedge : Partitions[i].Sedge,
-                            true,
+                            false,
                             Mathf.RoundToInt(Mathf.Max(Partitions[i].Wedge, Partitions[j].Wedge)),
                             Mathf.RoundToInt(Mathf.Min(Partitions[i].Eedge, Partitions[j].Eedge))));
                         Partitions[j].Connections.Add(new Connection(
                             Partitions[i],
                             Partitions[i].Nedge == Partitions[j].Sedge ? Partitions[j].Sedge : Partitions[j].Nedge,
-                            true,
+                            false,
                             Mathf.RoundToInt(Mathf.Max(Partitions[i].Wedge, Partitions[j].Wedge)),
                             Mathf.RoundToInt(Mathf.Min(Partitions[i].Eedge, Partitions[j].Eedge))));
                     }
@@ -55,14 +55,13 @@ public class Room : MonoBehaviour
                         Partitions[i].Connections.Add(new Connection(
                             Partitions[j],
                             Partitions[i].Wedge == Partitions[j].Eedge ? Partitions[i].Wedge : Partitions[i].Eedge,
-                            false,
+                            true,
                             Mathf.RoundToInt(Mathf.Max(Partitions[i].Sedge, Partitions[j].Sedge)),
                             Mathf.RoundToInt(Mathf.Min(Partitions[i].Nedge, Partitions[j].Nedge))));
-
                         Partitions[j].Connections.Add(new Connection(
                             Partitions[i],
                             Partitions[i].Wedge == Partitions[j].Eedge ? Partitions[j].Eedge : Partitions[j].Wedge,
-                            false,
+                            true,
                             Mathf.RoundToInt(Mathf.Max(Partitions[i].Sedge, Partitions[j].Sedge)),
                             Mathf.RoundToInt(Mathf.Min(Partitions[i].Nedge, Partitions[j].Nedge))));
                     }

@@ -54,7 +54,7 @@ public class Partition : MonoBehaviour
             }
             if (Mathf.RoundToInt(position.z) == o.NeighborEdge)
             {
-                if (position.z <= o.MaxRange && position.z >= o.MinRange)
+                if (position.x <= o.MaxRange && position.x >= o.MinRange)
                 {
                     enterPartition = o.PartitionNeighbor;
                     return true;
@@ -82,6 +82,5 @@ public class Connection
         IsVertical = vert;
         MinRange = min;
         MaxRange = max;
-        Debug.Log("Shared Edge " + NeighborEdge + " Vertical?: " + IsVertical + " min: " + MinRange + " max: " + MaxRange);
     }
 }
