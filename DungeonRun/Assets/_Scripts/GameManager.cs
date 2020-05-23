@@ -23,7 +23,12 @@ public class GameManager : MonoBehaviour
     //used to attach visual line from player after path is chosen
     private static LineRenderer pathChosenLine;
 
+    //This is for testing and should be removed at somepoint
+    bool start;
+
     void Start () {
+        start = true;
+
         gameManager = this.gameObject;
         gameCamera = GameObject.Find("MainCamera");
 
@@ -63,6 +68,29 @@ public class GameManager : MonoBehaviour
     }
 
     void Update() {
+
+        if (start)
+        {
+            start = false;
+            foreach (Room r in currentLevel.GetComponent<Level>().Rooms)
+            {
+                foreach (Partition p in r.Partitions)
+                {
+                    foreach (Connection c in p.Connections)
+                    {
+                        Debug.Log(
+                            " Level: " + currentLevel.name +
+                            " Room: " + r.name +
+                            " Partition: " + p.name +
+                            " Neighbor: " + c.PartitionNeighbor.name +
+                            " IsConnectionVertical: " + c.IsVertical +
+                            " SharedEdge: " + c.NeighborEdge +
+                            " Min: " + c.MinRange +
+                            " Max: " + c.MaxRange);
+                    }
+                }
+            }
+        }
 
         if (!IsPaused) {
 			currentPlayer.transform.LookAt(MouseLocation ());

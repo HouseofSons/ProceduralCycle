@@ -18,6 +18,8 @@ public class Player : MonoBehaviour {
 	private static Vector3 playerMovingDirection;
     //Disables Collisions when traveling between levels
 	private static bool disablePlayerCollisions;
+    //Identifies if WallCollision method is done
+    private static bool UpdatingWallCollisions;
 
     //Wall points calculated by Players position and direction
     public static List<Vector3> WallCollisionPoints;
@@ -30,6 +32,7 @@ public class Player : MonoBehaviour {
 		TotalExperiencePoints = 0;
 		playerMovingDirection = Vector3.zero;
 		disablePlayerCollisions = false;
+        UpdatingWallCollisions = false;
     }
 
 	void Start () {
@@ -52,18 +55,21 @@ public class Player : MonoBehaviour {
         {
             if (Input.GetMouseButton(0))
             {
-                UpdateWallCollisions(
-                    transform.position,
-                    new Vector3(
-                        GameManager.AimArrow().transform.up.x + transform.position.x,
-                        transform.position.y,
-                        GameManager.AimArrow().transform.up.z + transform.position.z),
-                    PlayerPathDistanceMax - PlayerPathDistance,
-                    OccupiedPartition,
-                    true);
-                UpdateGuidePath();
-                GameManager.PathLine().enabled = true;
-                GameManager.PathChosenLine().enabled = false;
+                if (!UpdatingWallCollisions) {
+                    UpdatingWallCollisions = true;
+                    UpdateWallCollisions(
+                        transform.position,
+                        new Vector3(
+                            GameManager.AimArrow().transform.up.x + transform.position.x,
+                            transform.position.y,
+                            GameManager.AimArrow().transform.up.z + transform.position.z),
+                        PlayerPathDistanceMax - PlayerPathDistance,
+                        OccupiedPartition,
+                        true);
+                    UpdateGuidePath();
+                    GameManager.PathLine().enabled = true;
+                    GameManager.PathChosenLine().enabled = false;
+                }
             }
             
             if (Input.GetMouseButtonUp(0)) {
@@ -186,24 +192,30 @@ public class Player : MonoBehaviour {
     //Returns all Wall collisions in order
     private void UpdateWallCollisions(Vector3 pos,Vector3 dir,float dist,Partition currentPartition,bool firstCall) {
 
-        if(firstCall)
+        if (firstCall)
         {
             WallCollisionPoints.Clear();
         }
 
         List<Vector3> collisionPoints = new List<Vector3>();
-        Vector3 originalPoint;
-        Vector3 newPoint;
         
-        Vector3 position = pos;
-        float distance = dist;
-        Vector3 direction = dir;
+        Vector3 originalPosition = pos;
+        Vector3 originalDirection = dir; //Magnitude of 1
+        float remainingDistance = dist;
+
+        Vector3 finalPosition = new Vector3(originalPosition.x + (dir.x - pos.x) * remainingDistance,
+            originalPosition.y,
+            originalPosition.z + (dir.z - pos.z) * remainingDistance);
+
+        Vector3 nonTranslatedPoint;
+        Vector3 translatedPoint;
+        Vector3 newDirection;
 
         //y = (rise/run)x + c
         //ax + by + c = 0
-        float rise = direction.z - position.z;
-        float run = direction.x - position.x;
-        float c = position.z - (System.Math.Abs(run) < Mathf.Epsilon ? 0 : ((rise / run) * position.x));
+        float rise = originalDirection.z - originalPosition.z;
+        float run = originalDirection.x - originalPosition.x;
+        float c = originalPosition.z - (System.Math.Abs(run) < Mathf.Epsilon ? 0 : ((rise / run) * originalPosition.x));
         float slope = System.Math.Abs(run) < Mathf.Epsilon ? 0 : rise / run;
 
         int x, z, i, j;
@@ -237,39 +249,56 @@ public class Player : MonoBehaviour {
         
         if (System.Math.Abs(rise) > Mathf.Epsilon && System.Math.Abs(run) > Mathf.Epsilon)//flat slopes
         {
-            for (int k = i; Mathf.Abs(k) <= distance * Mathf.Abs(Mathf.Abs(direction.x) - Mathf.Abs(position.x)) + currentPartition.Width; k += x)
+            for (int k = i; Mathf.Abs(k) <= Mathf.Abs(finalPosition.x - pos.x) + Mathf.Abs(x); k += x)
             {
-                collisionPoints.Add(new Vector3(k, position.y, slope * k + c));
+                collisionPoints.Add(new Vector3(k, originalPosition.y, slope * k + c));
             }
-            for (int k = j; Mathf.Abs(k) <= distance * Mathf.Abs(Mathf.Abs(direction.z) - Mathf.Abs(position.z)) + currentPartition.Depth; k += z)
+            for (int k = j; Mathf.Abs(k) <= Mathf.Abs(finalPosition.z - pos.z) + Mathf.Abs(z); k += z)
             {
-                collisionPoints.Add(new Vector3((k - c) / slope, position.y, k));
+                collisionPoints.Add(new Vector3((k - c) / slope, originalPosition.y, k));
             }
         }
         //orders list of positions by distance from player
-        collisionPoints.Sort((v1, v2) => (v1 - position).sqrMagnitude.CompareTo((v2 - position).sqrMagnitude));
+        collisionPoints.Sort((v1, v2) => (v1 - originalPosition).sqrMagnitude.CompareTo((v2 - originalPosition).sqrMagnitude));
 
         for (int l = firstCall ? 0 : 1; l < collisionPoints.Count; l++)
         {
-            originalPoint = collisionPoints[l];
-            newPoint = TranslateCollision(collisionPoints[l], currentPartition);
-            WallCollisionPoints.Add(newPoint);
+            nonTranslatedPoint = collisionPoints[l];
+            translatedPoint = TranslateCollision(collisionPoints[l], currentPartition);
+            WallCollisionPoints.Add(translatedPoint);
 
-            if (currentPartition.GetConnection(newPoint, out Partition enterPartition))
+            if (currentPartition.GetConnection(translatedPoint, out Partition enterPartition))
             {
-                Debug.Log(newPoint);
-                float remainingDistance = distance - Mathf.Abs(Vector3.Distance(position, originalPoint));//Expensive
-                
-                if (remainingDistance > 0) {
-                    UpdateWallCollisions(
-                        newPoint,
-                        WallCollisionPoints.Count > 1 ? 
-                            Vector3.Normalize(WallCollisionPoints[WallCollisionPoints.Count - 1] - WallCollisionPoints[WallCollisionPoints.Count - 2]) :
-                            Vector3.Normalize(WallCollisionPoints[WallCollisionPoints.Count - 1] - position),
-                        remainingDistance,
-                        enterPartition,
-                        false);
+                if(WallCollisionPoints.Count > 1)
+                {
+                    newDirection = Vector3.Normalize(translatedPoint - WallCollisionPoints[WallCollisionPoints.Count - 2]);
+
+                    newDirection = new Vector3(translatedPoint.x + newDirection.x,
+                        translatedPoint.y,
+                        translatedPoint.z + newDirection.z);
+
+                    Debug.Log(" Direction Point: " + newDirection +
+                        " collision translated point: " + translatedPoint +
+                        " previous collision translated point: " + WallCollisionPoints[WallCollisionPoints.Count - 2]);
+                } else
+                {
+                    newDirection = Vector3.Normalize(translatedPoint - originalPosition);
+
+                    newDirection = new Vector3(translatedPoint.x + newDirection.x,
+                        translatedPoint.y,
+                        translatedPoint.z + newDirection.z);
+
+                    Debug.Log(" Direction Point: " + newDirection +
+                        " collision translated point: " + translatedPoint +
+                        " previous collision translated point: " + WallCollisionPoints[WallCollisionPoints.Count - 2]);
                 }
+                
+                UpdateWallCollisions(
+                    translatedPoint,
+                    newDirection,
+                    remainingDistance - Mathf.Abs(Vector3.Distance(nonTranslatedPoint, originalPosition)),//expensive
+                    enterPartition,
+                    false);
                 break;
             }
         }
@@ -388,7 +417,7 @@ public class Player : MonoBehaviour {
             }
         }
     }
-    //Plots path following arrow
+    //Plots chosen
     private void UpdateChosenPath() {
         if (PathPoints.Count > 1) {
             GameManager.PathChosenLine().positionCount = PathPoints.Count - 1;

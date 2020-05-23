@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class Room : MonoBehaviour
 {
-    public List<Partition> Partitions { private get; set; }
+    public List<Partition> Partitions { private set; get; }
 
     void Start()
     {

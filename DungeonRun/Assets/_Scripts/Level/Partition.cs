@@ -42,22 +42,28 @@ public class Partition : MonoBehaviour
     //Method used by Player Script to determine if a player's path edge collision is a connection to a new Partition
     public bool GetConnection(Vector3 position, out Partition enterPartition)
     {
-        foreach (Connection o in Connections)
+        foreach (Connection c in Connections)
         {
-            if (Mathf.RoundToInt(position.x) == o.NeighborEdge)
+            if (c.IsVertical)
             {
-                if (position.z <= o.MaxRange && position.z >= o.MinRange)
+                if (Mathf.RoundToInt(position.x) == c.NeighborEdge)
                 {
-                    enterPartition = o.PartitionNeighbor;
-                    return true;
+                    if (position.z <= c.MaxRange && position.z >= c.MinRange)
+                    {
+                        enterPartition = c.PartitionNeighbor;
+                        return true;
+                    }
                 }
             }
-            if (Mathf.RoundToInt(position.z) == o.NeighborEdge)
+            else
             {
-                if (position.x <= o.MaxRange && position.x >= o.MinRange)
+                if (Mathf.RoundToInt(position.z) == c.NeighborEdge)
                 {
-                    enterPartition = o.PartitionNeighbor;
-                    return true;
+                    if (position.x <= c.MaxRange && position.x >= c.MinRange)
+                    {
+                        enterPartition = c.PartitionNeighbor;
+                        return true;
+                    }
                 }
             }
         }
