@@ -27,7 +27,7 @@ public class Player : MonoBehaviour {
     public static List<Vector3> PathPoints;
 
     void Awake () {
-		PlayerPathDistanceMax = 1000;
+		PlayerPathDistanceMax = 200;
 		PlayerPathDistance = 0;
 		TotalExperiencePoints = 0;
 		playerMovingDirection = Vector3.zero;
@@ -53,9 +53,9 @@ public class Player : MonoBehaviour {
         
         if (GameManager.AimArrowState)
         {
-            //if (Input.GetMouseButtonDown(0))
-            //{
-                if (!UpdatingWallCollisions) {
+            if (Input.GetMouseButton(0))
+            {
+                if (!UpdatingWallCollisions && Time.frameCount % 5 == 0) {
                     UpdatingWallCollisions = true;
                     WallCollisionPoints.Clear();
                     UpdateWallCollisions(
@@ -67,12 +67,11 @@ public class Player : MonoBehaviour {
                         PlayerPathDistanceMax - PlayerPathDistance,
                         OccupiedPartition,
                         true);
-                    UpdateGuidePath();
                     GameManager.PathLine().enabled = true;
                     GameManager.PathChosenLine().enabled = false;
                 }
-            //}
-            
+            }
+
             if (Input.GetMouseButtonUp(0)) {
                 if (!EventSystem.current.IsPointerOverGameObject()) {
                     GameManager.PlayerMovingState = true;
@@ -198,6 +197,7 @@ public class Player : MonoBehaviour {
         Vector3 originalPosition = pos;
         Vector3 originalDirection = dir; //Magnitude of 1
         float remainingDistance = dist;
+        float partDistance;
 
         Vector3 finalPosition = new Vector3(originalPosition.x + (dir.x - pos.x) * remainingDistance,
             originalPosition.y,
@@ -245,11 +245,11 @@ public class Player : MonoBehaviour {
         
         if (System.Math.Abs(rise) > Mathf.Epsilon && System.Math.Abs(run) > Mathf.Epsilon)//flat slopes
         {
-            for (int k = i; Mathf.Abs(k) <= Mathf.Abs(finalPosition.x - pos.x) + Mathf.Abs(x); k += x)
+            for (int k = i; Mathf.Abs(k) <= Mathf.Abs(finalPosition.x - pos.x); k += x)
             {
                 collisionPoints.Add(new Vector3(k, originalPosition.y, slope * k + c));
             }
-            for (int k = j; Mathf.Abs(k) <= Mathf.Abs(finalPosition.z - pos.z) + Mathf.Abs(z); k += z)
+            for (int k = j; Mathf.Abs(k) <= Mathf.Abs(finalPosition.z - pos.z); k += z)
             {
                 collisionPoints.Add(new Vector3((k - c) / slope, originalPosition.y, k));
             }
@@ -262,32 +262,38 @@ public class Player : MonoBehaviour {
             nonTranslatedPoint = collisionPoints[l];
             translatedPoint = TranslateCollision(collisionPoints[l], currentPartition);
             WallCollisionPoints.Add(translatedPoint);
+            partDistance = remainingDistance - Mathf.Abs(Vector3.Distance(nonTranslatedPoint, originalPosition));//expensive
 
-            if (currentPartition.GetConnection(translatedPoint, out Partition enterPartition))
+            if (partDistance > 0)
             {
-                if(WallCollisionPoints.Count > 1)
+                if (currentPartition.GetConnection(translatedPoint, out Partition enterPartition))
                 {
-                    newDirection = Vector3.Normalize(translatedPoint - WallCollisionPoints[WallCollisionPoints.Count - 2]);
-                } else
-                {
-                    newDirection = Vector3.Normalize(translatedPoint - originalPosition);
+                    if (WallCollisionPoints.Count > 1)
+                    {
+                        newDirection = Vector3.Normalize(translatedPoint - WallCollisionPoints[WallCollisionPoints.Count - 2]);
+                    }
+                    else
+                    {
+                        newDirection = Vector3.Normalize(translatedPoint - originalPosition);
+                    }
+
+                    newDirection = new Vector3(translatedPoint.x + newDirection.x,
+                        translatedPoint.y,
+                        translatedPoint.z + newDirection.z);
+
+                    UpdateWallCollisions(
+                        translatedPoint,
+                        newDirection,
+                        partDistance,
+                        enterPartition,
+                        false);
+                    break;
                 }
-
-                newDirection = new Vector3(translatedPoint.x + newDirection.x,
-                    translatedPoint.y,
-                    translatedPoint.z + newDirection.z);
-
-                UpdateWallCollisions(
-                    translatedPoint,
-                    newDirection,
-                    remainingDistance - Mathf.Abs(Vector3.Distance(nonTranslatedPoint, originalPosition)),//expensive
-                    enterPartition,
-                    false);
-                break;
             }
         }
-        if(firstCall)//end of recursive function
+        if (firstCall)//end of recursive function
         {
+            UpdateGuidePath();
             UpdatingWallCollisions = false;
         }
     }
