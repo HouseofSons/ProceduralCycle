@@ -27,7 +27,7 @@ public class Player : MonoBehaviour {
     public static List<Vector3> PathPoints;
 
     void Awake () {
-		PlayerPathDistanceMax = 100;
+		PlayerPathDistanceMax = 1000;
 		PlayerPathDistance = 0;
 		TotalExperiencePoints = 0;
 		playerMovingDirection = Vector3.zero;
@@ -53,10 +53,11 @@ public class Player : MonoBehaviour {
         
         if (GameManager.AimArrowState)
         {
-            if (Input.GetMouseButton(0))
+            if (Input.GetMouseButtonDown(0))
             {
                 if (!UpdatingWallCollisions) {
                     UpdatingWallCollisions = true;
+                    WallCollisionPoints.Clear();
                     UpdateWallCollisions(
                         transform.position,
                         new Vector3(
@@ -192,11 +193,6 @@ public class Player : MonoBehaviour {
     //Returns all Wall collisions in order
     private void UpdateWallCollisions(Vector3 pos,Vector3 dir,float dist,Partition currentPartition,bool firstCall) {
 
-        if (firstCall)
-        {
-            WallCollisionPoints.Clear();
-        }
-
         List<Vector3> collisionPoints = new List<Vector3>();
         
         Vector3 originalPosition = pos;
@@ -289,6 +285,10 @@ public class Player : MonoBehaviour {
                     false);
                 break;
             }
+        }
+        if(firstCall)//end of recursive function
+        {
+            UpdatingWallCollisions = false;
         }
     }
     //Translates Collision point inside a Partition
