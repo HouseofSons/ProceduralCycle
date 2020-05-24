@@ -41,7 +41,6 @@ public class Player : MonoBehaviour {
 	}
 
 	void Update () {
-        
 		if (GameManager.MoveToSpawnState) {
             GameManager.PathLine().enabled = false;
             GameManager.PathChosenLine().enabled = false;
@@ -196,7 +195,7 @@ public class Player : MonoBehaviour {
         
         Vector3 originalPosition = pos;
         Vector3 originalDirection = dir; //Magnitude of 1
-        float remainingDistance = dist;
+        float remainingDistance = firstCall ? dist * 1.2f : dist; //corrects path lengths shorter than energy
         float partDistance;
 
         Vector3 finalPosition = new Vector3(originalPosition.x + (dir.x - pos.x) * remainingDistance,
@@ -256,7 +255,10 @@ public class Player : MonoBehaviour {
         }
         //orders list of positions by distance from player
         collisionPoints.Sort((v1, v2) => (v1 - originalPosition).sqrMagnitude.CompareTo((v2 - originalPosition).sqrMagnitude));
-
+        //Debug.Log(" Current Partition: " + currentPartition +
+        //    " Original Position: " + originalPosition +
+        //    " Collision Count: " + WallCollisionPoints.Count +
+        //    " Remaining Distance: " + remainingDistance);
         for (int l = 0; l < collisionPoints.Count; l++)
         {
             nonTranslatedPoint = collisionPoints[l];
@@ -281,13 +283,16 @@ public class Player : MonoBehaviour {
                         translatedPoint.y,
                         translatedPoint.z + newDirection.z);
 
-                    UpdateWallCollisions(
-                        translatedPoint,
-                        newDirection,
-                        partDistance,
-                        enterPartition,
-                        false);
-                    break;
+                    if (originalPosition != translatedPoint)//for corner reflections
+                    {
+                        UpdateWallCollisions(
+                            translatedPoint,
+                            newDirection,
+                            partDistance,
+                            enterPartition,
+                            false);
+                        break;
+                    }
                 }
             }
         }

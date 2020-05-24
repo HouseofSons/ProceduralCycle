@@ -1,5 +1,4 @@
-﻿//IMPORTANT: Script is set in the Execution Order to run last
-using UnityEngine;
+﻿using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
