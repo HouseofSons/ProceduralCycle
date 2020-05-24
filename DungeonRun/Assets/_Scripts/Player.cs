@@ -261,7 +261,7 @@ public class Player : MonoBehaviour {
         //orders list of positions by distance from player
         collisionPoints.Sort((v1, v2) => (v1 - originalPosition).sqrMagnitude.CompareTo((v2 - originalPosition).sqrMagnitude));
 
-        for (int l = firstCall ? 0 : 1; l < collisionPoints.Count; l++)
+        for (int l = 0; l < collisionPoints.Count; l++)
         {
             nonTranslatedPoint = collisionPoints[l];
             translatedPoint = TranslateCollision(collisionPoints[l], currentPartition);
@@ -272,27 +272,15 @@ public class Player : MonoBehaviour {
                 if(WallCollisionPoints.Count > 1)
                 {
                     newDirection = Vector3.Normalize(translatedPoint - WallCollisionPoints[WallCollisionPoints.Count - 2]);
-
-                    newDirection = new Vector3(translatedPoint.x + newDirection.x,
-                        translatedPoint.y,
-                        translatedPoint.z + newDirection.z);
-
-                    Debug.Log(" Direction Point: " + newDirection +
-                        " collision translated point: " + translatedPoint +
-                        " previous collision translated point: " + WallCollisionPoints[WallCollisionPoints.Count - 2]);
                 } else
                 {
                     newDirection = Vector3.Normalize(translatedPoint - originalPosition);
-
-                    newDirection = new Vector3(translatedPoint.x + newDirection.x,
-                        translatedPoint.y,
-                        translatedPoint.z + newDirection.z);
-
-                    Debug.Log(" Direction Point: " + newDirection +
-                        " collision translated point: " + translatedPoint +
-                        " previous collision translated point: " + WallCollisionPoints[WallCollisionPoints.Count - 2]);
                 }
-                
+
+                newDirection = new Vector3(translatedPoint.x + newDirection.x,
+                    translatedPoint.y,
+                    translatedPoint.z + newDirection.z);
+
                 UpdateWallCollisions(
                     translatedPoint,
                     newDirection,
