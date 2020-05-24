@@ -53,8 +53,8 @@ public class Player : MonoBehaviour {
         
         if (GameManager.AimArrowState)
         {
-            if (Input.GetMouseButtonDown(0))
-            {
+            //if (Input.GetMouseButtonDown(0))
+            //{
                 if (!UpdatingWallCollisions) {
                     UpdatingWallCollisions = true;
                     WallCollisionPoints.Clear();
@@ -71,7 +71,7 @@ public class Player : MonoBehaviour {
                     GameManager.PathLine().enabled = true;
                     GameManager.PathChosenLine().enabled = false;
                 }
-            }
+            //}
             
             if (Input.GetMouseButtonUp(0)) {
                 if (!EventSystem.current.IsPointerOverGameObject()) {
