@@ -38,10 +38,13 @@ public class Player : MonoBehaviour {
 	void Start () {
         WallCollisionPoints = new List<Vector3>();
         UI.InitializeUIWithPlayerInfo ();
-	}
+        PathPoints = new List<Vector3>();
+
+    }
 
 	void Update () {
-		if (GameManager.MoveToSpawnState) {
+
+        if (GameManager.MoveToSpawnState) {
             GameManager.PathLine().enabled = false;
             GameManager.PathChosenLine().enabled = false;
 			if (moveToSpawnCoRoutine != null) {
@@ -77,7 +80,7 @@ public class Player : MonoBehaviour {
                     GameManager.PathLine().enabled = false;
                     GameManager.PathChosenLine().enabled = true;
                     playerMovingDirection = GameManager.AimArrow().transform.up;
-                    PathPoints = WallCollisionPoints;
+                    PathPoints = new List<Vector3>(WallCollisionPoints);
                     if (PlayerFollowPathCoRoutine != null)
                     {
                         StopCoroutine(PlayerFollowPathCoRoutine);
@@ -132,15 +135,15 @@ public class Player : MonoBehaviour {
 		UI.UpdateEnergyText(Mathf.FloorToInt(Energy));
 	}
 	//Moves Player across Level
-	private IEnumerator PlayerFollowPath() {
-
+	private IEnumerator PlayerFollowPath()
+    {
         int index = 0;
         Vector3 prevPosition = transform.position;
         Vector3 nextPosition = PathPoints[index];
         Vector3 lastOccupiedPosition = transform.position;
 
-        while (PlayerPathDistance < PlayerPathDistanceMax) {
-
+        while (PlayerPathDistance < PlayerPathDistanceMax)
+        {
 			while (GameManager.IsPaused) { //for game pause
 				yield return null;
 			}
@@ -255,10 +258,7 @@ public class Player : MonoBehaviour {
         }
         //orders list of positions by distance from player
         collisionPoints.Sort((v1, v2) => (v1 - originalPosition).sqrMagnitude.CompareTo((v2 - originalPosition).sqrMagnitude));
-        //Debug.Log(" Current Partition: " + currentPartition +
-        //    " Original Position: " + originalPosition +
-        //    " Collision Count: " + WallCollisionPoints.Count +
-        //    " Remaining Distance: " + remainingDistance);
+
         for (int l = 0; l < collisionPoints.Count; l++)
         {
             nonTranslatedPoint = collisionPoints[l];
