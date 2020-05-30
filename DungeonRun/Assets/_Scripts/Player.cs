@@ -80,7 +80,7 @@ public class Player : MonoBehaviour {
                     GameManager.PathLine().enabled = false;
                     GameManager.PathChosenLine().enabled = true;
                     playerMovingDirection = GameManager.AimArrow().transform.up;
-                    PathPoints = new List<Vector3>(WallCollisionPoints);
+                    PathPoints = new List<Vector3>(WallCollisionPoints); //needed for separate list
                     if (PlayerFollowPathCoRoutine != null)
                     {
                         StopCoroutine(PlayerFollowPathCoRoutine);
@@ -409,20 +409,20 @@ public class Player : MonoBehaviour {
     //Plots path following arrow
     private void UpdateGuidePath() {
         if (WallCollisionPoints.Count > 1) {
-            GameManager.PathLine().positionCount = WallCollisionPoints.Count - 1;
+            GameManager.PathLine().positionCount = WallCollisionPoints.Count;
             GameManager.PathLine().SetPosition(0, transform.position);
             for (int i = 1; i < GameManager.PathLine().positionCount; i++) {
-                GameManager.PathLine().SetPosition(i, WallCollisionPoints[i - 1]);
+                GameManager.PathLine().SetPosition(i, WallCollisionPoints[i-1]);
             }
         }
     }
     //Plots chosen
     private void UpdateChosenPath() {
         if (PathPoints.Count > 1) {
-            GameManager.PathChosenLine().positionCount = PathPoints.Count - 1;
+            GameManager.PathChosenLine().positionCount = PathPoints.Count;
             GameManager.PathChosenLine().SetPosition(0, transform.position);
             for (int i = 1; i < GameManager.PathChosenLine().positionCount; i++) {
-                GameManager.PathChosenLine().SetPosition(i, PathPoints[i - 1]);
+                GameManager.PathChosenLine().SetPosition(i, PathPoints[i-1]);
             }
         }
     }
