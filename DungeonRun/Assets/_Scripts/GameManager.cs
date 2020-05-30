@@ -151,7 +151,7 @@ public class GameManager : MonoBehaviour
                 door.Destination(currentPlayer.transform.position);
         currentPlayer.GetComponent<Player>().OccupiedPartition =
             currentPlayer.GetComponent<Player>().LatestSpawn.SpawnPartition.GetComponent<Partition>();
-        Player.LevelStatsReset(100);
+        Player.LevelStatsReset(200);
 		EnterDoor = true;
 	}
 
