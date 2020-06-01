@@ -18,8 +18,6 @@ public class Player : MonoBehaviour {
 	private static Vector3 playerMovingDirection;
     //Disables Collisions when traveling between levels
 	private static bool disablePlayerCollisions;
-    //Identifies if WallCollision method is done
-    private static bool UpdatingWallCollisions;
 
     //Wall points calculated by Players chosen path
     public static List<Vector3> PathPoints;
@@ -30,7 +28,6 @@ public class Player : MonoBehaviour {
 		TotalExperiencePoints = 0;
 		playerMovingDirection = Vector3.zero;
 		disablePlayerCollisions = false;
-        UpdatingWallCollisions = false;
     }
 
 	void Start () {
@@ -53,8 +50,8 @@ public class Player : MonoBehaviour {
         {
             if (Input.GetMouseButton(0))
             {
-                if (!UpdatingWallCollisions && Time.frameCount % 5 == 0) {
-                    UpdatingWallCollisions = true;
+                if (!CollisionPath.UpdatingWallCollisions /*&& Time.frameCount % 5 == 0*/) {
+                    CollisionPath.UpdatingWallCollisions = true;
                     CollisionPath.ClearCollisions();
                     UpdateWallCollisions(
                         transform.position,
@@ -63,7 +60,7 @@ public class Player : MonoBehaviour {
                             transform.position.y,
                             GameManager.AimArrow().transform.up.z + transform.position.z),
                         PlayerPathDistanceMax - PlayerPathDistance,
-                        OccupiedPartition,
+                        Physics.RaycastAll(this.transform.position, Vector3.down, 1)[0].transform.GetComponent<Partition>(),
                         0);
                     GameManager.PathLine().enabled = true;
                     GameManager.PathChosenLine().enabled = false;
@@ -279,7 +276,7 @@ public class Player : MonoBehaviour {
         {
             nonTranslatedPoint = collisionPoints[l];
             translatedPoint = TranslateCollision(collisionPoints[l], currentPartition);
-            CollisionPath.AddCollision(translatedPoint, currentPartition);
+            CollisionPath.Collisions.Add(translatedPoint);
             partDistance = remainingDistance - Mathf.Abs(Vector3.Distance(nonTranslatedPoint, originalPosition));//expensive
 
             if (partDistance > 0)
@@ -301,7 +298,6 @@ public class Player : MonoBehaviour {
 
                     //if (originalPosition != translatedPoint)//hax to fix corner collision
                     //{
-                    CollisionPath.UpdateCollisionPartition(CollisionPath.Collisions.Count - 1, enterPartition);
                     UpdateWallCollisions(
                             translatedPoint,
                             newDirection,
@@ -315,13 +311,13 @@ public class Player : MonoBehaviour {
         }
         if (!CollisionPath.FinalDestinationFound)
         {
-            CollisionPath.AddCollision(TranslateCollision(finalPosition, currentPartition), currentPartition);
+            CollisionPath.Collisions.Add(TranslateCollision(finalPosition, currentPartition));
             CollisionPath.FinalDestinationFound = true;
         }
         if (iteration == 0)//end of recursive function
         {
             UpdateGuidePath();
-            UpdatingWallCollisions = false;
+            CollisionPath.UpdatingWallCollisions = false;
         }
     }
     //Translates Collision point inside a Partition
@@ -453,28 +449,16 @@ public class CollisionPath
 {
     //Contains list of collision points
     public static List<Vector3> Collisions = new List<Vector3>();
-    //Contains Partition of collision point
-    public static List<Partition> Partitions = new List<Partition>();
     //Final position of Character Path
     public static Vector3 FinalDestination = Vector3.zero;
     //Final position of Character Path found
     public static bool FinalDestinationFound = false;
-
-    public static void AddCollision(Vector3 loc, Partition p)
-    {
-        Collisions.Add(loc);
-        Partitions.Add(p);
-    }
+    //Identifies if WallCollision method is done
+    public static bool UpdatingWallCollisions = false;
 
     public static void ClearCollisions()
     {
         Collisions.Clear();
-        Partitions.Clear();
         FinalDestinationFound = false;
-    }
-
-    public static void UpdateCollisionPartition(int index, Partition p)
-    {
-        Partitions.Insert(index, p);
     }
 }
