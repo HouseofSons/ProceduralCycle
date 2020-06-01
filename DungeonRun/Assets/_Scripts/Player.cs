@@ -197,13 +197,11 @@ public class Player : MonoBehaviour {
         List<Vector3> collisionPoints = new List<Vector3>();
         
         Vector3 originalPosition = pos;
-        Vector3 originalDirection = dir; //Magnitude of 1
-        float remainingDistance = firstCall ? dist * 1.2f : dist; //corrects path lengths shorter than energy
+        Vector3 originalDirection = dir;
+        float remainingDistance = dist;
         float partDistance;
 
-        Vector3 finalPosition = new Vector3(originalPosition.x + (dir.x - pos.x) * remainingDistance,
-            originalPosition.y,
-            originalPosition.z + (dir.z - pos.z) * remainingDistance);
+        Vector3 finalPosition = new Vector3(pos.x + ((dir.x - pos.x) * dist),pos.y,pos.z + ((dir.z - pos.z) * dist));
 
         Vector3 nonTranslatedPoint;
         Vector3 translatedPoint;
@@ -217,6 +215,7 @@ public class Player : MonoBehaviour {
         float slope = System.Math.Abs(run) < Mathf.Epsilon ? 0 : rise / run;
 
         int x, z, i, j;
+        float xmin, xmax, zmin, zmax;
         
         if (rise > 0)
         {
@@ -224,12 +223,22 @@ public class Player : MonoBehaviour {
                 x = currentPartition.Width;
                 z = currentPartition.Depth;
                 i = Mathf.RoundToInt(currentPartition.Width / 2.0f) + Mathf.RoundToInt(currentPartition.Origin.x);
-                j = Mathf.RoundToInt(currentPartition.Depth / 2.0f) + Mathf.RoundToInt(currentPartition.Origin.z); }
+                j = Mathf.RoundToInt(currentPartition.Depth / 2.0f) + Mathf.RoundToInt(currentPartition.Origin.z);
+                xmin = originalPosition.x;
+                xmax = finalPosition.x;
+                zmin = originalPosition.z;
+                zmax = finalPosition.z;
+            }
             else {
                 x = -currentPartition.Width;
                 z = currentPartition.Depth;
                 i = -Mathf.RoundToInt(currentPartition.Width / 2.0f) + Mathf.RoundToInt(currentPartition.Origin.x);
-                j = Mathf.RoundToInt(currentPartition.Depth / 2.0f) + Mathf.RoundToInt(currentPartition.Origin.z); }
+                j = Mathf.RoundToInt(currentPartition.Depth / 2.0f) + Mathf.RoundToInt(currentPartition.Origin.z);
+                xmin = finalPosition.x;
+                xmax = originalPosition.x;
+                zmin = originalPosition.z;
+                zmax = finalPosition.z;
+            }
         }
         else
         {
@@ -237,35 +246,54 @@ public class Player : MonoBehaviour {
                 x = currentPartition.Width;
                 z = -currentPartition.Depth;
                 i = Mathf.RoundToInt(currentPartition.Width / 2.0f) + Mathf.RoundToInt(currentPartition.Origin.x);
-                j = -Mathf.RoundToInt(currentPartition.Depth / 2.0f) + Mathf.RoundToInt(currentPartition.Origin.z); }
+                j = -Mathf.RoundToInt(currentPartition.Depth / 2.0f) + Mathf.RoundToInt(currentPartition.Origin.z);
+                xmin = originalPosition.x;
+                xmax = finalPosition.x;
+                zmin = finalPosition.z;
+                zmax = originalPosition.z;
+            }
             else {
                 x = -currentPartition.Width;
                 z = -currentPartition.Depth;
                 i = -Mathf.RoundToInt(currentPartition.Width / 2.0f) + Mathf.RoundToInt(currentPartition.Origin.x);
-                j = -Mathf.RoundToInt(currentPartition.Depth / 2.0f) + Mathf.RoundToInt(currentPartition.Origin.z); }
+                j = -Mathf.RoundToInt(currentPartition.Depth / 2.0f) + Mathf.RoundToInt(currentPartition.Origin.z);
+                xmin = finalPosition.x;
+                xmax = originalPosition.x;
+                zmin = finalPosition.z;
+                zmax = originalPosition.z;
+            }
         }
         
         if (System.Math.Abs(rise) > Mathf.Epsilon && System.Math.Abs(run) > Mathf.Epsilon)//flat slopes
-        {
-            for (int k = i; Mathf.Abs(k) <= Mathf.Abs(finalPosition.x - pos.x); k += x)
+        {   
+            for (int k = i; xmin <= k && k <= xmax; k += x)
             {
                 collisionPoints.Add(new Vector3(k, originalPosition.y, slope * k + c));
             }
-            for (int k = j; Mathf.Abs(k) <= Mathf.Abs(finalPosition.z - pos.z); k += z)
+            for (int k = j; zmin <= k && k <= zmax; k += z)
             {
                 collisionPoints.Add(new Vector3((k - c) / slope, originalPosition.y, k));
             }
         }
         //orders list of positions by distance from player
         collisionPoints.Sort((v1, v2) => (v1 - originalPosition).sqrMagnitude.CompareTo((v2 - originalPosition).sqrMagnitude));
-
+        //foreach (Vector3 v in collisionPoints)
+        //{
+        //    Debug.Log("raw point: " + v +
+        //        "Distance from Origin " + (v - originalPosition).sqrMagnitude);
+        //}
         for (int l = 0; l < collisionPoints.Count; l++)
         {
             nonTranslatedPoint = collisionPoints[l];
             translatedPoint = TranslateCollision(collisionPoints[l], currentPartition);
             WallCollisionPoints.Add(translatedPoint);
             partDistance = remainingDistance - Mathf.Abs(Vector3.Distance(nonTranslatedPoint, originalPosition));//expensive
-
+            //Debug.Log("Distance: " + partDistance +
+            //    " Original Position: " + originalPosition +
+            //    " Final Position: " + finalPosition +
+            //    " Non Translated Point: " + nonTranslatedPoint +
+            //    " Translated Point: " + translatedPoint +
+            //    " Distance from Origin: " + (nonTranslatedPoint - originalPosition).sqrMagnitude);
             if (partDistance > 0)
             {
                 if (currentPartition.GetConnection(translatedPoint, out Partition enterPartition))
@@ -283,22 +311,30 @@ public class Player : MonoBehaviour {
                         translatedPoint.y,
                         translatedPoint.z + newDirection.z);
 
-                    if (originalPosition != translatedPoint)//for corner reflections
-                    {
-                        UpdateWallCollisions(
+                    //Debug.Log("-----Recursive Call-----");
+
+                    //if (originalPosition != translatedPoint)//hax to fix corner collision
+                    //{
+                    UpdateWallCollisions(
                             translatedPoint,
                             newDirection,
                             partDistance,
                             enterPartition,
                             false);
                         break;
-                    }
+                    //}
                 }
+                Debug.Log(0);
             }
         }
         if (firstCall)//end of recursive function
         {
             UpdateGuidePath();
+            //Debug.Log("start");
+            //foreach (Vector3 v in WallCollisionPoints)
+            //{
+            //    Debug.Log(v);
+            //}
             UpdatingWallCollisions = false;
         }
     }
@@ -411,8 +447,8 @@ public class Player : MonoBehaviour {
         if (WallCollisionPoints.Count > 1) {
             GameManager.PathLine().positionCount = WallCollisionPoints.Count;
             GameManager.PathLine().SetPosition(0, transform.position);
-            for (int i = 1; i < GameManager.PathLine().positionCount; i++) {
-                GameManager.PathLine().SetPosition(i, WallCollisionPoints[i-1]);
+            for (int i = 0; i < GameManager.PathLine().positionCount; i++) {
+                GameManager.PathLine().SetPosition(i, WallCollisionPoints[i]);
             }
         }
     }
@@ -421,8 +457,8 @@ public class Player : MonoBehaviour {
         if (PathPoints.Count > 1) {
             GameManager.PathChosenLine().positionCount = PathPoints.Count;
             GameManager.PathChosenLine().SetPosition(0, transform.position);
-            for (int i = 1; i < GameManager.PathChosenLine().positionCount; i++) {
-                GameManager.PathChosenLine().SetPosition(i, PathPoints[i-1]);
+            for (int i = 0; i < GameManager.PathChosenLine().positionCount; i++) {
+                GameManager.PathChosenLine().SetPosition(i, PathPoints[i]);
             }
         }
     }
