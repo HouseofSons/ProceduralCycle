@@ -19,8 +19,6 @@ public class GameManager : MonoBehaviour
     private static GameObject aimArrow;
     //used to attach visual line from player when aiming
     private static LineRenderer pathLine;
-    //used to attach visual line from player after path is chosen
-    private static LineRenderer pathChosenLine;
 
     void Start () {
         gameManager = this.gameObject;
@@ -51,14 +49,6 @@ public class GameManager : MonoBehaviour
         pathLine.numCornerVertices = 90;
         pathLine.widthMultiplier = 0.06f;
         pathLine.enabled = false;
-		
-		pathChosenLine = (Instantiate(Resources.Load("Line")) as GameObject).GetComponent<LineRenderer>();
-        pathChosenLine.material = new Material(Shader.Find("Sprites/Default"));
-        pathChosenLine.positionCount = 4;
-        pathChosenLine.numCapVertices = 90;
-        pathChosenLine.numCornerVertices = 90;
-        pathChosenLine.widthMultiplier = 0.06f;
-        pathChosenLine.enabled = false;
     }
 
     void Update() {
@@ -80,7 +70,6 @@ public class GameManager : MonoBehaviour
 		if (StageNumber == 2 && PlayerMovingState) {
 			//Player has been released from original level spawn
 			EnableEnemyMovement = true;
-            pathChosenLine.enabled = true;
 			StageNumber = 3;
 		}
 		if (StageNumber == 3 && EnterDoor) {
@@ -129,11 +118,6 @@ public class GameManager : MonoBehaviour
     public static LineRenderer PathLine()
     {
         return pathLine;
-    }
-
-    public static LineRenderer PathChosenLine()
-    {
-        return pathChosenLine;
     }
 
     private static void InitializePlayerInLevel(string player,string level)
