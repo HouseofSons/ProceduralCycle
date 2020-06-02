@@ -8,9 +8,6 @@ public class Player : MonoBehaviour {
 	//used to determine current spawn location
 	private Spawn latestSpawn;
 
-    //Partition Player is Occupying
-    public Partition OccupiedPartition { get; set; }
-
     //CoRoutine which moves player to spawn
     private static Coroutine moveToSpawnCoRoutine;
 
@@ -36,7 +33,6 @@ public class Player : MonoBehaviour {
     }
 
 	void Update () {
-
         if (GameManager.MoveToSpawnState) {
             GameManager.PathLine().enabled = false;
             GameManager.PathChosenLine().enabled = false;
@@ -128,8 +124,7 @@ public class Player : MonoBehaviour {
 		UI.UpdateEnergyText(Mathf.FloorToInt(Energy));
 	}
 	//Moves Player across Level
-	private IEnumerator PlayerFollowPath()
-    {
+	private IEnumerator PlayerFollowPath() {
         int index = 0;
         Vector3 prevPosition = transform.position;
         Vector3 nextPosition = PathPoints[index];

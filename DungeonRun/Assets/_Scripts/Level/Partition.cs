@@ -46,7 +46,7 @@ public class Partition : MonoBehaviour
         {
             if (c.IsVertical)
             {
-                if (Mathf.RoundToInt(position.x) == c.NeighborEdge)
+                if (position.x == c.NeighborEdge)
                 {
                     if (position.z <= c.MaxRange && position.z >= c.MinRange)
                     {
@@ -57,7 +57,7 @@ public class Partition : MonoBehaviour
             }
             else
             {
-                if (Mathf.RoundToInt(position.z) == c.NeighborEdge)
+                if (position.z == c.NeighborEdge)
                 {
                     if (position.x <= c.MaxRange && position.x >= c.MinRange)
                     {

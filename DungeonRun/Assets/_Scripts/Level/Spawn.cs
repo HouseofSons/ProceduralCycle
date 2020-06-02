@@ -1,13 +1,17 @@
-﻿//This script is attached to a Spawn Game Object
-//On Start up will identify the Partition Game Object associated with it's location
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Spawn : MonoBehaviour
 {
-    //This is currently manually assigned
-    public GameObject SpawnPartition;//will not be needed with Procedural generation
+    // Start is called before the first frame update
+    void Start()
+    {
+        
+    }
 
-    private void Start()
+    // Update is called once per frame
+    void Update()
     {
         
     }
