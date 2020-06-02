@@ -46,7 +46,7 @@ public class Player : MonoBehaviour {
         {
             if (Input.GetMouseButton(0))
             {
-                if (!CollisionPath.UpdatingWallCollisions /*&& Time.frameCount % 5 == 0*/) {
+                if (!CollisionPath.UpdatingWallCollisions) {
                     CollisionPath.UpdatingWallCollisions = true;
                     CollisionPath.ClearCollisions();
                     UpdateWallCollisions(
