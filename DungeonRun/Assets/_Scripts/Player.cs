@@ -20,7 +20,7 @@ public class Player : MonoBehaviour {
     public static List<Vector3> PathPoints;
 
     void Awake () {
-		PlayerPathDistanceMax = 200;
+		PlayerPathDistanceMax = GameManager.Energy;
 		PlayerPathDistance = 0;
 		TotalExperiencePoints = 0;
 		playerMovingDirection = Vector3.zero;
@@ -45,6 +45,7 @@ public class Player : MonoBehaviour {
         {
             if (Input.GetMouseButton(0))
             {
+                MainCamera.Zoom(true);
                 if (!CollisionPath.UpdatingWallCollisions) {
                     CollisionPath.UpdatingWallCollisions = true;
                     CollisionPath.ClearCollisions();
@@ -61,8 +62,11 @@ public class Player : MonoBehaviour {
                 }
             }
 
-            if (Input.GetMouseButtonUp(0)) {
+            if (Input.GetMouseButtonUp(0))
+            {
+                GameManager.UpdatePlayerSpeed(1.0f);
                 if (!EventSystem.current.IsPointerOverGameObject()) {
+                    MainCamera.Zoom(false);
                     GameManager.PlayerMovingState = true;
                     GameManager.PathLine().enabled = false;
                     playerMovingDirection = GameManager.AimArrow().transform.up;

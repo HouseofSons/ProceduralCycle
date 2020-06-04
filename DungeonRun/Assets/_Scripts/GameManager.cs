@@ -7,7 +7,10 @@ public class GameManager : MonoBehaviour
 	public string levelName;
 
 	//used to determine speed of player
-	public float speedInput;
+	public float speedInputDefault;
+
+    //used to determine speed of player
+    public float energyDefault;
 
     //used to establish current player level and spawn
     private static GameObject currentPlayer;
@@ -34,7 +37,8 @@ public class GameManager : MonoBehaviour
 		EnterDoor = false;
         MoveCamera = false;
 
-        Speed = speedInput;
+        Speed = speedInputDefault;
+        Energy = energyDefault;
 
 		InitializePlayerInLevel(playerName,levelName);
         InitializeCameraInLevel();
@@ -55,6 +59,10 @@ public class GameManager : MonoBehaviour
 
         if (!IsPaused) {
 			currentPlayer.transform.LookAt(MouseLocation ());
+            if(Speed - speedInputDefault > 0.1f)
+            {
+                Speed = Mathf.SmoothStep(Speed, speedInputDefault, 0.05f);
+            }
 		}
 
 		if (StageNumber == 0) {
@@ -98,6 +106,7 @@ public class GameManager : MonoBehaviour
     public static bool EnterDoor { get; set; }
     public static bool MoveCamera { get; set; }
     public static float Speed { get; set; }
+    public static float Energy { get; set; }
 
     public static Level GetCurrentLevel() {
 		return currentLevel.GetComponent<Level>();
@@ -128,10 +137,15 @@ public class GameManager : MonoBehaviour
             currentLevel.transform.Find("InitialSpawn").GetComponent<Spawn>();
     }
 
+    public static void UpdatePlayerSpeed(float newSpeed)
+    {
+        Speed = newSpeed;
+    }
+
 	public static void DoorHit(Door door) {
         currentPlayer.GetComponent<Player>().LatestSpawn =
                 door.Destination(currentPlayer.transform.position);
-        Player.LevelStatsReset(200);
+        Player.LevelStatsReset(Energy);
 		EnterDoor = true;
 	}
 
