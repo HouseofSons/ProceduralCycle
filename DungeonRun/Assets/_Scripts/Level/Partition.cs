@@ -25,11 +25,11 @@ public class Partition : MonoBehaviour
     void Awake()
     {
         Origin = new Vector3Int(
-            Mathf.RoundToInt(this.transform.position.x),
-            Mathf.RoundToInt(this.transform.position.y),
-            Mathf.RoundToInt(this.transform.position.z));
-        Width = Mathf.RoundToInt(this.transform.lossyScale.x * 10);
-        Depth = Mathf.RoundToInt(this.transform.lossyScale.z * 10);
+            Mathf.RoundToInt(this.transform.GetChild(0).position.x),
+            Mathf.RoundToInt(this.transform.GetChild(0).position.y),
+            Mathf.RoundToInt(this.transform.GetChild(0).position.z));
+        Width = Mathf.RoundToInt(this.transform.GetChild(0).lossyScale.x * 10);
+        Depth = Mathf.RoundToInt(this.transform.GetChild(0).lossyScale.z * 10);
 
         Nedge = Mathf.RoundToInt(Origin.z + (Depth / 2));
         Eedge = Mathf.RoundToInt(Origin.x + (Width / 2));

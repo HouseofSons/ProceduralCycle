@@ -55,7 +55,7 @@ public class Player : MonoBehaviour {
                             transform.position.y,
                             GameManager.AimArrow().transform.up.z + transform.position.z),
                         PlayerPathDistanceMax - PlayerPathDistance,
-                        Physics.RaycastAll(this.transform.position, Vector3.down, 1)[0].transform.GetComponent<Partition>(),
+                        Physics.RaycastAll(this.transform.position, Vector3.down, 1)[0].transform.parent.GetComponent<Partition>(),
                         0);
                     GameManager.PathLine().enabled = true;
                 }
