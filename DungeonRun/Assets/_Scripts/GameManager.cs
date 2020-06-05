@@ -59,9 +59,9 @@ public class GameManager : MonoBehaviour
 
         if (!IsPaused) {
 			currentPlayer.transform.LookAt(MouseLocation ());
-            if(Speed - speedInputDefault > 0.1f)
+            if(Speed > speedInputDefault)
             {
-                Speed = Mathf.SmoothStep(Speed, speedInputDefault, 0.05f);
+                Speed = Mathf.SmoothStep(Speed, speedInputDefault,Time.deltaTime * 8);
             }
 		}
 
@@ -152,7 +152,6 @@ public class GameManager : MonoBehaviour
 	private void InitializeCameraInLevel()
 	{
         gameCamera.transform.position = new Vector3(0, 20, 0);
-        gameCamera.transform.parent = currentLevel.transform;
 	}
 
 	public static Vector3 MouseLocation () {

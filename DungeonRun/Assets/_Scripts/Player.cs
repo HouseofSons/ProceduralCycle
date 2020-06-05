@@ -45,7 +45,11 @@ public class Player : MonoBehaviour {
         {
             if (Input.GetMouseButton(0))
             {
-                MainCamera.Zoom(true);
+                GameManager.UpdatePlayerSpeed(0.6f);
+                if (PlayerFollowPathCoRoutine != null)
+                {
+                    StopCoroutine(PlayerFollowPathCoRoutine);
+                }
                 if (!CollisionPath.UpdatingWallCollisions) {
                     CollisionPath.UpdatingWallCollisions = true;
                     CollisionPath.ClearCollisions();
@@ -58,15 +62,12 @@ public class Player : MonoBehaviour {
                         PlayerPathDistanceMax - PlayerPathDistance,
                         Physics.RaycastAll(this.transform.position, Vector3.down, 1)[0].transform.parent.GetComponent<Partition>(),
                         0);
-                    GameManager.PathLine().enabled = true;
                 }
             }
 
             if (Input.GetMouseButtonUp(0))
             {
-                GameManager.UpdatePlayerSpeed(1.0f);
                 if (!EventSystem.current.IsPointerOverGameObject()) {
-                    MainCamera.Zoom(false);
                     GameManager.PlayerMovingState = true;
                     GameManager.PathLine().enabled = false;
                     playerMovingDirection = GameManager.AimArrow().transform.up;
