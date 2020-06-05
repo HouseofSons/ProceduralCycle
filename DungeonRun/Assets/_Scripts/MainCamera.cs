@@ -20,10 +20,10 @@ public class MainCamera : MonoBehaviour
     {
         Vector3 toPos = GameManager.GetCurrentPlayer().transform.position;
         Vector3 currPos = this.transform.position;
-        float toFOV = Mathf.Clamp(GameManager.Speed * 200.0f,45,100);
+        float toSize = Mathf.Clamp(GameManager.Speed * 50f,10,35);
         this.transform.position =
-            Vector3.Lerp(currPos,new Vector3(toPos.x, currPos.y, toPos.z), Time.deltaTime * 1f);
+            Vector3.Lerp(currPos,new Vector3(toPos.x, currPos.y, toPos.z), Time.deltaTime * 2f);
 
-        this.GetComponent<Camera>().fieldOfView = Mathf.SmoothStep(this.GetComponent<Camera>().fieldOfView,toFOV,0.1f);
+        this.GetComponent<Camera>().orthographicSize = Mathf.SmoothStep(this.GetComponent<Camera>().orthographicSize, toSize, 0.1f);
     }
 }
