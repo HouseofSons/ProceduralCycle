@@ -4,15 +4,10 @@ using UnityEngine;
 
 public class Spawn : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public GameObject Room;
 
-    // Update is called once per frame
-    void Update()
+    public Room GetRoom()
     {
-        
+        return Room.GetComponent<Room>();
     }
 }

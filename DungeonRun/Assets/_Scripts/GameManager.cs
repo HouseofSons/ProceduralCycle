@@ -132,13 +132,17 @@ public class GameManager : MonoBehaviour
         currentLevel = Instantiate(Resources.Load(level)) as GameObject;
         currentPlayer.GetComponent<Player>().LatestSpawn =
             currentLevel.transform.Find("InitialSpawn").GetComponent<Spawn>();
+        currentPlayer.GetComponent<Player>().CurrentRoom =
+            currentLevel.transform.Find("Room").GetComponent<Room>();
     }
 
 	public static void DoorHit(Door door) {
         currentPlayer.GetComponent<Player>().LatestSpawn =
                 door.Destination(currentPlayer.transform.position);
         Player.LevelStatsReset(Energy);
-		EnterDoor = true;
+        currentPlayer.GetComponent<Player>().CurrentRoom =
+            door.Destination(currentPlayer.transform.position).GetRoom();
+        EnterDoor = true;
 	}
 
 	private void InitializeCameraInLevel()

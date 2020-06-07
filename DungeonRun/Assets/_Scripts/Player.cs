@@ -15,7 +15,8 @@ public class Player : MonoBehaviour {
 	private static Vector3 playerMovingDirection;
     //Disables Collisions when traveling between levels
 	private static bool disablePlayerCollisions;
-
+    //Current Room occupied by Player
+    private static Room currentRoom;
     //Wall points calculated by Players chosen path
     public static List<Vector3> PathPoints;
 
@@ -149,8 +150,13 @@ public class Player : MonoBehaviour {
 		get {return latestSpawn; }
 		set { latestSpawn = value;}
 	}
-	//Resets Path lengths for Player
-	public static void LevelStatsReset(float distanceMax) {
+    //Determines where player will spawn
+    public Room CurrentRoom {
+        get { return currentRoom; }
+        set { currentRoom = value; }
+    }
+    //Resets Path lengths for Player
+    public static void LevelStatsReset(float distanceMax) {
 		PlayerPathDistanceMax = distanceMax;
 		PlayerPathDistance = 0;
 		UI.UpdateEnergyText(Mathf.FloorToInt(Energy));

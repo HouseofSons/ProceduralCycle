@@ -18,8 +18,9 @@ public class MainCamera : MonoBehaviour
 
     private void SmoothFollow()
     {
-        Vector3 toPos = GameManager.GetCurrentPlayer().transform.position;
         Vector3 currPos = this.transform.position;
+        Vector3 toPos = GameManager.GetCurrentPlayer().transform.position;
+
         this.transform.position =
             Vector3.Lerp(currPos,new Vector3(toPos.x, currPos.y, toPos.z), Time.deltaTime * 2.0f);
 
