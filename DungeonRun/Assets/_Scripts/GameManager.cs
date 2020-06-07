@@ -6,21 +6,24 @@ public class GameManager : MonoBehaviour
     public string playerName;
 	public string levelName;
 
-	//used to determine speed of player
-	public float speedInputDefault;
-
+	//used to determine minimum speed of player
+	public float speedInputMinimum;
+    //used to determine maximun speed of player
+    public float speedInputMaximum;
     //used to determine speed of player
     public float energyDefault;
+    //used to determine minimum Camera size
+    public float cameraSizeMinimum;
+    //used to determine maximum Camera size
+    public float cameraSizeMaximum;
 
-    //used to establish current player level and spawn
+    //used to establish current player level
     private static GameObject currentPlayer;
 	private static GameObject currentLevel;
 	private static GameObject gameCamera;
 	private static GameObject gameManager;
 
-    //used to attach visual arrow over player when aiming
-    private static GameObject aimArrow;
-    //used to attach visual line from player when aiming
+    //used to attach visual line from player when aiming for Debugging
     private static LineRenderer pathLine;
 
     void Start () {
@@ -31,20 +34,20 @@ public class GameManager : MonoBehaviour
 		IsPaused = false;
 
 		MoveToSpawnState = false;
-		AimArrowState = false;
         PlayerMovingState = false;
 		EnableEnemyMovement = false;
 		EnterDoor = false;
         MoveCamera = false;
 
-        Speed = speedInputDefault;
+        SpeedMin = speedInputMinimum;
+        SpeedMax = speedInputMaximum;
         Energy = energyDefault;
 
-		InitializePlayerInLevel(playerName,levelName);
+        CameraSizeMin = cameraSizeMinimum;
+        CameraSizeMax = cameraSizeMaximum;
+
+        InitializePlayerInLevel(playerName,levelName);
         InitializeCameraInLevel();
-		
-		aimArrow = currentPlayer.transform.Find("AimArrow").gameObject;
-		aimArrow.gameObject.GetComponent<SpriteRenderer>().enabled = false;
 		
 		pathLine = (Instantiate(Resources.Load("Line")) as GameObject).GetComponent<LineRenderer>();
         pathLine.material = new Material(Shader.Find("Sprites/Default"));
@@ -58,11 +61,7 @@ public class GameManager : MonoBehaviour
     void Update() {
 
         if (!IsPaused) {
-			currentPlayer.transform.LookAt(MouseLocation ());
-            if(Speed > speedInputDefault)
-            {
-                Speed = Mathf.SmoothStep(Speed, speedInputDefault,Time.deltaTime * 8);
-            }
+            //Place Holder for paused game
 		}
 
 		if (StageNumber == 0) {
@@ -72,7 +71,7 @@ public class GameManager : MonoBehaviour
 		}
 		if (StageNumber == 1 && !MoveToSpawnState) {
             //Player is in position
-			AimArrowState = true;
+            PlayerAimingState = true;
             StageNumber = 2;
 		}
 		if (StageNumber == 2 && PlayerMovingState) {
@@ -84,14 +83,13 @@ public class GameManager : MonoBehaviour
 			//player switch level
 			EnterDoor = false;
 			MoveToSpawnState = true;
-            AimArrowState = false;
+            PlayerAimingState = false;
             PlayerMovingState = false;
             EnableEnemyMovement = false;
             MoveCamera = true;
             StageNumber = 1;
 		}
         //		moveToSpawnState
-        //		aimArrowState
         //      playerMovingState
         //		enableEnemyMovement
         //		enterDoor
@@ -100,12 +98,15 @@ public class GameManager : MonoBehaviour
     public static int StageNumber { get; private set; }
     public static bool IsPaused { get; set; }
     public static bool MoveToSpawnState { get; set; }
-    public static bool AimArrowState { get; set; }
+    public static bool PlayerAimingState { get; set; }
     public static bool PlayerMovingState { get; set; }
     public static bool EnableEnemyMovement { get; set; }
     public static bool EnterDoor { get; set; }
     public static bool MoveCamera { get; set; }
-    public static float Speed { get; set; }
+    public static float CameraSizeMin { get; set; }
+    public static float CameraSizeMax { get; set; }
+    public static float SpeedMin { get; set; }
+    public static float SpeedMax { get; set; }
     public static float Energy { get; set; }
 
     public static Level GetCurrentLevel() {
@@ -116,12 +117,8 @@ public class GameManager : MonoBehaviour
 		return currentPlayer.GetComponent<Player>();
 	}
 
-	public static GameObject GetCamera() {
+    public static GameObject GetCamera() {
 		return gameCamera;
-	}
-
-	public static GameObject AimArrow() {
-		return aimArrow;
 	}
 
     public static LineRenderer PathLine()
@@ -137,11 +134,6 @@ public class GameManager : MonoBehaviour
             currentLevel.transform.Find("InitialSpawn").GetComponent<Spawn>();
     }
 
-    public static void UpdatePlayerSpeed(float newSpeed)
-    {
-        Speed = newSpeed;
-    }
-
 	public static void DoorHit(Door door) {
         currentPlayer.GetComponent<Player>().LatestSpawn =
                 door.Destination(currentPlayer.transform.position);
@@ -153,31 +145,8 @@ public class GameManager : MonoBehaviour
 	{
         gameCamera.transform.position = new Vector3(0, 20, 0);
 	}
-
-	public static Vector3 MouseLocation () {
-
-		Plane plane=new Plane(Vector3.up, new Vector3(0,currentPlayer.transform.position.y,0));
-		Ray ray=gameCamera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
-        if (plane.Raycast(ray, out float distance))
-        {
-            return ray.GetPoint(distance);
-        }
-        else
-        {
-            return currentPlayer.transform.position;
-        }
-    }
 	//Shows Game Over Canvas
 	public static void GameOver() {
 		gameManager.GetComponent<InGameOptions> ().ShowGameOverMenu ();
 	}
 }
-
-
-
-
-
-
-
-
-

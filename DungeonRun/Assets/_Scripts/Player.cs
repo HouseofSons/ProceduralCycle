@@ -4,13 +4,13 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class Player : MonoBehaviour {
-	
-	//used to determine current spawn location
-	private Spawn latestSpawn;
 
+    //used to determine speed of Plyaer
+    public static float Speed { get; set; }
+    //used to determine current spawn location
+    private static Spawn latestSpawn;
     //CoRoutine which moves player to spawn
     private static Coroutine moveToSpawnCoRoutine;
-
 	//Direction Player is moving
 	private static Vector3 playerMovingDirection;
     //Disables Collisions when traveling between levels
@@ -30,56 +30,73 @@ public class Player : MonoBehaviour {
 	void Start () {
         UI.InitializeUIWithPlayerInfo ();
         PathPoints = new List<Vector3>();
+        Speed = GameManager.SpeedMin;
     }
 
 	void Update () {
-        if (GameManager.MoveToSpawnState) {
-            GameManager.PathLine().enabled = false;
-			if (moveToSpawnCoRoutine != null) {
-				StopCoroutine(moveToSpawnCoRoutine);
-			}
-			moveToSpawnCoRoutine = StartCoroutine (MoveToSpawn());
+
+        if (GameManager.IsPaused)
+        { //for game pause
+            
         }
-        
-        if (GameManager.AimArrowState)
+        else
         {
-            if (Input.GetMouseButton(0))
+            Speed = Mathf.SmoothStep(Speed, GameManager.SpeedMin, Time.deltaTime * 5.0f);
+            
+            if (GameManager.MoveToSpawnState)
             {
-                GameManager.UpdatePlayerSpeed(0.6f);
-                if (PlayerFollowPathCoRoutine != null)
+                Speed = GameManager.SpeedMin;
+                if (moveToSpawnCoRoutine != null)
                 {
-                    StopCoroutine(PlayerFollowPathCoRoutine);
+                    StopCoroutine(moveToSpawnCoRoutine);
                 }
-                if (!CollisionPath.UpdatingWallCollisions) {
-                    CollisionPath.UpdatingWallCollisions = true;
-                    CollisionPath.ClearCollisions();
-                    UpdateWallCollisions(
-                        transform.position,
-                        new Vector3(
-                            GameManager.AimArrow().transform.up.x + transform.position.x,
-                            transform.position.y,
-                            GameManager.AimArrow().transform.up.z + transform.position.z),
-                        PlayerPathDistanceMax - PlayerPathDistance,
-                        Physics.RaycastAll(this.transform.position, Vector3.down, 1)[0].transform.parent.GetComponent<Partition>(),
-                        0);
-                }
+                moveToSpawnCoRoutine = StartCoroutine(MoveToSpawn());
             }
 
-            if (Input.GetMouseButtonUp(0))
+            if (GameManager.PlayerAimingState)
             {
-                if (!EventSystem.current.IsPointerOverGameObject()) {
-                    GameManager.PlayerMovingState = true;
-                    GameManager.PathLine().enabled = false;
-                    playerMovingDirection = GameManager.AimArrow().transform.up;
-                    PathPoints = new List<Vector3>(CollisionPath.Collisions); //needed for separate list
+                if (Input.GetMouseButton(0))
+                {
+                    this.transform.LookAt(MouseLocation());
+                    AimArrow.EnableArrowImage(true);
+                    Speed = GameManager.SpeedMax;
                     if (PlayerFollowPathCoRoutine != null)
                     {
                         StopCoroutine(PlayerFollowPathCoRoutine);
                     }
-                    PlayerFollowPathCoRoutine = StartCoroutine (PlayerFollowPath ());
+                    if (!CollisionPath.UpdatingWallCollisions)
+                    {
+                        CollisionPath.UpdatingWallCollisions = true;
+                        CollisionPath.ClearCollisions();
+                        UpdateWallCollisions(
+                            transform.position,
+                            new Vector3(
+                                AimArrow.Arrow.transform.up.x + transform.position.x,
+                                transform.position.y,
+                                AimArrow.Arrow.transform.up.z + transform.position.z),
+                            PlayerPathDistanceMax - PlayerPathDistance,
+                            Physics.RaycastAll(this.transform.position, Vector3.down, 1)[0].transform.parent.GetComponent<Partition>(),
+                            0);
+                    }
                 }
-			}
-		}
+
+                if (Input.GetMouseButtonUp(0))
+                {
+                    AimArrow.EnableArrowImage(false);
+                    if (!EventSystem.current.IsPointerOverGameObject())
+                    {
+                        GameManager.PlayerMovingState = true;
+                        playerMovingDirection = AimArrow.Arrow.transform.up;
+                        PathPoints = new List<Vector3>(CollisionPath.Collisions); //needed for separate list
+                        if (PlayerFollowPathCoRoutine != null)
+                        {
+                            StopCoroutine(PlayerFollowPathCoRoutine);
+                        }
+                        PlayerFollowPathCoRoutine = StartCoroutine(PlayerFollowPath());
+                    }
+                }
+            }
+        }
 	}
 
 	void OnTriggerEnter(Collider col) {
@@ -91,7 +108,21 @@ public class Player : MonoBehaviour {
                 GameManager.DoorHit(col.transform.GetComponent<Door>());
             }
 		}
-	}
+    }
+
+    public Vector3 MouseLocation()
+    {
+        Plane plane = new Plane(Vector3.up, new Vector3(0, this.transform.position.y, 0));
+        Ray ray = GameManager.GetCamera().GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
+        if (plane.Raycast(ray, out float distance))
+        {
+            return ray.GetPoint(distance);
+        }
+        else
+        {
+            return this.transform.position;
+        }
+    }
 
     public static Coroutine PlayerFollowPathCoRoutine { get; private set; }
 
@@ -148,10 +179,11 @@ public class Player : MonoBehaviour {
             }
             if (PathPoints.Count > index)
             {
-                transform.position = Vector3.MoveTowards(transform.position, nextPosition, GameManager.Speed);
+                transform.position = Vector3.MoveTowards(transform.position, nextPosition, Speed);
                 PlayerPathDistance += Mathf.Abs(Vector3.Distance(transform.position, lastOccupiedPosition));
                 lastOccupiedPosition = transform.position;
                 UI.UpdateEnergyText(Mathf.FloorToInt(Energy));
+                this.transform.LookAt(nextPosition);
             }
 
 			yield return null;
@@ -419,7 +451,7 @@ public class Player : MonoBehaviour {
         }
         return new Vector3(xNew, collision.y, zNew);
     }
-    //Plots path following arrow
+    //Plots path following arrow -- Used for Debugging
     private void UpdateGuidePath() {
         if (CollisionPath.Collisions.Count > 1) {
             GameManager.PathLine().positionCount = CollisionPath.Collisions.Count + 1;
