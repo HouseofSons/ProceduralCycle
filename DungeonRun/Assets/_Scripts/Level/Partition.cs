@@ -6,24 +6,22 @@ using UnityEngine;
 
 public class Partition : MonoBehaviour
 {
-    public List<Connection> Connections { set; get; }
+    //Initialized by Parent Room Object
+    public List<Connection> Connections { get; set; }
 
-    public Vector3Int Origin { private set; get; }
-    public int Width { private set; get; }
-    public int Depth { private set; get; }
+    public Vector3Int Origin    { get; private set; }
+    public int Width            { get; private set; }
+    public int Depth            { get; private set; }
 
-    public int Nedge { private set; get; }
-    public int Eedge { private set; get; }
-    public int Sedge { private set; get; }
-    public int Wedge { private set; get; }
-
-    public int WidthStart { private set; get; }
-    public int WidthEnd { private set; get; }
-    public int DepthStart { private set; get; }
-    public int DepthEnd { private set; get; }
+    public int Nedge            { get; private set; }
+    public int Eedge            { get; private set; }
+    public int Sedge            { get; private set; }
+    public int Wedge            { get; private set; }
 
     void Awake()
     {
+        Connections = new List<Connection>();
+
         Origin = new Vector3Int(
             Mathf.RoundToInt(this.transform.GetChild(0).position.x),
             Mathf.RoundToInt(this.transform.GetChild(0).position.y),
@@ -35,8 +33,6 @@ public class Partition : MonoBehaviour
         Eedge = Mathf.RoundToInt(Origin.x + (Width / 2));
         Sedge = Mathf.RoundToInt(Origin.z - (Depth / 2));
         Wedge = Mathf.RoundToInt(Origin.x - (Width / 2));
-
-        Connections = new List<Connection>();
     }
 
     //Method used by Player Script to determine if a player's path edge collision is a connection to a new Partition
@@ -75,11 +71,11 @@ public class Partition : MonoBehaviour
 //Class which holds all needed Connection information
 public class Connection
 {
-    public Partition PartitionNeighbor { private set; get; }
-    public int NeighborEdge { private set; get; }
-    public bool IsVertical { private set; get; }
-    public int MinRange { private set; get; }
-    public int MaxRange { private set; get; }
+    public Partition PartitionNeighbor  { get; private set; }
+    public int NeighborEdge             { get; private set; }
+    public bool IsVertical              { get; private set; }
+    public int MinRange                 { get; private set; }
+    public int MaxRange                 { get; private set; }
 
     public Connection(Partition p, int edge, bool vert, int min, int max)
     {

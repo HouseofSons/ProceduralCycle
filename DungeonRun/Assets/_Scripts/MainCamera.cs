@@ -20,8 +20,8 @@ public class MainCamera : MonoBehaviour
     private void SmoothFollow()
     {
         Vector3 currPos = this.transform.position;
-        Vector3 playerPos = GameManager.GetCurrentPlayer().transform.position;
-        Vector3 currPartPos = GameManager.GetCurrentPlayer().CurrentRoom.GetPartition(playerPos).transform.position;
+        Vector3 playerPos = GameManager.CurrentPlayer.transform.position;
+        Vector3 currPartPos = Player.CurrentRoom.GetPartition(playerPos).transform.position;
         Vector3 toPos = new Vector3((playerPos.x + currPartPos.x)/2, currPos.y, (playerPos.z + currPartPos.z)/2);
 
         this.transform.position =

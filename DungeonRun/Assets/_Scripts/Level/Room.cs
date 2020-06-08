@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class Room : MonoBehaviour
 {
-    public List<Partition> Partitions { private set; get; }
+    public List<Partition> Partitions { get; private set; }
 
     void Start()
     {
@@ -81,6 +81,6 @@ public class Room : MonoBehaviour
                 }
             }
         }
-        return null;
+        return Player.LatestSpawn.GetComponent<Spawn>().GetPartition();
     }
 }

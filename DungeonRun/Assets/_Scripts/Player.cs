@@ -1,41 +1,63 @@
-﻿using UnityEngine;
+﻿//Player is initiaized by the Game Manager
+using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Collections;
 using System.Collections.Generic;
 
-public class Player : MonoBehaviour {
-
-    //used to determine speed of Plyaer
+public class Player : MonoBehaviour
+{
+    //used to determine speed of Player
     public static float Speed { get; set; }
-    //used to determine current spawn location
-    private static Spawn latestSpawn;
-    //CoRoutine which moves player to spawn
-    private static Coroutine moveToSpawnCoRoutine;
-	//Direction Player is moving
-	private static Vector3 playerMovingDirection;
-    //Disables Collisions when traveling between levels
-	private static bool disablePlayerCollisions;
-    //Current Room occupied by Player
-    private static Room currentRoom;
-    //Wall points calculated by Players chosen path
-    public static List<Vector3> PathPoints;
+    //Maximum path distance Player can travel
+    public static float PlayerPathDistanceMax { get; set; }
+    //Travelled path distance of Player
+    public static float PlayerPathDistance { get; set; }
+    //Players experience points
+    public static int TotalExperiencePoints { get; set; }
 
-    void Awake () {
-		PlayerPathDistanceMax = GameManager.Energy;
+    //Most recent spawn location of Player
+    public static Spawn LatestSpawn { get; set; }
+    //Room currently occupied by Player
+    public static Room CurrentRoom { get; set; }
+
+    //Direction Player is moving
+    public static Vector3 PlayerMovingDirection { get; private set; }
+    //Disables Collisions when traveling between levels
+    public static bool DisablePlayerCollisions { get; private set; }
+    //Wall points calculated by Players chosen path
+    public static List<Vector3> PathPoints { get; private set; }
+
+    //Coroutine of Player following Path
+    public static Coroutine PlayerFollowPathCoRoutine { get; private set; }
+    //Coroutine which moves player to spawn
+    public static Coroutine MoveToSpawnCoRoutine { get; private set; }
+
+    void Awake ()
+    {
+        Speed = GameManager.SpeedMin;
+        PlayerPathDistanceMax = GameManager.EnergyDefault;
 		PlayerPathDistance = 0;
 		TotalExperiencePoints = 0;
-		playerMovingDirection = Vector3.zero;
-		disablePlayerCollisions = false;
-    }
 
-	void Start () {
-        UI.InitializeUIWithPlayerInfo ();
+        LatestSpawn = GameManager.CurrentLevel.transform.Find("InitialSpawn").GetComponent<Spawn>();
+        CurrentRoom = LatestSpawn.GetRoom();
+
+        PlayerMovingDirection = Vector3.zero;
+		DisablePlayerCollisions = false;
         PathPoints = new List<Vector3>();
-        Speed = GameManager.SpeedMin; 
+
+        PlayerFollowPathCoRoutine = null;
+        MoveToSpawnCoRoutine = null;
     }
 
-	void Update () {
+	void Start ()
+    {
+        this.transform.position = LatestSpawn.transform.position;
+        UI.InitializeUIWithPlayerInfo ();
+    }
 
+	void Update ()
+    {
         if (GameManager.IsPaused)
         { //for game pause
             
@@ -47,11 +69,11 @@ public class Player : MonoBehaviour {
             if (GameManager.MoveToSpawnState)
             {
                 Speed = GameManager.SpeedMin;
-                if (moveToSpawnCoRoutine != null)
+                if (MoveToSpawnCoRoutine != null)
                 {
-                    StopCoroutine(moveToSpawnCoRoutine);
+                    StopCoroutine(MoveToSpawnCoRoutine);
                 }
-                moveToSpawnCoRoutine = StartCoroutine(MoveToSpawn());
+                MoveToSpawnCoRoutine = StartCoroutine(MoveToSpawn());
             }
 
             if (GameManager.PlayerAimingState)
@@ -87,7 +109,7 @@ public class Player : MonoBehaviour {
                     if (!EventSystem.current.IsPointerOverGameObject())
                     {
                         GameManager.PlayerMovingState = true;
-                        playerMovingDirection = AimArrow.Arrow.transform.up;
+                        PlayerMovingDirection = AimArrow.Arrow.transform.up;
                         PathPoints = new List<Vector3>(CollisionPath.Collisions); //needed for separate list
                         if (PlayerFollowPathCoRoutine != null)
                         {
@@ -100,13 +122,19 @@ public class Player : MonoBehaviour {
         }
 	}
 
-	void OnTriggerEnter(Collider col) {
-
-		if(!disablePlayerCollisions) {
-            if (col.gameObject.name.StartsWith("Door")) {
-                disablePlayerCollisions = true;
-                StopCoroutine(PlayerFollowPathCoRoutine);//stops player movement if Door Hit
-                GameManager.DoorHit(col.transform.GetComponent<Door>());
+	void OnTriggerEnter(Collider col)
+    {
+		if(!DisablePlayerCollisions)
+        {
+            if (col.gameObject.name.StartsWith("Door"))
+            {
+                DisablePlayerCollisions = true;
+                StopCoroutine(PlayerFollowPathCoRoutine);
+                Door door = col.transform.GetComponent<Door>();
+                LatestSpawn = door.Destination(this.transform.position);
+                CurrentRoom = door.Destination(this.transform.position).GetRoom();
+                LevelStatsReset(GameManager.EnergyDefault);
+                GameManager.EnterDoor = true;
             }
 		}
     }
@@ -114,7 +142,7 @@ public class Player : MonoBehaviour {
     public Vector3 MouseLocation()
     {
         Plane plane = new Plane(Vector3.up, new Vector3(0, this.transform.position.y, 0));
-        Ray ray = GameManager.GetCamera().GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
+        Ray ray = GameManager.Camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
         if (plane.Raycast(ray, out float distance))
         {
             return ray.GetPoint(distance);
@@ -125,44 +153,32 @@ public class Player : MonoBehaviour {
         }
     }
 
-    public static Coroutine PlayerFollowPathCoRoutine { get; private set; }
+    public static float GetEnergy()
+    {
+        if(PlayerPathDistanceMax - PlayerPathDistance > 0.0f)
+        {
+            return PlayerPathDistanceMax - PlayerPathDistance;
+        } else
+        {
+            return 0.0f;
+        }
+    }
 
-    public static void UpdateExperiencePoints (int experiencePoints) {
+    public static void UpdateExperiencePoints (int experiencePoints)
+    {
 		TotalExperiencePoints += experiencePoints;
 		UI.UpdateExperienceText (TotalExperiencePoints);
 	}
-
-    public static float PlayerPathDistanceMax { get; set; }
-
-    public static float PlayerPathDistance { get; set; }
-
-    public static float Energy {
-		get {return (PlayerPathDistanceMax - PlayerPathDistance) > 0.0f ? (PlayerPathDistanceMax - PlayerPathDistance):0.0f;}
-	}
-
-    public static int TotalExperiencePoints { get; set; }
-
-    public static Vector3 PlayerMovingDirection {
-		get{return playerMovingDirection;}
-	}
-	//Determines where player will spawn
-	public Spawn LatestSpawn {
-		get {return latestSpawn; }
-		set { latestSpawn = value;}
-	}
-    //Determines where player will spawn
-    public Room CurrentRoom {
-        get { return currentRoom; }
-        set { currentRoom = value; }
-    }
-    //Resets Path lengths for Player
-    public static void LevelStatsReset(float distanceMax) {
+    //Resets path lengths for Player
+    public static void LevelStatsReset(float distanceMax)
+    {
 		PlayerPathDistanceMax = distanceMax;
 		PlayerPathDistance = 0;
-		UI.UpdateEnergyText(Mathf.FloorToInt(Energy));
+		UI.UpdateEnergyText(Mathf.FloorToInt(GetEnergy()));
 	}
 	//Moves Player across Level
-	private IEnumerator PlayerFollowPath() {
+	private IEnumerator PlayerFollowPath()
+    {
         int index = 0;
         Vector3 prevPosition = transform.position;
         Vector3 nextPosition = PathPoints[index];
@@ -170,7 +186,8 @@ public class Player : MonoBehaviour {
 
         while (PlayerPathDistance < PlayerPathDistanceMax)
         {
-			while (GameManager.IsPaused) { //for game pause
+			while (GameManager.IsPaused)
+            { //for game pause
 				yield return null;
 			}
             //checks if player has passed nextPosition
@@ -179,7 +196,8 @@ public class Player : MonoBehaviour {
                 transform.position = nextPosition;
                 prevPosition = nextPosition;
                 index++;
-                if (PathPoints.Count > index) {
+                if (PathPoints.Count > index)
+                {
                     nextPosition = PathPoints[index];
                 }
             }
@@ -188,7 +206,7 @@ public class Player : MonoBehaviour {
                 transform.position = Vector3.MoveTowards(transform.position, nextPosition, Speed);
                 PlayerPathDistance += Mathf.Abs(Vector3.Distance(transform.position, lastOccupiedPosition));
                 lastOccupiedPosition = transform.position;
-                UI.UpdateEnergyText(Mathf.FloorToInt(Energy));
+                UI.UpdateEnergyText(Mathf.FloorToInt(GetEnergy()));
                 this.transform.LookAt(nextPosition);
             }
             yield return null;
@@ -197,30 +215,34 @@ public class Player : MonoBehaviour {
 		yield return null;
 	}
 	//Moves Player to Spawn Location
-	private IEnumerator MoveToSpawn() {
-		Vector3 spawn = latestSpawn.transform.position;
+	private IEnumerator MoveToSpawn()
+    {
+		Vector3 spawn = LatestSpawn.transform.position;
 		//For Level Changing
-		playerMovingDirection = new Vector3(spawn.x,transform.position.y,spawn.z) - transform.position;
+		PlayerMovingDirection = new Vector3(spawn.x,transform.position.y,spawn.z) - transform.position;
 
-		while (Vector3.Distance(gameObject.transform.position,spawn) > 0.1f) {
-			while (GameManager.IsPaused) { //for game pause
+		while (Vector3.Distance(gameObject.transform.position,spawn) > 0.1f)
+        {
+			while (GameManager.IsPaused)
+            { //for game pause
 				yield return null;
 			}
 			gameObject.transform.position = Vector3.Lerp(gameObject.transform.position, spawn, Time.deltaTime * 3);
 			yield return null;
 		}
-		while (GameManager.IsPaused) { //for game pause
+		while (GameManager.IsPaused)
+        { //for game pause
 			yield return null;
 		}
 		gameObject.transform.position = spawn;
-		disablePlayerCollisions = false;
+		DisablePlayerCollisions = false;
         GameManager.MoveToSpawnState = false;
         yield return null;
 	}
 
     //Returns all Wall collisions in order
-    private void UpdateWallCollisions(Vector3 pos,Vector3 dir,float dist,Partition currentPartition,int iteration) {
-
+    private void UpdateWallCollisions(Vector3 pos,Vector3 dir,float dist,Partition currentPartition,int iteration)
+    {
         List<Vector3> collisionPoints = new List<Vector3>();
         
         Vector3 originalPosition = pos;
@@ -246,7 +268,8 @@ public class Player : MonoBehaviour {
         
         if (rise > 0)
         {
-            if (run > 0) {
+            if (run > 0)
+            {
                 x = currentPartition.Width;
                 z = currentPartition.Depth;
                 i = Mathf.RoundToInt(currentPartition.Width / 2.0f) + Mathf.RoundToInt(currentPartition.Origin.x);
@@ -256,7 +279,8 @@ public class Player : MonoBehaviour {
                 zmin = originalPosition.z;
                 zmax = finalPosition.z;
             }
-            else {
+            else
+            {
                 x = -currentPartition.Width;
                 z = currentPartition.Depth;
                 i = -Mathf.RoundToInt(currentPartition.Width / 2.0f) + Mathf.RoundToInt(currentPartition.Origin.x);
@@ -269,7 +293,8 @@ public class Player : MonoBehaviour {
         }
         else
         {
-            if (run > 0) {
+            if (run > 0)
+            {
                 x = currentPartition.Width;
                 z = -currentPartition.Depth;
                 i = Mathf.RoundToInt(currentPartition.Width / 2.0f) + Mathf.RoundToInt(currentPartition.Origin.x);
@@ -279,7 +304,8 @@ public class Player : MonoBehaviour {
                 zmin = finalPosition.z;
                 zmax = originalPosition.z;
             }
-            else {
+            else
+            {
                 x = -currentPartition.Width;
                 z = -currentPartition.Depth;
                 i = -Mathf.RoundToInt(currentPartition.Width / 2.0f) + Mathf.RoundToInt(currentPartition.Origin.x);
@@ -308,7 +334,7 @@ public class Player : MonoBehaviour {
         for (int l = 0; l < collisionPoints.Count; l++)
         {
             nonTranslatedPoint = collisionPoints[l];
-            translatedPoint = TranslateCollision(collisionPoints[l], currentPartition);
+            translatedPoint = CollisionPath.TranslateCollision(collisionPoints[l], currentPartition);
             CollisionPath.Collisions.Add(translatedPoint);
             partDistance = remainingDistance - Mathf.Abs(Vector3.Distance(nonTranslatedPoint, originalPosition));//expensive
 
@@ -341,7 +367,7 @@ public class Player : MonoBehaviour {
         }
         if (!CollisionPath.FinalDestinationFound)
         {
-            CollisionPath.Collisions.Add(TranslateCollision(finalPosition, currentPartition));
+            CollisionPath.Collisions.Add(CollisionPath.TranslateCollision(finalPosition, currentPartition));
             CollisionPath.FinalDestinationFound = true;
         }
         if (iteration == 0)//end of recursive function
@@ -350,8 +376,27 @@ public class Player : MonoBehaviour {
             CollisionPath.UpdatingWallCollisions = false;
         }
     }
+}
+//Class which holds Wall Collisions
+public class CollisionPath
+{
+    //Contains list of collision points
+    public static List<Vector3> Collisions = new List<Vector3>();
+    //Final position of Character Path
+    public static Vector3 FinalDestination = Vector3.zero;
+    //Final position of Character Path found
+    public static bool FinalDestinationFound = false;
+    //Identifies if WallCollision method is done
+    public static bool UpdatingWallCollisions = false;
+
+    public static void ClearCollisions()
+    {
+        Collisions.Clear();
+        FinalDestinationFound = false;
+    }
+
     //Translates Collision point inside a Partition
-    private Vector3 TranslateCollision(Vector3 collision, Partition p)
+    public static Vector3 TranslateCollision(Vector3 collision, Partition p)
     {
         float xLength, zLength;
         float xResidual, zResidual;
@@ -452,33 +497,5 @@ public class Player : MonoBehaviour {
             }
         }
         return new Vector3(xNew, collision.y, zNew);
-    }
-    ////Plots path following arrow -- Used for Debugging
-    //private void UpdateGuidePath() {
-    //    if (CollisionPath.Collisions.Count > 1) {
-    //        GameManager.PathLine().positionCount = CollisionPath.Collisions.Count + 1;
-    //        GameManager.PathLine().SetPosition(0, transform.position);
-    //        for (int i = 1; i < GameManager.PathLine().positionCount; i++) {
-    //            GameManager.PathLine().SetPosition(i, CollisionPath.Collisions[i-1]);
-    //        }
-    //    }
-    //}
-}
-//Class which holds Wall Collisions
-public class CollisionPath
-{
-    //Contains list of collision points
-    public static List<Vector3> Collisions = new List<Vector3>();
-    //Final position of Character Path
-    public static Vector3 FinalDestination = Vector3.zero;
-    //Final position of Character Path found
-    public static bool FinalDestinationFound = false;
-    //Identifies if WallCollision method is done
-    public static bool UpdatingWallCollisions = false;
-
-    public static void ClearCollisions()
-    {
-        Collisions.Clear();
-        FinalDestinationFound = false;
     }
 }

@@ -2,7 +2,7 @@
 
 public class AimArrow : MonoBehaviour
 {
-    public static GameObject Arrow;
+    public static GameObject Arrow { get; private set; }
 
     void Start()
     {

@@ -6,8 +6,8 @@ using UnityEngine;
 
 public class Level : MonoBehaviour
 {
-    public List<Room> Rooms { private set; get; }
-    public List<Door> Doors { private set; get; }
+    public List<Room> Rooms { get; private set; }
+    public List<Door> Doors { get; private set; }
 
     void Start()
     {

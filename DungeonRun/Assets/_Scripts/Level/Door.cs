@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Door : MonoBehaviour
 {
-    public List<Spawn> SpawnPoints { private set; get; }
+    public List<Spawn> SpawnPoints { get; private set; }
 
     void Start()
     {
