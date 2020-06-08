@@ -21,13 +21,8 @@ public class MainCamera : MonoBehaviour
     {
         Vector3 currPos = this.transform.position;
         Vector3 playerPos = GameManager.GetCurrentPlayer().transform.position;
-        //Vector3 playerLookPos = new Vector3(
-        //                        AimArrow.Arrow.transform.up.x * (10 * Player.Speed) + transform.position.x,
-        //                        transform.position.y,
-        //                        AimArrow.Arrow.transform.up.z * (10 * Player.Speed) + transform.position.z);
-        Vector3 nextPartitionPos = Player.NextPartition.transform.position;
         Vector3 currPartPos = GameManager.GetCurrentPlayer().CurrentRoom.GetPartition(playerPos).transform.position;
-        Vector3 toPos = new Vector3((nextPartitionPos.x + currPartPos.x)/2, currPos.y, (nextPartitionPos.z + currPartPos.z)/2);
+        Vector3 toPos = new Vector3((playerPos.x + currPartPos.x)/2, currPos.y, (playerPos.z + currPartPos.z)/2);
 
         this.transform.position =
             Vector3.Lerp(currPos,new Vector3(toPos.x, currPos.y, toPos.z), Time.deltaTime * 2.0f);

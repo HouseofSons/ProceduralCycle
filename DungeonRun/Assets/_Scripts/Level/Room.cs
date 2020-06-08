@@ -81,6 +81,6 @@ public class Room : MonoBehaviour
                 }
             }
         }
-        return GameManager.GetCurrentPlayer().LatestSpawn.Partition.GetComponent<Partition>();
+        return null;
     }
 }

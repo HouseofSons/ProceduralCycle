@@ -134,6 +134,8 @@ public class GameManager : MonoBehaviour
             currentLevel.transform.Find("InitialSpawn").GetComponent<Spawn>();
         currentPlayer.GetComponent<Player>().CurrentRoom =
             currentLevel.transform.Find("Room").GetComponent<Room>();
+        currentPlayer.transform.position =
+            currentPlayer.GetComponent<Player>().LatestSpawn.transform.position;
     }
 
 	public static void DoorHit(Door door) {
