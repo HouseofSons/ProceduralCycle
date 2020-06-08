@@ -394,7 +394,6 @@ public class CollisionPath
         Collisions.Clear();
         FinalDestinationFound = false;
     }
-
     //Translates Collision point inside a Partition
     public static Vector3 TranslateCollision(Vector3 collision, Partition p)
     {
