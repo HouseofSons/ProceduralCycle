@@ -69,4 +69,18 @@ public class Room : MonoBehaviour
             }
         }
     }
+    public Partition GetPartition(Vector3 v)
+    {
+        foreach(Partition p in Partitions)
+        {
+            if(p.Wedge <= v.x && v.x <= p.Eedge)
+            {
+                if(p.Sedge <= v.z && v.z <= p.Nedge)
+                {
+                    return p;
+                }
+            }
+        }
+        return GameManager.GetCurrentPlayer().LatestSpawn.Partition.GetComponent<Partition>();
+    }
 }
