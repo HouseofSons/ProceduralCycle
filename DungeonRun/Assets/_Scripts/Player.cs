@@ -19,6 +19,10 @@ public class Player : MonoBehaviour {
     private static Room currentRoom;
     //Wall points calculated by Players chosen path
     public static List<Vector3> PathPoints;
+    //Partitions calculated at points of Players chosen path
+    public static List<Partition> PathCollisions;
+    //Partition of next collision
+    public static Partition NextPartition;
 
     void Awake () {
 		PlayerPathDistanceMax = GameManager.Energy;
@@ -31,7 +35,10 @@ public class Player : MonoBehaviour {
 	void Start () {
         UI.InitializeUIWithPlayerInfo ();
         PathPoints = new List<Vector3>();
+        PathCollisions = new List<Partition>();
         Speed = GameManager.SpeedMin;
+        //Is initialized by the Game Manager so order of initilizations matter
+        NextPartition = latestSpawn.Partition.GetComponent<Partition>(); 
     }
 
 	void Update () {
@@ -89,6 +96,7 @@ public class Player : MonoBehaviour {
                         GameManager.PlayerMovingState = true;
                         playerMovingDirection = AimArrow.Arrow.transform.up;
                         PathPoints = new List<Vector3>(CollisionPath.Collisions); //needed for separate list
+                        PathCollisions = new List<Partition>(CollisionPath.Partitions); //needed for separate list
                         if (PlayerFollowPathCoRoutine != null)
                         {
                             StopCoroutine(PlayerFollowPathCoRoutine);
@@ -191,8 +199,11 @@ public class Player : MonoBehaviour {
                 UI.UpdateEnergyText(Mathf.FloorToInt(Energy));
                 this.transform.LookAt(nextPosition);
             }
-
-			yield return null;
+            if (PathPoints.Count > index)
+            {
+                NextPartition = PathCollisions[index];
+            }
+            yield return null;
 		}
 		GameManager.GameOver ();
 		yield return null;
@@ -311,12 +322,15 @@ public class Player : MonoBehaviour {
             nonTranslatedPoint = collisionPoints[l];
             translatedPoint = TranslateCollision(collisionPoints[l], currentPartition);
             CollisionPath.Collisions.Add(translatedPoint);
+            CollisionPath.Partitions.Add(currentPartition);
             partDistance = remainingDistance - Mathf.Abs(Vector3.Distance(nonTranslatedPoint, originalPosition));//expensive
 
             if (partDistance > 0)
             {
-                if (currentPartition.GetConnection(translatedPoint, out Partition enterPartition))
+                if (partDistance > 0 && currentPartition.GetConnection(translatedPoint, out Partition enterPartition))
                 {
+                    //overwrites old partition set above with entering partition
+                    CollisionPath.Partitions[CollisionPath.Partitions.Count - 1] = enterPartition;
                     if (CollisionPath.Collisions.Count > 1)
                     {
                         newDirection = Vector3.Normalize(translatedPoint - CollisionPath.Collisions[CollisionPath.Collisions.Count - 2]);
@@ -330,22 +344,20 @@ public class Player : MonoBehaviour {
                         translatedPoint.y,
                         translatedPoint.z + newDirection.z);
 
-                    //if (originalPosition != translatedPoint)//hax to fix corner collision
-                    //{
                     UpdateWallCollisions(
-                            translatedPoint,
-                            newDirection,
-                            partDistance,
-                            enterPartition,
-                            iteration + 1);
+                        translatedPoint,
+                        newDirection,
+                        partDistance,
+                        enterPartition,
+                        iteration + 1);
                     break;
-                    //}
                 }
             }
         }
         if (!CollisionPath.FinalDestinationFound)
         {
             CollisionPath.Collisions.Add(TranslateCollision(finalPosition, currentPartition));
+            CollisionPath.Partitions.Add(currentPartition);
             CollisionPath.FinalDestinationFound = true;
         }
         if (iteration == 0)//end of recursive function
@@ -473,6 +485,8 @@ public class CollisionPath
 {
     //Contains list of collision points
     public static List<Vector3> Collisions = new List<Vector3>();
+    //Contains list of partitions
+    public static List<Partition> Partitions = new List<Partition>();
     //Final position of Character Path
     public static Vector3 FinalDestination = Vector3.zero;
     //Final position of Character Path found
