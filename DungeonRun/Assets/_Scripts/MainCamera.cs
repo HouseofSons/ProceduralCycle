@@ -26,6 +26,6 @@ public class MainCamera : MonoBehaviour
 
         float toSize = (((Player.Speed - GameManager.SpeedMin) / (GameManager.SpeedMax - GameManager.SpeedMin)) *
             (GameManager.CameraSizeMax - GameManager.CameraSizeMin)) + GameManager.CameraSizeMin;
-        this.GetComponent<Camera>().orthographicSize = Mathf.SmoothStep(this.GetComponent<Camera>().orthographicSize, toSize, 0.2f);
+        this.GetComponent<Camera>().orthographicSize = Mathf.SmoothStep(this.GetComponent<Camera>().orthographicSize, toSize, 0.1f);
     }
 }
