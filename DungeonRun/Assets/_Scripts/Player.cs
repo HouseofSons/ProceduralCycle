@@ -22,14 +22,14 @@ public class Player : MonoBehaviour
 
     //Returns GameObject of Player
     public static Transform PlayerTransform { get; private set; }
-    //Direction Player is moving
-    public static Vector3 PlayerMovingDirection { get; private set; }
     //Destination Player is heading
     public static Vector3 PlayerDestination { get; private set; }
     //Disables Collisions when traveling between levels
     public static bool DisablePlayerCollisions { get; private set; }
     //Wall points calculated by Players chosen path
     public static List<Vector3> PathPoints { get; private set; }
+    //Max number of chosen positions allowed
+    public static int PlayerManualPositionSize { get; private set; }
 
     //Coroutine of Player following Path
     public static Coroutine PlayerFollowPathCoRoutine { get; private set; }
@@ -47,10 +47,10 @@ public class Player : MonoBehaviour
         CurrentRoom = LatestSpawn.GetRoom();
 
         PlayerTransform = this.transform;
-        PlayerMovingDirection = Vector3.zero;
         PlayerDestination = this.transform.position;
         DisablePlayerCollisions = false;
         PathPoints = new List<Vector3>();
+        PlayerManualPositionSize = 5;
 
         PlayerFollowPathCoRoutine = null;
         MoveToSpawnCoRoutine = null;
@@ -84,44 +84,82 @@ public class Player : MonoBehaviour
 
             if (GameManager.PlayerAimingState)
             {
-                if (Input.GetMouseButton(0))
+                if (Input.GetMouseButtonDown(0))
                 {
-                    this.transform.LookAt(MouseLocation());
-                    AimArrow.EnableArrowImage(true);
-                    Speed = GameManager.SpeedMax;
-                    if (PlayerFollowPathCoRoutine != null)
-                    {
-                        StopCoroutine(PlayerFollowPathCoRoutine);
-                    }
-                    if (!CollisionPath.UpdatingWallCollisions)
-                    {
-                        CollisionPath.UpdatingWallCollisions = true;
-                        CollisionPath.ClearCollisions();
-                        UpdateWallCollisions(
-                            transform.position,
-                            new Vector3(
-                                AimArrow.Arrow.transform.up.x + transform.position.x,
-                                transform.position.y,
-                                AimArrow.Arrow.transform.up.z + transform.position.z),
-                            PlayerPathDistanceMax - PlayerPathDistance,
-                            Physics.RaycastAll(this.transform.position, Vector3.down, 1)[0].transform.parent.GetComponent<Partition>(),
-                            0);
-                    }
-                }
-
-                if (Input.GetMouseButtonUp(0))
-                {
-                    AimArrow.EnableArrowImage(false);
-                    if (!EventSystem.current.IsPointerOverGameObject())
-                    {
-                        GameManager.PlayerMovingState = true;
-                        PlayerMovingDirection = AimArrow.Arrow.transform.up;
-                        PathPoints = new List<Vector3>(CollisionPath.Collisions); //needed for separate list
+                    CollisionPath.Collisions.Add(MouseLocation());//need to add wall collision logic
+                    if (CollisionPath.Collisions.Count == 1)
+                    {//First Chosen Point
+                        this.transform.LookAt(MouseLocation());
+                        AimArrow.EnableArrowImage(true);
+                        Speed = GameManager.SpeedMax;
                         if (PlayerFollowPathCoRoutine != null)
                         {
                             StopCoroutine(PlayerFollowPathCoRoutine);
                         }
-                        PlayerFollowPathCoRoutine = StartCoroutine(PlayerFollowPath());
+                    }
+                    if(CollisionPath.Collisions.Count == PlayerManualPositionSize)
+                    {//Last Chosen Point
+                        if (!CollisionPath.UpdatingWallCollisions)
+                        {
+                            CollisionPath.UpdatingWallCollisions = true;
+                            AimArrow.EnableArrowImage(false);
+                            Vector3 direction;
+                            Vector3 position;
+                            float distance;
+                            Partition partition;
+                            if (CollisionPath.Collisions.Count == 1)
+                            {
+                                CollisionPath.ClearCollisions();
+                                position = this.transform.position;
+                                direction = new Vector3(
+                                    AimArrow.Arrow.transform.up.x + transform.position.x,
+                                    transform.position.y,
+                                    AimArrow.Arrow.transform.up.z + transform.position.z);
+                                distance = PlayerPathDistanceMax - PlayerPathDistance;
+                                partition = Physics.RaycastAll(//consider other gameobjects might interfere with raycast
+                                    position,
+                                    Vector3.down, 1)[0].transform.parent.GetComponent<Partition>();
+                            } else
+                            {
+                                position = CollisionPath.Collisions[CollisionPath.Collisions.Count - 1];
+                                direction = Vector3.Normalize(
+                                    CollisionPath.Collisions[CollisionPath.Collisions.Count - 1] -
+                                    CollisionPath.Collisions[CollisionPath.Collisions.Count - 2]);
+                                direction = new Vector3(
+                                    CollisionPath.Collisions[CollisionPath.Collisions.Count - 1].x + direction.x,
+                                    CollisionPath.Collisions[CollisionPath.Collisions.Count - 1].y,
+                                    CollisionPath.Collisions[CollisionPath.Collisions.Count - 1].z + direction.z);
+                                float distancePart = 0.0f;
+                                Vector3 prev = this.transform.position;
+                                Vector3 current;
+                                foreach(Vector3 v in CollisionPath.Collisions)
+                                {
+                                    current = v;
+                                    distancePart += Mathf.Abs(Vector3.Distance(prev, current));
+                                    prev = current;
+                                }
+                                PlayerPathDistance -= distancePart;
+                                distance = PlayerPathDistanceMax - PlayerPathDistance;
+                                partition = Physics.RaycastAll(//consider other gameobjects might interfere with raycast
+                                    CollisionPath.Collisions[CollisionPath.Collisions.Count - 1],
+                                    Vector3.down, 1)[0].transform.parent.GetComponent<Partition>();
+                            }
+                            UpdateWallCollisions(
+                                position,
+                                direction,
+                                distance,
+                                partition,
+                                0);
+
+                            GameManager.PlayerMovingState = true;
+                            PathPoints = new List<Vector3>(CollisionPath.Collisions); //needed for separate list
+                            CollisionPath.ClearCollisions();
+                            if (PlayerFollowPathCoRoutine != null)
+                            {
+                                StopCoroutine(PlayerFollowPathCoRoutine);
+                            }
+                            PlayerFollowPathCoRoutine = StartCoroutine(PlayerFollowPath());
+                        }
                     }
                 }
             }
@@ -229,8 +267,6 @@ public class Player : MonoBehaviour
 	private IEnumerator MoveToSpawn()
     {
 		Vector3 spawn = LatestSpawn.transform.position;
-		//For Level Changing
-		PlayerMovingDirection = new Vector3(spawn.x,transform.position.y,spawn.z) - transform.position;
 
 		while (Vector3.Distance(gameObject.transform.position,spawn) > 0.1f)
         {
