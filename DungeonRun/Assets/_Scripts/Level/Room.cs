@@ -71,11 +71,11 @@ public class Room : MonoBehaviour
     }
     public Partition GetPartition(Vector3 v)
     {
-        foreach(Partition p in Partitions)
+        foreach (Partition p in Partitions)
         {
-            if(p.Wedge <= v.x && v.x <= p.Eedge)
+            if (p.Wedge <= v.x && v.x <= p.Eedge)
             {
-                if(p.Sedge <= v.z && v.z <= p.Nedge)
+                if (p.Sedge <= v.z && v.z <= p.Nedge)
                 {
                     return p;
                 }

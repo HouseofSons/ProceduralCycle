@@ -20,8 +20,12 @@ public class Player : MonoBehaviour
     //Room currently occupied by Player
     public static Room CurrentRoom { get; set; }
 
+    //Returns GameObject of Player
+    public static Transform PlayerTransform { get; private set; }
     //Direction Player is moving
     public static Vector3 PlayerMovingDirection { get; private set; }
+    //Destination Player is heading
+    public static Vector3 PlayerDestination { get; private set; }
     //Disables Collisions when traveling between levels
     public static bool DisablePlayerCollisions { get; private set; }
     //Wall points calculated by Players chosen path
@@ -42,8 +46,10 @@ public class Player : MonoBehaviour
         LatestSpawn = GameManager.CurrentLevel.transform.Find("InitialSpawn").GetComponent<Spawn>();
         CurrentRoom = LatestSpawn.GetRoom();
 
+        PlayerTransform = this.transform;
         PlayerMovingDirection = Vector3.zero;
-		DisablePlayerCollisions = false;
+        PlayerDestination = this.transform.position;
+        DisablePlayerCollisions = false;
         PathPoints = new List<Vector3>();
 
         PlayerFollowPathCoRoutine = null;
@@ -199,6 +205,11 @@ public class Player : MonoBehaviour
                 if (PathPoints.Count > index)
                 {
                     nextPosition = PathPoints[index];
+                    //used for Camera tracking
+                    PlayerDestination = nextPosition;
+                } else
+                {   //used for Camera tracking
+                    PlayerDestination = transform.position;
                 }
             }
             if (PathPoints.Count > index)

@@ -21,11 +21,11 @@ public class MainCamera : MonoBehaviour
     {
         Vector3 currPos = this.transform.position;
         Vector3 playerPos = GameManager.CurrentPlayer.transform.position;
-        Vector3 currPartPos = Player.CurrentRoom.GetPartition(playerPos).transform.position;
-        Vector3 toPos = new Vector3((playerPos.x + currPartPos.x)/2, currPos.y, (playerPos.z + currPartPos.z)/2);
+        Vector3 partPos = Player.CurrentRoom.GetPartition(Player.PlayerDestination).transform.position;
+        Vector3 toPos = new Vector3((playerPos.x + partPos.x)/2, currPos.y, (playerPos.z + partPos.z)/2);
 
         this.transform.position =
-            Vector3.Lerp(currPos,new Vector3(toPos.x, currPos.y, toPos.z), Time.deltaTime * 2.0f);
+            Vector3.Lerp(currPos,toPos, Time.deltaTime * 2.0f);
     }
 
     private void SmoothPan()
