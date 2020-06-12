@@ -106,7 +106,6 @@ public class Room : MonoBehaviour
             if (ray.direction.z > 0)
             {
                 plane = new Plane(Vector3.back, p.Vertices[0]);
-                
                 if (plane.Raycast(ray, out distance))
                 {
                     scratch = ray.GetPoint(distance);
@@ -137,9 +136,9 @@ public class Room : MonoBehaviour
                 }
             }
 
-        if (ray.direction.z < 0)
-        {
-            plane = new Plane(Vector3.forward, p.Vertices[2]);
+            if (ray.direction.z < 0)
+            {
+                plane = new Plane(Vector3.forward, p.Vertices[2]);
                 if (plane.Raycast(ray, out distance))
                 {
                     scratch = ray.GetPoint(distance);
