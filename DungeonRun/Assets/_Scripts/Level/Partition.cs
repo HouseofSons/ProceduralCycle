@@ -41,7 +41,6 @@ public class Partition : MonoBehaviour
         Vertices.Add(new Vector3(Eedge, 0, Sedge));
         Vertices.Add(new Vector3(Wedge, 0, Sedge));
     }
-
     //Method used by Player Script to determine if a player's path edge collision is a connection to a new Partition
     public bool GetConnection(Vector3 position, out Partition enterPartition)
     {

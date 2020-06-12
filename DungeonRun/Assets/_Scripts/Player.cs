@@ -128,9 +128,7 @@ public class Player : MonoBehaviour
                                         transform.position.y,
                                         AimArrow.Arrow.transform.up.z + transform.position.z);
                                     distance = PlayerPathDistanceMax - PlayerPathDistance;
-                                    partition = Physics.RaycastAll(//consider other gameobjects might interfere with raycast
-                                        position,
-                                        Vector3.down, 1)[0].transform.parent.GetComponent<Partition>();
+                                    partition = CurrentRoom.GetPartition(CollisionPath.Collisions[CollisionPath.Collisions.Count - 1]);
                                 }
                                 else
                                 {
@@ -143,9 +141,7 @@ public class Player : MonoBehaviour
                                         CollisionPath.Collisions[CollisionPath.Collisions.Count - 1].y,
                                         CollisionPath.Collisions[CollisionPath.Collisions.Count - 1].z + direction.z);
                                     distance = PlayerPathDistanceMax - PlayerPathDistance;
-                                    partition = Physics.RaycastAll(//consider other gameobjects might interfere with raycast
-                                        CollisionPath.Collisions[CollisionPath.Collisions.Count - 1],
-                                        Vector3.down, 1)[0].transform.parent.GetComponent<Partition>();
+                                    partition = CurrentRoom.GetPartition(CollisionPath.Collisions[CollisionPath.Collisions.Count - 1]);
                                 }
                                 UpdateWallCollisions(
                                     position,
