@@ -97,8 +97,8 @@ public class Room : MonoBehaviour
         ray = new Ray(origin, v - origin);
 
         List<Vector3> edgeIntersects = new List<Vector3>();
-        edgeIntersects.Add(v);
-        Vector3 scratch;
+        edgeIntersects.Add(v); //if click does not hit wall
+        Vector3 point,scratch;
         Plane plane;
         float distance;
         foreach (Partition p in r.Partitions)
@@ -108,10 +108,11 @@ public class Room : MonoBehaviour
                 plane = new Plane(Vector3.back, p.Vertices[0]);
                 if (plane.Raycast(ray, out distance))
                 {
-                    scratch = ray.GetPoint(distance);
+                    point = ray.GetPoint(distance);
+                    scratch = ray.GetPoint(distance - Random.Range(0.1f, 0.2f));
                     if (p.Wedge <= scratch.x && scratch.x <= p.Eedge)
                     {
-                        if (!p.GetConnection(scratch))
+                        if (!p.GetConnection(point))
                         {
                             edgeIntersects.Add(scratch);
                         }
@@ -124,11 +125,11 @@ public class Room : MonoBehaviour
                 plane = new Plane(Vector3.left, p.Vertices[1]);
                 if (plane.Raycast(ray, out distance))
                 {
-                    scratch = ray.GetPoint(distance);
-
+                    point = ray.GetPoint(distance);
+                    scratch = ray.GetPoint(distance - Random.Range(0.1f, 0.2f));
                     if (p.Sedge <= scratch.z && scratch.z <= p.Nedge)
                     {
-                        if (!p.GetConnection(scratch))
+                        if (!p.GetConnection(point))
                         {
                             edgeIntersects.Add(scratch);
                         }
@@ -141,11 +142,11 @@ public class Room : MonoBehaviour
                 plane = new Plane(Vector3.forward, p.Vertices[2]);
                 if (plane.Raycast(ray, out distance))
                 {
-                    scratch = ray.GetPoint(distance);
-
+                    point = ray.GetPoint(distance);
+                    scratch = ray.GetPoint(distance - Random.Range(0.1f, 0.2f));
                     if (p.Wedge <= scratch.x && scratch.x <= p.Eedge)
                     {
-                        if (!p.GetConnection(scratch))
+                        if (!p.GetConnection(point))
                         {
                             edgeIntersects.Add(scratch);
                         }
@@ -157,11 +158,11 @@ public class Room : MonoBehaviour
                 plane = new Plane(Vector3.right, p.Vertices[3]);
                 if (plane.Raycast(ray, out distance))
                 {
-                    scratch = ray.GetPoint(distance);
-
+                    point = ray.GetPoint(distance);
+                    scratch = ray.GetPoint(distance - Random.Range(0.1f, 0.2f));
                     if (p.Sedge <= scratch.z && scratch.z <= p.Nedge)
                     {
-                        if (!p.GetConnection(scratch))
+                        if (!p.GetConnection(point))
                         {
                             edgeIntersects.Add(scratch);
                         }
