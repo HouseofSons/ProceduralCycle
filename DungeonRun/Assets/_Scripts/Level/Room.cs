@@ -171,7 +171,6 @@ public class Room : MonoBehaviour
             }
         }
         edgeIntersects.Sort((v1, v2) => (v1 - origin).sqrMagnitude.CompareTo((v2 - origin).sqrMagnitude));
-        GameObject.Find("Point").transform.position = edgeIntersects[0];
         return edgeIntersects[0];
     }
 }

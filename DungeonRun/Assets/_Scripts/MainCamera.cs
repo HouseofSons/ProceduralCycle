@@ -14,7 +14,7 @@ public class MainCamera : MonoBehaviour
     void LateUpdate()
     {
         SmoothFollow();
-        SmoothPan();
+        //SmoothPan();
     }
 
     private void SmoothFollow()

@@ -30,8 +30,6 @@ public class Player : MonoBehaviour
     public static List<Vector3> PathPoints { get; private set; }
     //Max number of chosen positions allowed
     public static int PlayerManualPositionSize { get; private set; }
-    //State where player is choosing points
-    public static bool PlayerChoosingState { get; private set; }
 
     //Coroutine of Player following Path
     public static Coroutine PlayerFollowPathCoRoutine { get; private set; }
@@ -53,7 +51,6 @@ public class Player : MonoBehaviour
         DisablePlayerCollisions = false;
         PathPoints = new List<Vector3>();
         PlayerManualPositionSize = 5;
-        PlayerChoosingState = false;
 
         PlayerFollowPathCoRoutine = null;
         MoveToSpawnCoRoutine = null;
@@ -74,7 +71,7 @@ public class Player : MonoBehaviour
         else
         {
             Speed = Mathf.SmoothStep(Speed, GameManager.SpeedMin, Time.deltaTime * 5.0f);
-            
+
             if (GameManager.MoveToSpawnState)
             {
                 Speed = GameManager.SpeedMin;
@@ -87,11 +84,6 @@ public class Player : MonoBehaviour
 
             if (GameManager.PlayerAimingState)
             {
-                if (PlayerChoosingState)
-                {
-                    
-                }
-
                 if (Input.GetMouseButtonDown(0))
                 {
                     bool processClick;
@@ -100,8 +92,6 @@ public class Player : MonoBehaviour
                     {
                         if (CollisionPath.Collisions.Count == 1)
                         {//First Chosen Point
-                            PlayerChoosingState = true;
-                            AimArrow.EnableArrowImage(true);
                             Speed = GameManager.SpeedMax;
                             if (PlayerFollowPathCoRoutine != null)
                             {
@@ -113,8 +103,6 @@ public class Player : MonoBehaviour
                             if (!CollisionPath.UpdatingWallCollisions)
                             {
                                 CollisionPath.UpdatingWallCollisions = true;
-                                PlayerChoosingState = false;
-                                AimArrow.EnableArrowImage(false);
                                 Vector3 direction;
                                 Vector3 position;
                                 float distance;
