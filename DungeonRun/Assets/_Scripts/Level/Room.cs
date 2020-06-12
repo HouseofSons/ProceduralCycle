@@ -83,4 +83,94 @@ public class Room : MonoBehaviour
         }
         return Player.LatestSpawn.GetComponent<Spawn>().GetPartition();
     }
+    public static Vector3 TranslateToPlayerView(Vector3 v,Room r)
+    {
+        Ray ray;
+        Vector3 origin;
+        if(CollisionPath.Collisions.Count == 0)
+        {
+            origin = Player.PlayerTransform.position; 
+        } else
+        {
+            origin = CollisionPath.Collisions[CollisionPath.Collisions.Count - 1];
+        }
+        ray = new Ray(origin, v - origin);
+
+        List<Vector3> edgeIntersects = new List<Vector3>();
+        edgeIntersects.Add(v);
+        Vector3 scratch;
+        Plane plane;
+        float distance;
+        foreach (Partition p in r.Partitions)
+        {
+            if (ray.direction.z > 0)
+            {
+                plane = new Plane(Vector3.back, p.Vertices[0]);
+                
+                if (plane.Raycast(ray, out distance))
+                {
+                    scratch = ray.GetPoint(distance);
+                    if (p.Wedge <= scratch.x && scratch.x <= p.Eedge)
+                    {
+                        if (!p.GetConnection(scratch))
+                        {
+                            edgeIntersects.Add(scratch);
+                        }
+                    }
+                }
+            }
+
+            if (ray.direction.x > 0)
+            {
+                plane = new Plane(Vector3.left, p.Vertices[1]);
+                if (plane.Raycast(ray, out distance))
+                {
+                    scratch = ray.GetPoint(distance);
+
+                    if (p.Sedge <= scratch.z && scratch.z <= p.Nedge)
+                    {
+                        if (!p.GetConnection(scratch))
+                        {
+                            edgeIntersects.Add(scratch);
+                        }
+                    }
+                }
+            }
+
+        if (ray.direction.z < 0)
+        {
+            plane = new Plane(Vector3.forward, p.Vertices[2]);
+                if (plane.Raycast(ray, out distance))
+                {
+                    scratch = ray.GetPoint(distance);
+
+                    if (p.Wedge <= scratch.x && scratch.x <= p.Eedge)
+                    {
+                        if (!p.GetConnection(scratch))
+                        {
+                            edgeIntersects.Add(scratch);
+                        }
+                    }
+                }
+            }
+            if (ray.direction.x < 0)
+            {
+                plane = new Plane(Vector3.right, p.Vertices[3]);
+                if (plane.Raycast(ray, out distance))
+                {
+                    scratch = ray.GetPoint(distance);
+
+                    if (p.Sedge <= scratch.z && scratch.z <= p.Nedge)
+                    {
+                        if (!p.GetConnection(scratch))
+                        {
+                            edgeIntersects.Add(scratch);
+                        }
+                    }
+                }
+            }
+        }
+        edgeIntersects.Sort((v1, v2) => (v1 - origin).sqrMagnitude.CompareTo((v2 - origin).sqrMagnitude));
+        return edgeIntersects[0];
+    }
 }
