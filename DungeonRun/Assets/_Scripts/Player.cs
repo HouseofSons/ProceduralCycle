@@ -44,6 +44,7 @@ public class Player : MonoBehaviour
         PlayerPathDistanceMax = GameManager.EnergyDefault;
 		PlayerPathDistance = 0;
 		TotalExperiencePoints = 0;
+        PlayerManualPositionSize = GameManager.ChoiceCount;
 
         LatestSpawn = GameManager.CurrentLevel.transform.Find("InitialSpawn").GetComponent<Spawn>();
         CurrentRoom = LatestSpawn.GetRoom();
@@ -88,8 +89,7 @@ public class Player : MonoBehaviour
             {
                 if (Input.GetMouseButtonDown(0))
                 {
-                    bool processClick;
-                    InputMouseClick(out processClick);
+                    InputMouseClick(out bool processClick);
                     if (processClick)
                     {
                         if (CollisionPath.Collisions.Count == 1)
@@ -112,22 +112,15 @@ public class Player : MonoBehaviour
                                 if (PlayerManualPositionSize == 1)
                                 {//Only One Click
                                     position = this.transform.position;
-                                    direction = new Vector3(CollisionPath.Collisions[0].x,position.y,
-                                        CollisionPath.Collisions[0].z);
+                                    direction = CollisionPath.Collisions[0];
                                     distance = PlayerPathDistanceMax - PlayerPathDistance;
                                     partition = CurrentRoom.GetPartition(position);
                                     CollisionPath.ClearCollisions();
                                 }
                                 else
                                 {
-                                    position = CollisionPath.Collisions[CollisionPath.Collisions.Count - 1];
-                                    direction =
-                                        CollisionPath.Collisions[CollisionPath.Collisions.Count - 1] -
-                                        CollisionPath.Collisions[CollisionPath.Collisions.Count - 2];
-                                    direction = new Vector3(
-                                        CollisionPath.Collisions[CollisionPath.Collisions.Count - 1].x + direction.x,
-                                        CollisionPath.Collisions[CollisionPath.Collisions.Count - 1].y,
-                                        CollisionPath.Collisions[CollisionPath.Collisions.Count - 1].z + direction.z);
+                                    position = CollisionPath.Collisions[CollisionPath.Collisions.Count - 2];
+                                    direction = CollisionPath.Collisions[CollisionPath.Collisions.Count - 1];
                                     distance = PlayerPathDistanceMax - PlayerPathDistance;
                                     partition = CurrentRoom.GetPartition(CollisionPath.Collisions[CollisionPath.Collisions.Count - 1]);
                                 }
@@ -140,25 +133,12 @@ public class Player : MonoBehaviour
                                 GameManager.PlayerMovingState = true;
                                 PathPoints = new List<Vector3>(CollisionPath.Collisions); //needed for separate list
                                 CollisionPath.ClearCollisions();
-                                foreach(GameObject go in CrossHairs)
-                                {
-                                    GameObject.Destroy(go);
-                                }
-                                CrossHairs.Clear();
                                 if (PlayerFollowPathCoRoutine != null)
                                 {
                                     StopCoroutine(PlayerFollowPathCoRoutine);
                                 }
                                 PlayerFollowPathCoRoutine = StartCoroutine(PlayerFollowPath());
                             }
-                        } else
-                        {
-                            CrossHairs.Add(GameObject.Instantiate(Resources.Load("CrossHair")) as GameObject);
-                            CrossHairs[CrossHairs.Count - 1].transform.position =
-                                new Vector3(
-                                    CollisionPath.Collisions[CollisionPath.Collisions.Count - 1].x,
-                                    PlayerTransform.position.y,
-                                    CollisionPath.Collisions[CollisionPath.Collisions.Count - 1].z);
                         }
                     }
                 }
@@ -192,9 +172,31 @@ public class Player : MonoBehaviour
         {
             if (hit.transform.parent.GetComponent<Partition>())
             {
-                location = Room.TranslateToPlayerView(ray.GetPoint(hit.distance), CurrentRoom);
-                CollisionPath.AddCollision(location);
-                validClick = true;
+                location = Room.TranslateToPlayerView(ray.GetPoint(hit.distance), CurrentRoom, out bool wallHit);
+                if (wallHit)
+                {
+                    validClick = false;
+                }
+                else
+                {
+                    CollisionPath.AddCollision(location);
+                    validClick = true;
+
+                    if (CollisionPath.Collisions.Count == 1)
+                    {
+                        foreach(GameObject go in CrossHairs)
+                        {
+                            GameObject.Destroy(go);
+                        }
+                        CrossHairs.Clear();
+                    }
+                    CrossHairs.Add(GameObject.Instantiate(Resources.Load("CrossHair")) as GameObject);
+                    CrossHairs[CrossHairs.Count - 1].transform.position =
+                        new Vector3(
+                            CollisionPath.Collisions[CollisionPath.Collisions.Count - 1].x,
+                            PlayerTransform.position.y,
+                            CollisionPath.Collisions[CollisionPath.Collisions.Count - 1].z);
+                }
             } else
             {
                 validClick = false;
@@ -246,6 +248,10 @@ public class Player : MonoBehaviour
             //checks if player has passed nextPosition
             if(Mathf.Abs(Vector3.Distance(transform.position,prevPosition)) >= Mathf.Abs(Vector3.Distance(nextPosition, prevPosition))-0.1)
             {
+                if (CrossHairs.Count - 1 >= index)
+                {
+                    GameObject.Destroy(CrossHairs[index]);
+                }
                 transform.position = nextPosition;
                 prevPosition = nextPosition;
                 index++;
@@ -386,7 +392,7 @@ public class Player : MonoBehaviour
         }
         //orders list of positions by distance from player
         collisionPoints.Sort((v1, v2) => (v1 - originalPosition).sqrMagnitude.CompareTo((v2 - originalPosition).sqrMagnitude));
-
+        
         for (int l = 0; l < collisionPoints.Count; l++)
         {
             nonTranslatedPoint = collisionPoints[l];

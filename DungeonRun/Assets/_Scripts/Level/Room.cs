@@ -83,7 +83,7 @@ public class Room : MonoBehaviour
         }
         return Player.LatestSpawn.GetComponent<Spawn>().GetPartition();
     }
-    public static Vector3 TranslateToPlayerView(Vector3 v,Room r)
+    public static Vector3 TranslateToPlayerView(Vector3 v, Room r, out bool wallHit)
     {
         Ray ray;
         Vector3 origin;
@@ -171,6 +171,13 @@ public class Room : MonoBehaviour
             }
         }
         edgeIntersects.Sort((v1, v2) => (v1 - origin).sqrMagnitude.CompareTo((v2 - origin).sqrMagnitude));
+        if(edgeIntersects[0] == v)
+        {
+            wallHit = false;
+        } else
+        {
+            wallHit = true;
+        }
         return edgeIntersects[0];
     }
 }

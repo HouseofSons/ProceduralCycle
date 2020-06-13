@@ -35,6 +35,7 @@ public class GameManager : MonoBehaviour
     public static float SpeedMin            { get; set; }
     public static float SpeedMax            { get; set; }
     public static float EnergyDefault       { get; set; }
+    public static int ChoiceCount           { get; set; }
 
     public static GameManager Manager       { get; private set; }
     public static Player CurrentPlayer      { get; private set; }
@@ -57,11 +58,11 @@ public class GameManager : MonoBehaviour
         SpeedMin = speedInputMinimum;
         SpeedMax = speedInputMaximum;
         EnergyDefault = energyDefault;
+        ChoiceCount = positionChoiceCount;
 
         Manager = this;
         CurrentLevel = (Instantiate(Resources.Load(levelName)) as GameObject).GetComponent<Level>();
         CurrentPlayer = (Instantiate(Resources.Load(playerName)) as GameObject).GetComponent<Player>();
-        Player.PlayerManualPositionSize = positionChoiceCount;
         Camera = GameObject.Find("MainCamera").GetComponent<MainCamera>();
         Camera.transform.position = new Vector3(0, 20, 0);
         StageNumber = 0;
