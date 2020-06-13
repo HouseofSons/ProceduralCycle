@@ -14,6 +14,8 @@ public class Player : MonoBehaviour
     public static float PlayerPathDistance { get; set; }
     //Players experience points
     public static int TotalExperiencePoints { get; set; }
+    //Max number of chosen positions allowed
+    public static int PlayerManualPositionSize { get; set; }
 
     //Most recent spawn location of Player
     public static Spawn LatestSpawn { get; set; }
@@ -28,8 +30,8 @@ public class Player : MonoBehaviour
     public static bool DisablePlayerCollisions { get; private set; }
     //Wall points calculated by Players chosen path
     public static List<Vector3> PathPoints { get; private set; }
-    //Max number of chosen positions allowed
-    public static int PlayerManualPositionSize { get; private set; }
+    //CrossHairs List
+    public static List<GameObject> CrossHairs { get; private set; }
 
     //Coroutine of Player following Path
     public static Coroutine PlayerFollowPathCoRoutine { get; private set; }
@@ -50,7 +52,7 @@ public class Player : MonoBehaviour
         PlayerDestination = this.transform.position;
         DisablePlayerCollisions = false;
         PathPoints = new List<Vector3>();
-        PlayerManualPositionSize = 5;
+        CrossHairs = new List<GameObject>();
 
         PlayerFollowPathCoRoutine = null;
         MoveToSpawnCoRoutine = null;
@@ -107,23 +109,21 @@ public class Player : MonoBehaviour
                                 Vector3 position;
                                 float distance;
                                 Partition partition;
-                                if (CollisionPath.Collisions.Count == 1)
-                                {
-                                    CollisionPath.ClearCollisions();
+                                if (PlayerManualPositionSize == 1)
+                                {//Only One Click
                                     position = this.transform.position;
-                                    direction = new Vector3(
-                                        AimArrow.Arrow.transform.up.x + transform.position.x,
-                                        transform.position.y,
-                                        AimArrow.Arrow.transform.up.z + transform.position.z);
+                                    direction = new Vector3(CollisionPath.Collisions[0].x,position.y,
+                                        CollisionPath.Collisions[0].z);
                                     distance = PlayerPathDistanceMax - PlayerPathDistance;
-                                    partition = CurrentRoom.GetPartition(CollisionPath.Collisions[CollisionPath.Collisions.Count - 1]);
+                                    partition = CurrentRoom.GetPartition(position);
+                                    CollisionPath.ClearCollisions();
                                 }
                                 else
                                 {
                                     position = CollisionPath.Collisions[CollisionPath.Collisions.Count - 1];
-                                    direction = Vector3.Normalize(
+                                    direction =
                                         CollisionPath.Collisions[CollisionPath.Collisions.Count - 1] -
-                                        CollisionPath.Collisions[CollisionPath.Collisions.Count - 2]);
+                                        CollisionPath.Collisions[CollisionPath.Collisions.Count - 2];
                                     direction = new Vector3(
                                         CollisionPath.Collisions[CollisionPath.Collisions.Count - 1].x + direction.x,
                                         CollisionPath.Collisions[CollisionPath.Collisions.Count - 1].y,
@@ -137,16 +137,28 @@ public class Player : MonoBehaviour
                                     distance,
                                     partition,
                                     0);
-
                                 GameManager.PlayerMovingState = true;
                                 PathPoints = new List<Vector3>(CollisionPath.Collisions); //needed for separate list
                                 CollisionPath.ClearCollisions();
+                                foreach(GameObject go in CrossHairs)
+                                {
+                                    GameObject.Destroy(go);
+                                }
+                                CrossHairs.Clear();
                                 if (PlayerFollowPathCoRoutine != null)
                                 {
                                     StopCoroutine(PlayerFollowPathCoRoutine);
                                 }
                                 PlayerFollowPathCoRoutine = StartCoroutine(PlayerFollowPath());
                             }
+                        } else
+                        {
+                            CrossHairs.Add(GameObject.Instantiate(Resources.Load("CrossHair")) as GameObject);
+                            CrossHairs[CrossHairs.Count - 1].transform.position =
+                                new Vector3(
+                                    CollisionPath.Collisions[CollisionPath.Collisions.Count - 1].x,
+                                    PlayerTransform.position.y,
+                                    CollisionPath.Collisions[CollisionPath.Collisions.Count - 1].z);
                         }
                     }
                 }
@@ -174,12 +186,14 @@ public class Player : MonoBehaviour
     public void InputMouseClick(out bool validClick)
     {
         Ray ray = GameManager.Camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
+        Vector3 location;
 
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
             if (hit.transform.parent.GetComponent<Partition>())
             {
-                CollisionPath.Collisions.Add(Room.TranslateToPlayerView(ray.GetPoint(hit.distance), CurrentRoom));
+                location = Room.TranslateToPlayerView(ray.GetPoint(hit.distance), CurrentRoom);
+                CollisionPath.AddCollision(location);
                 validClick = true;
             } else
             {
@@ -377,7 +391,7 @@ public class Player : MonoBehaviour
         {
             nonTranslatedPoint = collisionPoints[l];
             translatedPoint = CollisionPath.TranslateCollision(collisionPoints[l], currentPartition);
-            CollisionPath.Collisions.Add(translatedPoint);
+            CollisionPath.AddCollision(translatedPoint);
             partDistance = remainingDistance - Mathf.Abs(Vector3.Distance(nonTranslatedPoint, originalPosition));//expensive
 
             if (partDistance > 0)
@@ -409,7 +423,7 @@ public class Player : MonoBehaviour
         }
         if (!CollisionPath.FinalDestinationFound)
         {
-            CollisionPath.Collisions.Add(CollisionPath.TranslateCollision(finalPosition, currentPartition));
+            CollisionPath.AddCollision(CollisionPath.TranslateCollision(finalPosition, currentPartition));
             CollisionPath.FinalDestinationFound = true;
         }
         if (iteration == 0)//end of recursive function
@@ -435,6 +449,10 @@ public class CollisionPath
     {
         Collisions.Clear();
         FinalDestinationFound = false;
+    }
+    public static void AddCollision(Vector3 v)
+    {
+        Collisions.Add(v);
     }
     //Translates Collision point inside a Partition
     public static Vector3 TranslateCollision(Vector3 collision, Partition p)

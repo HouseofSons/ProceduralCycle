@@ -17,6 +17,9 @@ public class GameManager : MonoBehaviour
     public float cameraSizeMinimum;
     //used to determine maximum Camera size
     public float cameraSizeMaximum;
+    //Max number of chosen positions allowed
+    [Range(1, 3)]
+    public int positionChoiceCount;
     //----Inspector Populated Fields END
 
     public static bool IsPaused             { get; set; }
@@ -58,6 +61,7 @@ public class GameManager : MonoBehaviour
         Manager = this;
         CurrentLevel = (Instantiate(Resources.Load(levelName)) as GameObject).GetComponent<Level>();
         CurrentPlayer = (Instantiate(Resources.Load(playerName)) as GameObject).GetComponent<Player>();
+        Player.PlayerManualPositionSize = positionChoiceCount;
         Camera = GameObject.Find("MainCamera").GetComponent<MainCamera>();
         Camera.transform.position = new Vector3(0, 20, 0);
         StageNumber = 0;
