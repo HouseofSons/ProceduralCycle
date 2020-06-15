@@ -81,7 +81,7 @@ public class Room : MonoBehaviour
                 }
             }
         }
-        return Player.LatestSpawn.GetComponent<Spawn>().GetPartition();
+        return null;
     }
     public static Vector3 TranslateToPlayerView(Vector3 v, Room r, out bool wallHit)
     {

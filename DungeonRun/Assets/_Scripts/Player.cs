@@ -167,7 +167,7 @@ public class Player : MonoBehaviour
     {
         Ray ray = GameManager.Camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
         Vector3 location;
-
+        //!!!!!!!!!!!!ADD LOGIC WHICH WHICH IGNORES PLAYER, ENEMIES AND ITEMS
         if (Physics.Raycast(ray, out RaycastHit hit))
         {
             if (hit.transform.parent.GetComponent<Partition>())

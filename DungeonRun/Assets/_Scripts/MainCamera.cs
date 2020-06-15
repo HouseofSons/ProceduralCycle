@@ -21,7 +21,17 @@ public class MainCamera : MonoBehaviour
     {
         Vector3 currPos = this.transform.position;
         Vector3 playerPos = GameManager.CurrentPlayer.transform.position;
-        Vector3 partPos = Player.CurrentRoom.GetPartition(Player.PlayerDestination).transform.position;
+        Vector3 partPos;
+
+        Partition p = Player.CurrentRoom.GetPartition(Player.PlayerDestination);
+        if(p != null)
+        {
+            partPos = p.transform.position;
+        } else
+        {
+            partPos = Player.LatestSpawn.GetComponent<Spawn>().GetPartition().transform.position;
+        }
+
         Vector3 toPos = new Vector3((playerPos.x + partPos.x)/2, currPos.y, (playerPos.z + partPos.z)/2);
 
         this.transform.position =
