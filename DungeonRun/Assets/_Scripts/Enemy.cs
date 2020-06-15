@@ -76,6 +76,10 @@ public class Enemy : MonoBehaviour
 
             while (Mathf.Abs(Vector3.Distance(e.transform.position, destination)) > 0.1f)
             {
+                while (GameManager.IsPaused)
+                { //for game pause
+                    yield return null;
+                }
                 e.transform.position = Vector3.MoveTowards(e.transform.position, destination, 0.01f);
                 yield return null;
             }

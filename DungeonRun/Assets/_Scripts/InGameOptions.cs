@@ -38,6 +38,7 @@ public class InGameOptions : MonoBehaviour {
 
 	public void RestartLevel()
 	{
-		SceneLoader.ReloadScene();
+		GameManager.GameStart();
+		HideOptionsMenu();
 	}
 }

@@ -61,11 +61,7 @@ public class GameManager : MonoBehaviour
         ChoiceCount = positionChoiceCount;
 
         Manager = this;
-        CurrentLevel = (Instantiate(Resources.Load(levelName)) as GameObject).GetComponent<Level>();
-        CurrentPlayer = (Instantiate(Resources.Load(playerName)) as GameObject).GetComponent<Player>();
-        Camera = GameObject.Find("MainCamera").GetComponent<MainCamera>();
-        Camera.transform.position = new Vector3(0, 20, 0);
-        StageNumber = 0;
+        GameStart();
     }
 
     void Update()
@@ -104,6 +100,23 @@ public class GameManager : MonoBehaviour
             MoveCamera = true;
             StageNumber = 1;
 		}
+    }
+    //Called at Start of Game. Used for Restarts
+    public static void GameStart()
+    {
+        if(CurrentLevel != null)
+        {
+            Destroy(CurrentLevel.gameObject);
+        }
+        if (CurrentPlayer != null)
+        {
+            Destroy(CurrentPlayer.gameObject);
+        }
+        CurrentLevel = (Instantiate(Resources.Load(Manager.levelName)) as GameObject).GetComponent<Level>();
+        CurrentPlayer = (Instantiate(Resources.Load(Manager.playerName)) as GameObject).GetComponent<Player>();
+        Camera = GameObject.Find("MainCamera").GetComponent<MainCamera>();
+        Camera.transform.position = new Vector3(0, 20, 0);
+        StageNumber = 0;
     }
 	//Shows Game Over Canvas
 	public static void GameOver() {
