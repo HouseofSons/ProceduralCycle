@@ -220,7 +220,7 @@ public class Player : MonoBehaviour
 
     public static void PositionSpriteDirection(bool left)
     {
-        PlayerTransform.GetChild(1).GetComponent<SpriteRenderer>().flipX = left;
+        PlayerTransform.GetChild(0).GetComponent<SpriteRenderer>().flipX = left;
     }
 
     public static float GetEnergy()

@@ -57,10 +57,26 @@ public class Enemy : MonoBehaviour
                         destination = new Vector3(position.x, position.y, position.z - distance);
                         break;
                 }
-                corners.Add(new Vector3(destination.x + e.GetComponent<SpriteRenderer>().bounds.extents.x, destination.y, destination.z + e.GetComponent<SpriteRenderer>().bounds.extents.z));
-                corners.Add(new Vector3(destination.x + e.GetComponent<SpriteRenderer>().bounds.extents.x, destination.y, destination.z - e.GetComponent<SpriteRenderer>().bounds.extents.z));
-                corners.Add(new Vector3(destination.x - e.GetComponent<SpriteRenderer>().bounds.extents.x, destination.y, destination.z + e.GetComponent<SpriteRenderer>().bounds.extents.z));
-                corners.Add(new Vector3(destination.x - e.GetComponent<SpriteRenderer>().bounds.extents.x, destination.y, destination.z - e.GetComponent<SpriteRenderer>().bounds.extents.z));
+                corners.Add(
+                    new Vector3(
+                        destination.x + e.transform.GetChild(0).GetComponent<SpriteRenderer>().bounds.extents.x,
+                        destination.y,
+                        destination.z + e.transform.GetChild(0).GetComponent<SpriteRenderer>().bounds.extents.z));
+                corners.Add(
+                    new Vector3(
+                        destination.x + e.transform.GetChild(0).GetComponent<SpriteRenderer>().bounds.extents.x,
+                        destination.y,
+                        destination.z - e.transform.GetChild(0).GetComponent<SpriteRenderer>().bounds.extents.z));
+                corners.Add(
+                    new Vector3(
+                        destination.x - e.transform.GetChild(0).GetComponent<SpriteRenderer>().bounds.extents.x,
+                        destination.y,
+                        destination.z + e.transform.GetChild(0).GetComponent<SpriteRenderer>().bounds.extents.z));
+                corners.Add(
+                    new Vector3(
+                        destination.x - e.transform.GetChild(0).GetComponent<SpriteRenderer>().bounds.extents.x,
+                        destination.y,
+                        destination.z - e.transform.GetChild(0).GetComponent<SpriteRenderer>().bounds.extents.z));
                 
                 testingDestination = false;
                 
@@ -94,6 +110,11 @@ public class Enemy : MonoBehaviour
 
     public static void PositionSpriteDirection(Enemy e, bool left)
     {
-        e.gameObject.GetComponent<SpriteRenderer>().flipX = left;
+        e.gameObject.transform.GetChild(0).GetComponent<SpriteRenderer>().flipX = left;
+    }
+
+    public static void Jitter(Enemy e)
+    {
+        //e.transform.GetChild()
     }
 }

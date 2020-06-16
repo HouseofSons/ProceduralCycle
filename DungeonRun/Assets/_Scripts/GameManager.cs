@@ -114,8 +114,9 @@ public class GameManager : MonoBehaviour
         }
         CurrentLevel = (Instantiate(Resources.Load(Manager.levelName)) as GameObject).GetComponent<Level>();
         CurrentPlayer = (Instantiate(Resources.Load(Manager.playerName)) as GameObject).GetComponent<Player>();
+        CurrentPlayer.transform.position = CurrentLevel.transform.Find("InitialSpawn").GetComponent<Spawn>().transform.position;
         Camera = GameObject.Find("MainCamera").GetComponent<MainCamera>();
-        Camera.transform.position = new Vector3(0, 20, 0);
+        Camera.transform.position = new Vector3(Camera.transform.position.x, 20, Camera.transform.position.z);
         StageNumber = 0;
     }
 	//Shows Game Over Canvas
