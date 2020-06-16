@@ -36,9 +36,18 @@ public class InGameOptions : MonoBehaviour {
 		OptionsButton.SetActive (false);
 	}
 
+	public void HideGameOverMenu()
+	{
+		Time.timeScale = 1;
+		GameManager.IsPaused = false;
+		GameOverMenu.SetActive(false);
+		OptionsButton.SetActive(true);
+	}
+
 	public void RestartLevel()
 	{
 		GameManager.GameStart();
 		HideOptionsMenu();
+		HideGameOverMenu();
 	}
 }

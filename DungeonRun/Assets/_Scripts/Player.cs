@@ -3,9 +3,15 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 
 public class Player : MonoBehaviour
 {
+    //Player Level
+    public static int Level { get; set; }
+    //Player Experience
+    public static int ExperiencePoints { get; set; }
+
     //used to determine speed of Player
     public static float Speed { get; set; }
     //Maximum path distance Player can travel
@@ -40,6 +46,9 @@ public class Player : MonoBehaviour
 
     void Awake ()
     {
+        Level = 0;
+        ExperiencePoints = 0;
+
         Speed = GameManager.SpeedMin;
         PlayerPathDistanceMax = GameManager.EnergyDefault;
 		PlayerPathDistance = 0;
@@ -162,7 +171,14 @@ public class Player : MonoBehaviour
             }
             if (col.gameObject.name.StartsWith("Enemy"))
             {
-                Enemy.KillEnemy(col.GetComponent<Enemy>());
+                if (col.GetComponent<Enemy>().DeathCoroutine == null)
+                {
+                    col.GetComponent<Enemy>().DeathCoroutine = StartCoroutine(col.GetComponent<Enemy>().Death());
+                }
+                if (col.GetComponent<Enemy>().GainExperienceCoroutine == null)
+                {
+                    col.GetComponent<Enemy>().GainExperienceCoroutine = StartCoroutine(col.GetComponent<Enemy>().GainExperience());
+                }
             }
         }
     }
@@ -245,9 +261,10 @@ public class Player : MonoBehaviour
 		PlayerPathDistanceMax = distanceMax;
 		PlayerPathDistance = 0;
 		UI.UpdateEnergyText(Mathf.FloorToInt(GetEnergy()));
-	}
-	//Moves Player across Level
-	private IEnumerator PlayerFollowPath()
+    }
+
+    //Moves Player across Level
+    private IEnumerator PlayerFollowPath()
     {
         int index = 0;
         Vector3 prevPosition = transform.position;

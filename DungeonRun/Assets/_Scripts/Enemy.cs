@@ -1,15 +1,27 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class Enemy : MonoBehaviour
 {
-    //Coroutine of Player following Path
+    public int Level { get; set; }
+    public int Experience { get; set; }
+
+    //Coroutine of Enemy following Path
     public Coroutine MoveCoroutine { get; private set; }
+    //Coroutine of Enemy Death
+    public Coroutine DeathCoroutine { get; set; }
+    //Coroutine of Player gaining experience
+    public Coroutine GainExperienceCoroutine { get; set; }
 
     void Awake()
     {
+        Level = 0;
+        Experience = Mathf.FloorToInt((Random.value + 0.1f) * 100);
         MoveCoroutine = null;
+        DeathCoroutine = null;
+        GainExperienceCoroutine = null;
     }
 
     // Update is called once per frame
@@ -103,18 +115,62 @@ public class Enemy : MonoBehaviour
         } while (1 == 1);
     }
 
-    public static void KillEnemy(Enemy e)
-    {
-        GameObject.Destroy(e.gameObject);
-    }
-
     public static void PositionSpriteDirection(Enemy e, bool left)
     {
         e.gameObject.transform.GetChild(0).GetComponent<SpriteRenderer>().flipX = left;
     }
 
-    public static void Jitter(Enemy e)
+    public IEnumerator Death()
     {
-        //e.transform.GetChild()
+        SpriteRenderer mySprite = this.transform.GetChild(0).GetComponent<SpriteRenderer>();
+        Color oldColor = mySprite.color;
+        Color strobeColor = new Color(0, 0, 0, 0);
+        int count = 0;
+
+        if (MoveCoroutine != null)
+        {
+            StopCoroutine(MoveCoroutine);
+        }
+
+        while (count<8)
+        {
+            if (count % 2 == 0)
+            {
+                mySprite.color = strobeColor;
+            }
+            else
+            {
+                mySprite.color = oldColor;
+            }
+
+            yield return new WaitForSeconds(0.03f);
+            count++;
+        }
+        GameObject.Destroy(this.gameObject);
+    }
+
+    public IEnumerator GainExperience()
+    {
+        Player.UpdateExperiencePoints(Experience);
+
+        GameObject popUp = Instantiate(Resources.Load("TextPopUp")) as GameObject;
+        Vector3 position = new Vector3(this.transform.position.x + 1, 5, this.transform.position.z + 1);
+        popUp.transform.position = position;
+        popUp.GetComponent<TextMeshPro>().text = "+" + Experience.ToString();
+        popUp.GetComponent<TextMeshPro>().fontSize += Mathf.Clamp((7 * Experience / 100), 0, 7);
+        float count = -2.0f;
+
+        while (count <= 2)
+        {
+            yield return null;
+            popUp.transform.position = new Vector3(position.x, position.y, position.z - Mathf.Pow(count, 2) + 4);
+            count += 0.1f;
+        }
+        while (count <= 6)
+        {
+            count += 0.1f;
+            yield return null;
+        }
+        Destroy(popUp);
     }
 }
