@@ -167,8 +167,12 @@ public class Player : MonoBehaviour
     {
         Ray ray = GameManager.Camera.GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
         Vector3 location;
-        //!!!!!!!!!!!!ADD LOGIC WHICH WHICH IGNORES PLAYER, ENEMIES AND ITEMS
-        if (Physics.Raycast(ray, out RaycastHit hit))
+        LayerMask layer = ~((1 << LayerMask.NameToLayer("Door")) |
+            (1 << LayerMask.NameToLayer("Player")) |
+            (1 << LayerMask.NameToLayer("Enemy")));
+
+
+        if (Physics.Raycast(ray, out RaycastHit hit,100,layer))
         {
             if (hit.transform.parent.GetComponent<Partition>())
             {
@@ -206,6 +210,11 @@ public class Player : MonoBehaviour
         {
             validClick = false;
         }
+    }
+
+    public static void PositionSpriteDirection(bool left)
+    {
+        PlayerTransform.GetChild(1).GetComponent<SpriteRenderer>().flipX = left;
     }
 
     public static float GetEnergy()
@@ -271,7 +280,15 @@ public class Player : MonoBehaviour
                 PlayerPathDistance += Mathf.Abs(Vector3.Distance(transform.position, lastOccupiedPosition));
                 lastOccupiedPosition = transform.position;
                 UI.UpdateEnergyText(Mathf.FloorToInt(GetEnergy()));
-                this.transform.LookAt(nextPosition);
+                //used for Sprite
+                if (nextPosition.x > this.transform.position.x)
+                {
+                    PositionSpriteDirection(false);
+                }
+                else
+                {
+                    PositionSpriteDirection(true);
+                }
             }
             yield return null;
 		}
