@@ -151,8 +151,6 @@ public class Enemy : MonoBehaviour
 
     public IEnumerator GainExperience()
     {
-        Player.UpdateExperiencePoints(Experience);
-
         GameObject popUp = Instantiate(Resources.Load("TextPopUp")) as GameObject;
         Vector3 position = new Vector3(this.transform.position.x + 1, 5, this.transform.position.z + 1);
         popUp.transform.position = position;
@@ -169,6 +167,11 @@ public class Enemy : MonoBehaviour
         while (count <= 6)
         {
             count += 0.1f;
+            yield return null;
+        }
+        while (Mathf.Abs(Vector3.Distance(popUp.transform.position, UI.ExperienceTextWorldPos)) > 1)
+        {
+            popUp.transform.position = Vector3.Lerp(popUp.transform.position, UI.ExperienceTextWorldPos, 0.05f);
             yield return null;
         }
         Destroy(popUp);

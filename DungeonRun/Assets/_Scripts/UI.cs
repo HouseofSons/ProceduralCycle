@@ -4,6 +4,7 @@ using UnityEngine.UI;
 public class UI : MonoBehaviour {
 
 	private static GameObject experienceText;
+	public static Vector3 ExperienceTextWorldPos { get; private set; }
 	private static GameObject levelText;
 	private static GameObject energyText;
 
@@ -11,10 +12,16 @@ public class UI : MonoBehaviour {
 	void Start ()
 	{
 		energyText = GameObject.Find ("EnergyValue");
+		ExperienceTextWorldPos = Vector3.zero;
 		experienceText = GameObject.Find ("ExperienceValue");
 		levelText = GameObject.Find ("LevelValue");
 	}
-	
+
+	void Update()
+	{
+		ExperienceTextWorldPos = GameManager.Camera.GetComponent<Camera>().ScreenToWorldPoint(experienceText.transform.position);
+	}
+
 	public static void InitializeUIWithPlayerInfo()
 	{
 		energyText.GetComponent<Text> ().text = Player.GetEnergy().ToString();

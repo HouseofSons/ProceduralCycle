@@ -14,7 +14,7 @@ public class InGameOptions : MonoBehaviour {
 		OptionsMenu.SetActive (false);
 		GameOverMenu.SetActive (false);
 	}
-	
+
 	public void ShowOptionsMenu() {
 		Time.timeScale = 0;
 		GameManager.IsPaused = true;

@@ -177,6 +177,7 @@ public class Player : MonoBehaviour
                 }
                 if (col.GetComponent<Enemy>().GainExperienceCoroutine == null)
                 {
+                    UpdateExperiencePoints(col.GetComponent<Enemy>().Experience);
                     col.GetComponent<Enemy>().GainExperienceCoroutine = StartCoroutine(col.GetComponent<Enemy>().GainExperience());
                 }
             }
