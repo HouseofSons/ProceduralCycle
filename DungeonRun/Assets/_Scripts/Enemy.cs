@@ -132,7 +132,7 @@ public class Enemy : MonoBehaviour
             StopCoroutine(MoveCoroutine);
         }
 
-        while (count<8)
+        while (count < 8)
         {
             if (count % 2 == 0)
             {
