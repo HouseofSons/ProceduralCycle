@@ -41,6 +41,16 @@ public class Partition : MonoBehaviour
         Vertices.Add(new Vector3(Eedge, 0, Sedge));
         Vertices.Add(new Vector3(Wedge, 0, Sedge));
     }
+    void Start()
+    {
+        Vector3 position = this.transform.position;
+        GameObject go =
+            FloorTiler.CreateFloor(Width,Depth,"Dungeon");
+        go.transform.position =
+            new Vector3(position.x - Mathf.FloorToInt(Width / 2.0f),
+                position.y + 0.5f,
+                position.z - Mathf.FloorToInt(Depth / 2.0f));
+    }
     //Method used by Player Script to determine if a player's path edge collision is a connection to a new Partition
     public bool GetConnection(Vector3 position, out Partition enterPartition)
     {
