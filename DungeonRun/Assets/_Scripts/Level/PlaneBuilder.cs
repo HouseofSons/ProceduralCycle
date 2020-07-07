@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FloorTiler
+public class MapTiler
 {
     public static GameObject CreateFloor(float planeWidth, float planeHeight, string theme)
     {

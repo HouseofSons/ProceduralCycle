@@ -6,7 +6,7 @@ public class SpriteTiles
 {
     public static Vector2[] RandomTileUVs(string theme)
     {
-        if (theme == "Dungeon")
+        if (theme == "DungeonFloor")
         {   //256 pixel sprite 16x16 cells
             int rand = Random.Range(0, 100);
 

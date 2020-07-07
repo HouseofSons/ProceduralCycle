@@ -44,11 +44,11 @@ public class Partition : MonoBehaviour
     void Start()
     {
         Vector3 position = this.transform.position;
-        GameObject go =
-            FloorTiler.CreateFloor(Width,Depth,"Dungeon");
-        go.transform.position =
+        GameObject floor =
+            MapTiler.CreateFloor(Width,Depth,"DungeonFloor");
+        floor.transform.position =
             new Vector3(position.x - Mathf.FloorToInt(Width / 2.0f),
-                position.y + 0.5f,
+                position.y + 0.1f,
                 position.z - Mathf.FloorToInt(Depth / 2.0f));
     }
     //Method used by Player Script to determine if a player's path edge collision is a connection to a new Partition
