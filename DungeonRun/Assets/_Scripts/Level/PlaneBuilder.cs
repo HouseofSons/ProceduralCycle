@@ -11,45 +11,52 @@ public class MapTiler
         int width = Mathf.FloorToInt(planeWidth / 2);
         int height = Mathf.FloorToInt(planeHeight / 2);
 
-        GameObject floor = new GameObject();
+        GameObject go = new GameObject("Floor");
+        MeshFilter mf = go.AddComponent<MeshFilter>();
+        go.AddComponent<MeshRenderer>();
+        go.GetComponent<MeshRenderer>().material =
+            GameObject.Instantiate(Resources.Load("FloorSpriteSheetMaterial")) as Material;
+        go.GetComponent<MeshRenderer>().material.SetFloat("_Glossiness", 0.0f);
+
+        Mesh m = new Mesh();
+
+        List<Vector3> verts = new List<Vector3>();
 
         for (int i = 0; i < width; i++)
         {
             for (int j = 0; j < height; j++)
             {
-                GameObject go = CreateTile(theme);
-                go.transform.parent = floor.transform;
-                go.transform.localPosition = new Vector3(i * 2, 0, j * 2);
-                go.GetComponent<MeshRenderer>().material = GameObject.Instantiate(Resources.Load("FloorSpriteSheetMaterial")) as Material;
-                go.GetComponent<MeshRenderer>().material.SetFloat("_Glossiness", 0.0f);
+                verts.Add(new Vector3(2 * i,        0, 2 * j        ));
+                verts.Add(new Vector3(2 * i,        0, 2 * (j + 1)  ));
+                verts.Add(new Vector3(2 * (i + 1),  0, 2 * (j + 1)  ));
+                verts.Add(new Vector3(2 * (i + 1),  0, 2 * j        ));
             }
         }
-        return floor;
-    }
 
-    public static GameObject CreateTile(string theme)
-    {
-        GameObject go = new GameObject("FloorTile");
-        MeshFilter mf = go.AddComponent<MeshFilter>();
-        go.AddComponent<MeshRenderer>();
-        Mesh m = new Mesh();
+        m.vertices = verts.ToArray();
 
-        Vector3[] verts = new Vector3[4]
+        List<int> tris = new List<int>();
+
+        for (int i = 0; i < (width * height); i++)
         {
-            new Vector3(0,0,0),
-            new Vector3(0,0,2),
-            new Vector3(2,0,2),
-            new Vector3(2,0,0)
-        };
+            tris.Add(0 + (4 * i));
+            tris.Add(1 + (4 * i));
+            tris.Add(3 + (4 * i));
+            tris.Add(1 + (4 * i));
+            tris.Add(2 + (4 * i));
+            tris.Add(3 + (4 * i));
+        }
 
-        m.vertices = verts;
+        m.triangles = tris.ToArray();
 
-        int[] tris = new int[6] {0,1,3,1,2,3};
+        List<Vector2> uvs = new List<Vector2>();
 
-        m.triangles = tris;
+        for (int i = 0; i < (width * height); i++)
+        {
+            uvs.AddRange(SpriteTiles.RandomTileUVs(theme));
+        }
 
-        Vector2[] uvs = SpriteTiles.RandomTileUVs(theme);
-        m.uv = uvs;
+        m.uv = uvs.ToArray();
 
         mf.mesh = m;    
         mf.mesh.RecalculateBounds();

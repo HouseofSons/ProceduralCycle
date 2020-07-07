@@ -4,43 +4,40 @@ using UnityEngine;
 
 public class SpriteTiles
 {
-    public static Vector2[] RandomTileUVs(string theme)
+    public static List<Vector2> RandomTileUVs(string theme)
     {
+        List<Vector2> uvs = new List<Vector2>();
+
         if (theme == "DungeonFloor")
         {   //256 pixel sprite 16x16 cells
             int rand = Random.Range(0, 100);
 
-            if (rand <= 96)
-            {
-                rand = 0;
-            } else if (rand <= 97)
-            {
-                rand = 1;
-            } else if (rand <= 98)
-            {
-                rand = 2;
-            } else
-            {
-                rand = 3;
-            }
+            if (rand < 20)                      { rand = 1; }
+            else if (rand < 40)                 { rand = 2; }
+            else if (rand < 60)                 { rand = 3; }
+            else if (rand < 80)                 { rand = 4; }
+            else if (rand < 82)                 { rand = 5; }
+            else if (rand < 84)                 { rand = 6; }
+            else if (rand < 86)                 { rand = 7; }
+            else if (rand < 88)                 { rand = 8; }
+            else if (rand < 90)                 { rand = 9; }
+            else if (rand < 92)                 { rand = 10; }
+            else if (rand < 94)                 { rand = 11; }
+            else if (rand < 96)                 { rand = 12; }
+            else                                { rand = 0; }
 
-            return new Vector2[]
-            {
-                new Vector2(rand/16.0f,15/16.0f),
-                new Vector2(rand/16.0f,16/16.0f),
-                new Vector2((rand+1)/16.0f,16/16.0f),
-                new Vector2((rand+1)/16.0f,15/16.0f)
-            };
+            uvs.Add(new Vector2(rand / 16.0f, 15 / 16.0f));
+            uvs.Add(new Vector2(rand / 16.0f, 16 / 16.0f));
+            uvs.Add(new Vector2((rand + 1) / 16.0f, 16 / 16.0f));
+            uvs.Add(new Vector2((rand + 1) / 16.0f, 15 / 16.0f));
         }
         else
         {
-            return new Vector2[]
-            {
-                new Vector2(0,0),
-                new Vector2(0,1),
-                new Vector2(1,1),
-                new Vector2(1,0)
-            };
+            uvs.Add(new Vector2(0, 0));
+            uvs.Add(new Vector2(0, 1));
+            uvs.Add(new Vector2(1, 1));
+            uvs.Add(new Vector2(1, 0));
         }
+        return uvs;
     }
 }
