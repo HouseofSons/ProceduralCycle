@@ -50,6 +50,7 @@ public class Partition : MonoBehaviour
             new Vector3(position.x - Mathf.FloorToInt(Width / 2.0f),
                 position.y + 0.1f,
                 position.z - Mathf.FloorToInt(Depth / 2.0f));
+        floor.transform.parent = this.transform;
     }
     //Method used by Player Script to determine if a player's path edge collision is a connection to a new Partition
     public bool GetConnection(Vector3 position, out Partition enterPartition)

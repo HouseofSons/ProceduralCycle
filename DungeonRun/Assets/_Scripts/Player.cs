@@ -204,7 +204,7 @@ public class Player : MonoBehaviour
                 }
                 else
                 {
-                    CollisionPath.AddCollision(location);
+                    CollisionPath.AddCollision(new Vector3(location.x, this.transform.position.y, location.z));
                     validClick = true;
 
                     if (PlayerManualPositionSize > 1) {
