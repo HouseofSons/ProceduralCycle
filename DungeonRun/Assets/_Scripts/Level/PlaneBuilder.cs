@@ -4,7 +4,23 @@ using UnityEngine;
 
 public class MapTiler
 {
-    public static GameObject CreateFloor(float planeWidth, float planeHeight, string theme)
+    public static void CreateWallMesh(Room r)
+    {
+        int n = 0;
+        int s = 0;
+        int e = 0;
+        int w = 0;
+
+        foreach(Partition p in r.Partitions)
+        {
+            if (p.Nedge > n) { n = p.Nedge; }
+            if (p.Nedge > s) { s = p.Sedge; }
+            if (p.Nedge > e) { e = p.Eedge; }
+            if (p.Nedge > w) { w = p.Wedge; }
+        }
+    }
+
+    public static GameObject CreateFloorMesh(float planeWidth, float planeHeight, string theme)
     {
         //width and height reflect X and Z of Plane Template
         //Tiles should be 2 x 2 so we divide by 2

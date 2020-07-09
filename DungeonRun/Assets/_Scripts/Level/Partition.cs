@@ -45,7 +45,7 @@ public class Partition : MonoBehaviour
     {
         Vector3 position = this.transform.position;
         GameObject floor =
-            MapTiler.CreateFloor(Width,Depth,"DungeonFloor");
+            MapTiler.CreateFloorMesh(Width,Depth,"DungeonFloor");
         floor.transform.position =
             new Vector3(position.x - Mathf.FloorToInt(Width / 2.0f),
                 position.y + 0.1f,
