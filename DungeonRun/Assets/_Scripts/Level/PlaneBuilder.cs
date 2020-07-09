@@ -10,6 +10,9 @@ public class MapTiler
         int s = 0;
         int e = 0;
         int w = 0;
+        int x, y;
+
+        Vector2Int gridOrigin;
 
         foreach(Partition p in r.Partitions)
         {
@@ -18,6 +21,14 @@ public class MapTiler
             if (p.Nedge > e) { e = p.Eedge; }
             if (p.Nedge > w) { w = p.Wedge; }
         }
+
+        x = ((e - w) / 2) + 2;
+        y = ((n - s) / 2) + 2;
+
+        gridOrigin = new Vector2Int(e-1, s-1);
+        int[,] grid = new int[x,y];
+
+
     }
 
     public static GameObject CreateFloorMesh(float planeWidth, float planeHeight, string theme)
