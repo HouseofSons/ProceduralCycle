@@ -14,21 +14,43 @@ public class MapTiler
 
         Vector2Int gridOrigin;
 
-        foreach(Partition p in r.Partitions)
+        foreach (Partition p in r.Partitions)
         {
             if (p.Nedge > n) { n = p.Nedge; }
-            if (p.Nedge > s) { s = p.Sedge; }
-            if (p.Nedge > e) { e = p.Eedge; }
-            if (p.Nedge > w) { w = p.Wedge; }
+            if (p.Sedge > s) { s = p.Sedge; }
+            if (p.Eedge > e) { e = p.Eedge; }
+            if (p.Wedge > w) { w = p.Wedge; }
         }
 
         x = ((e - w) / 2) + 2;
         y = ((n - s) / 2) + 2;
 
-        gridOrigin = new Vector2Int(e-1, s-1);
-        int[,] grid = new int[x,y];
+        gridOrigin = new Vector2Int(e, s);
+        int[,] grid = new int[x, y];
 
+        foreach (Partition p in r.Partitions)
+        {
+            for (int i = p.Eedge; i < p.Wedge; i++)
+            {
+                for (int j = p.Sedge; j < p.Nedge; j++)
+                {
+                    grid[i - e + 2, j - s + 2] = 1;
+                }
+            }
+        }
 
+        for (int i = 0; i < x; i++)
+        {
+            for (int j = 0; j < y; j++)
+            {
+                Cell c = new Cell(i, j);1
+                if (grid[i, j + 1])
+                {
+
+                }
+                c.FloorNeighbors
+            }
+        }
     }
 
     public static GameObject CreateFloorMesh(float planeWidth, float planeHeight, string theme)
@@ -90,5 +112,18 @@ public class MapTiler
         mf.mesh.RecalculateNormals();
 
         return go;
+    }
+}
+
+//Class which holds all needed Connection information
+public class Cell
+{
+    public Vector2Int Location { get; private set; }
+    public int[] FloorNeighbors { get; set; }
+
+    public Cell(int x, int y)
+    {
+        Location = new Vector2Int(x, y);
+        FloorNeighbors = new int[4];
     }
 }
