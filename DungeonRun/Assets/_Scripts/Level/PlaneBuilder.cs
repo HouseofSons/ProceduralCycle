@@ -12,8 +12,6 @@ public class MapTiler
         int w = 0;
         int x, y;
 
-        Vector2Int gridOrigin;
-
         foreach (Partition p in r.Partitions)
         {
             if (p.Nedge > n) { n = p.Nedge; }
@@ -25,8 +23,7 @@ public class MapTiler
         x = ((e - w) / 2) + 2;
         y = ((n - s) / 2) + 2;
 
-        gridOrigin = new Vector2Int(e, s);
-        int[,] grid = new int[x, y];
+        Cell[,] grid = new Cell[x, y];
 
         foreach (Partition p in r.Partitions)
         {
@@ -34,21 +31,36 @@ public class MapTiler
             {
                 for (int j = p.Sedge; j < p.Nedge; j++)
                 {
-                    grid[i - e + 2, j - s + 2] = 1;
+                    grid[i - e + 2, j - s + 2] = new Cell(i, j, 1);
                 }
             }
         }
 
-        for (int i = 0; i < x; i++)
-        {
-            for (int j = 0; j < y; j++)
-            {
-                Cell c = new Cell(i, j);1
-                if (grid[i, j + 1])
-                {
+        bool edge = false;
 
+        for (int i = 1; i < x - 1; i++)
+        {
+            for (int j = 1; j < y - 1; j++)
+            {
+                if (grid[i, j].Type != 1)
+                {
+                    Cell c = new Cell(i, j, 2);
+
+                    if (grid[i - 1, j - 1].Type == 1) { c.SW = true; edge = true; }
+                    if (grid[    i, j - 1].Type == 1) { c.S  = true; edge = true; }
+                    if (grid[i + 1, j - 1].Type == 1) { c.SE = true; edge = true; }
+                    if (grid[i - 1, j    ].Type == 1) { c.W  = true; edge = true; }
+                    if (grid[i + 1, j    ].Type == 1) { c.E  = true; edge = true; }
+                    if (grid[i - 1, j + 1].Type == 1) { c.NW = true; edge = true; }
+                    if (grid[    i, j + 1].Type == 1) { c.N  = true; edge = true; }
+                    if (grid[i + 1, j + 1].Type == 1) { c.NE = true; edge = true; }
+
+                    if(edge)
+                    {
+                        edge = false;
+                        grid[i, j] = c;
+                    }
                 }
-                c.FloorNeighbors
             }
         }
     }
@@ -81,7 +93,7 @@ public class MapTiler
                 verts.Add(new Vector3(2 * (i + 1),  0, 2 * j        ));
             }
         }
-
+        
         m.vertices = verts.ToArray();
 
         List<int> tris = new List<int>();
@@ -119,11 +131,20 @@ public class MapTiler
 public class Cell
 {
     public Vector2Int Location { get; private set; }
-    public int[] FloorNeighbors { get; set; }
+    public bool SW { get; set; }
+    public bool S { get; set; }
+    public bool SE { get; set; }
+    public bool W { get; set; }
+    public bool E { get; set; }
+    public bool NW { get; set; }
+    public bool N { get; set; }
+    public bool NE { get; set; }
 
-    public Cell(int x, int y)
+    public int Type { get; private set; }
+
+    public Cell(int x, int y, int type)
     {
         Location = new Vector2Int(x, y);
-        FloorNeighbors = new int[4];
+        Type = type;
     }
 }
