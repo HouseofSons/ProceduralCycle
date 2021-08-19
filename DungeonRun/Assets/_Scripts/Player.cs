@@ -207,7 +207,8 @@ public class Player : MonoBehaviour
                     CollisionPath.AddCollision(new Vector3(location.x, this.transform.position.y, location.z));
                     validClick = true;
 
-                    if (PlayerManualPositionSize > 1) {
+                    if (PlayerManualPositionSize > 1)
+                    {
                         if (CollisionPath.Collisions.Count == 1)
                         {
                             foreach (GameObject go in CrossHairs)

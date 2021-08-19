@@ -30,8 +30,7 @@ public class Room : MonoBehaviour
             {
                 if (Partitions[i].Nedge == Partitions[j].Sedge || Partitions[i].Sedge == Partitions[j].Nedge)
                 {
-                    if ((Partitions[i].Wedge >= Partitions[j].Wedge && Partitions[i].Wedge <= Partitions[j].Eedge) ||
-                        (Partitions[i].Eedge >= Partitions[j].Wedge && Partitions[i].Eedge <= Partitions[j].Eedge))
+                    if (Partitions[i].Wedge < Partitions[j].Eedge && Partitions[i].Eedge > Partitions[j].Wedge)
                     {
                         Partitions[i].Connections.Add(new Connection(
                             Partitions[j],
@@ -49,8 +48,7 @@ public class Room : MonoBehaviour
                 }
                 if (Partitions[i].Wedge == Partitions[j].Eedge || Partitions[i].Eedge == Partitions[j].Wedge)
                 {
-                    if ((Partitions[i].Sedge >= Partitions[j].Sedge && Partitions[i].Sedge <= Partitions[j].Nedge) ||
-                        (Partitions[i].Nedge >= Partitions[j].Sedge && Partitions[i].Nedge <= Partitions[j].Nedge))
+                    if (Partitions[i].Sedge < Partitions[j].Nedge && Partitions[i].Nedge > Partitions[j].Sedge)
                     {
                         Partitions[i].Connections.Add(new Connection(
                             Partitions[j],

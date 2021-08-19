@@ -47,15 +47,15 @@ public class MapTiler
                     Cell c = new Cell(i, j, 2);
 
                     if (grid[i - 1, j - 1].Type == 1) { c.SW = true; edge = true; }
-                    if (grid[    i, j - 1].Type == 1) { c.S  = true; edge = true; }
+                    if (grid[i, j - 1].Type == 1) { c.S = true; edge = true; }
                     if (grid[i + 1, j - 1].Type == 1) { c.SE = true; edge = true; }
-                    if (grid[i - 1, j    ].Type == 1) { c.W  = true; edge = true; }
-                    if (grid[i + 1, j    ].Type == 1) { c.E  = true; edge = true; }
+                    if (grid[i - 1, j].Type == 1) { c.W = true; edge = true; }
+                    if (grid[i + 1, j].Type == 1) { c.E = true; edge = true; }
                     if (grid[i - 1, j + 1].Type == 1) { c.NW = true; edge = true; }
-                    if (grid[    i, j + 1].Type == 1) { c.N  = true; edge = true; }
+                    if (grid[i, j + 1].Type == 1) { c.N = true; edge = true; }
                     if (grid[i + 1, j + 1].Type == 1) { c.NE = true; edge = true; }
 
-                    if(edge)
+                    if (edge)
                     {
                         edge = false;
                         grid[i, j] = c;
@@ -87,13 +87,13 @@ public class MapTiler
         {
             for (int j = 0; j < height; j++)
             {
-                verts.Add(new Vector3(2 * i,        0, 2 * j        ));
-                verts.Add(new Vector3(2 * i,        0, 2 * (j + 1)  ));
-                verts.Add(new Vector3(2 * (i + 1),  0, 2 * (j + 1)  ));
-                verts.Add(new Vector3(2 * (i + 1),  0, 2 * j        ));
+                verts.Add(new Vector3(2 * i, 0, 2 * j));
+                verts.Add(new Vector3(2 * i, 0, 2 * (j + 1)));
+                verts.Add(new Vector3(2 * (i + 1), 0, 2 * (j + 1)));
+                verts.Add(new Vector3(2 * (i + 1), 0, 2 * j));
             }
         }
-        
+
         m.vertices = verts.ToArray();
 
         List<int> tris = new List<int>();
@@ -119,7 +119,7 @@ public class MapTiler
 
         m.uv = uvs.ToArray();
 
-        mf.mesh = m;    
+        mf.mesh = m;
         mf.mesh.RecalculateBounds();
         mf.mesh.RecalculateNormals();
 
