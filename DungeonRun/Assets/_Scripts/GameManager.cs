@@ -20,6 +20,12 @@ public class GameManager : MonoBehaviour
     //Max number of chosen positions allowed
     [Range(1, 3)]
     public int positionChoiceCount;
+    //Number of Rooms in Level
+    [Range(2, 64)]
+    public int roomCount;
+    //Number of Cycles in Level
+    [Range(0, 16)]
+    public int cycleCount;
     //----Inspector Populated Fields END
 
     public static bool IsPaused             { get; set; }
