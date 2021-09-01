@@ -21,11 +21,14 @@ public class GameManager : MonoBehaviour
     [Range(1, 3)]
     public int positionChoiceCount;
     //Number of Rooms in Level
-    [Range(2, 64)]
+    [Range(2, 16)]
     public int roomCount;
     //Number of Cycles in Level
     [Range(0, 16)]
     public int cycleCount;
+    //Resolution Size
+    [Range(1, 10)]
+    public int resolution;
     //----Inspector Populated Fields END
 
     public static bool IsPaused             { get; set; }
@@ -41,7 +44,11 @@ public class GameManager : MonoBehaviour
     public static float SpeedMin            { get; set; }
     public static float SpeedMax            { get; set; }
     public static float EnergyDefault       { get; set; }
+
     public static int ChoiceCount           { get; set; }
+    public static int RoomCount             { get; set; }
+    public static int CycleCount            { get; set; }
+    public static float Resolution          { get; set; }
 
     public static GameManager Manager       { get; private set; }
     public static Player CurrentPlayer      { get; private set; }
@@ -65,8 +72,12 @@ public class GameManager : MonoBehaviour
         SpeedMax = speedInputMaximum;
         EnergyDefault = energyDefault;
         ChoiceCount = positionChoiceCount;
+        RoomCount = roomCount;
+        CycleCount = cycleCount;
+        Resolution = resolution/10.0f;
 
         Manager = this;
+        //Level.CreateRooms(Level.CreateRoomLocations()); <--bugs
         GameStart();
     }
 

@@ -8,6 +8,7 @@ using UnityEngine;
 public class Room : MonoBehaviour
 {
     public List<Partition> Partitions { get; private set; }
+    public Vector3Int Location { get; set; }
 
     void Start()
     {
@@ -67,6 +68,7 @@ public class Room : MonoBehaviour
             }
         }
     }
+
     public Partition GetPartition(Vector3 v)
     {
         foreach (Partition p in Partitions)
@@ -81,6 +83,7 @@ public class Room : MonoBehaviour
         }
         return null;
     }
+
     public static Vector3 TranslateToPlayerView(Vector3 v, Room r, out bool wallHit)
     {
         Ray ray;

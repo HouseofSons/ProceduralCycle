@@ -29,6 +29,7 @@ public class Partition : MonoBehaviour
             Mathf.RoundToInt(this.transform.GetChild(0).position.z));
         Width = Mathf.RoundToInt(this.transform.GetChild(0).lossyScale.x * 10);
         Depth = Mathf.RoundToInt(this.transform.GetChild(0).lossyScale.z * 10);
+
         Vertices = new List<Vector3>();
 
         Nedge = Mathf.RoundToInt(Origin.z + (Depth / 2));
@@ -45,7 +46,7 @@ public class Partition : MonoBehaviour
     {
         Vector3 position = this.transform.position;
         GameObject floor =
-            MapTiler.CreateFloorMesh(Width,Depth,"DungeonFloor");
+            MapTiler.CreateFloorMesh(Width, Depth, "DungeonFloor");
         floor.transform.position =
             new Vector3(position.x - Mathf.FloorToInt(Width / 2.0f),
                 position.y + 0.1f,
